@@ -126,9 +126,9 @@
 
         // 문항별 성적 분석 데이터
         const questionAnalysis = [
-            { number: 1, id: '36D97FEFA230742B888F81A3D78486D95', author: '한정희', score: 1.5, correct: true, errorType: '-' },
-            { number: 2, id: '36D97FEFA230742B888F81A3D78486D95', author: '한정희', score: 1.5, correct: false, errorType: '복수 정답 혼동' },
-            { number: 3, id: '36D97FEFA230742B888F81A3D78486D95', author: '한정희', score: 1.5, correct: true, errorType: '-' }
+            { number: 1, author: '한정희', score: 1.5, correct: true, errorType: '-' },
+            { number: 2, author: '한정희', score: 1.5, correct: false, errorType: '복수 정답 혼동' },
+            { number: 3, author: '한정희', score: 1.5, correct: true, errorType: '-' }
         ];
 
         // 오답 유형 데이터 수정
@@ -217,7 +217,7 @@
         }
 
         populateTable('area-details-table', areaDetails, ['영역', '총점', '정답률', '오답률', '난이도']);
-        populateTable('question-analysis-table', questionAnalysis, ['번호', '문항 고유번호', '출제자', '배점', '정답 여부', '오답 유형']);
+        populateTable('question-analysis-table', questionAnalysis, ['번호', '출제자', '배점', '정답 여부', '오답 유형']);
 
         // 오답 유형 분석 추가
         const errorTypeAnalysis = document.getElementById('error-type-analysis');
