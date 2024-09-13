@@ -1,0 +1,238 @@
+/* styles.css */
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #50e3c2;
+    --accent-color: #f5a623;
+    --neutral-color: #f0f4f8;
+    --text-primary-color: #333333;
+    --text-secondary-color: #666666;
+    --success-color: #7ed321;
+    --warning-color: #f8e71c;
+    --danger-color: #d0021b;
+  }
+  
+  body {
+    font-family: "Noto Sans KR", "Inter", sans-serif;
+    color: var(--text-primary-color);
+    background-color: var(--neutral-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+  }
+  
+  .container {
+    max-width: 1200px;
+    min-width: 320px;
+    margin: 40px auto;
+    padding: 20px 40px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .report-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+  
+  .report-info {
+    font-size: 18px;
+    color: var(--text-secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  main {
+    margin-top: 20px;
+  }
+  
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary-color);
+  }
+  
+  .card-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: var(--text-primary-color);
+  }
+  
+  .label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary-color);
+  }
+  
+  .grid-sub-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    background-color: #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  
+  .progress-bar-inner {
+    width: 70%;
+    background-color: var(--primary-color);
+    height: 24px;
+    line-height: 24px;
+    color: #ffffff;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    max-height: 300px;
+  }
+  
+  .chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .material-icons {
+    font-size: 24px;
+    vertical-align: middle;
+    color: var(--primary-color);
+  }
+  
+  footer {
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+  }
+  
+  footer p {
+    font-size: 14px;
+    color: var(--text-secondary-color);
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      margin: 0;
+      padding: 10px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  
+    .header-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .grid-sub-container {
+      grid-template-columns: 1fr;
+    }
+  
+    .report-title {
+      font-size: 32px;
+    }
+  
+    .report-info {
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  
+    .section-title {
+      font-size: 20px;
+    }
+  
+    .card-title {
+      font-size: 18px;
+    }
+  
+    .card {
+      margin-bottom: 10px;
+      padding: 15px;
+    }
+  
+    .chart-container {
+      height: 250px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      padding: 5px;
+    }
+  
+    .report-title {
+      font-size: 28px;
+    }
+  
+    .report-info {
+      font-size: 14px;
+    }
+  
+    .section-title {
+      font-size: 18px;
+    }
+  
+    .card-title {
+      font-size: 16px;
+    }
+  
+    .chart-container {
+      height: 200px;
+    }
+  }
+  
+  @media (max-width: 320px) {
+    .container {
+      min-width: 100%;
+    }
+  
+    .report-title {
+      font-size: 24px;
+    }
+  
+    .report-info {
+      font-size: 12px;
+    }
+  
+    .section-title {
+      font-size: 16px;
+    }
+  
+    .card-title {
+      font-size: 15px;
+    }
+  
+    .chart-container {
+      height: 180px;
+    }
+  }

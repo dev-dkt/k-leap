@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수험자 그룹 성적 분포 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">수험자 그룹 성적 분포 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">group</span>
+                시험 고유번호: 21-5-1-1-2102 | 시험 종류: 사전평가
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">필기시험 성적 분포</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <div class="card-title">듣기 영역 성적 분포</div>
+                        <div class="chart-container">
+                            <canvas id="listeningChart"></canvas>
+                        </div>
+                        <p><strong>평균 점수:</strong> 27/35</p>
+                        <p><strong>표준 편차:</strong> 5.2</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">읽기 영역 성적 분포</div>
+                        <div class="chart-container">
+                            <canvas id="readingChart"></canvas>
+                        </div>
+                        <p><strong>평균 점수:</strong> 26/35</p>
+                        <p><strong>표준 편차:</strong> 6.1</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">말하기 시험 성적 분포</h2>
+                <div class="card">
+                    <div class="card-title">말하기 항목별 성적 분포</div>
+                    <div class="chart-container">
+                        <canvas id="speakingChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">그룹별 성적 비교</h2>
+                <div class="card">
+                    <div class="card-title">연령 그룹 간 성적 비교</div>
+                    <div class="chart-container">
+                        <canvas id="ageGroupChart"></canvas>
+                    </div>
+                    <p>20대의 평균 성적이 다른 그룹보다 높은 경향을 보입니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">성적 분포 요약</h2>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>그룹 구분</th>
+                                <th>영역</th>
+                                <th>평균 점수</th>
+                                <th>최고점</th>
+                                <th>최저점</th>
+                                <th>표준 편차</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>20대</td>
+                                <td>듣기</td>
+                                <td>30/35</td>
+                                <td>35/35</td>
+                                <td>20/35</td>
+                                <td>4.5</td>
+                            </tr>
+                            <tr>
+                                <td>30대</td>
+                                <td>듣기</td>
+                                <td>28/35</td>
+                                <td>35/35</td>
+                                <td>18/35</td>
+                                <td>5.2</td>
+                            </tr>
+                            <tr>
+                                <td>40대</td>
+                                <td>듣기</td>
+                                <td>25/35</td>
+                                <td>32/35</td>
+                                <td>15/35</td>
+                                <td>5.8</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>학습 리포트 제공 © 2024 K-LEAP</p>
+        </footer>
+    </div>
+
+    <script>
+        // 듣기 영역 성적 분포 차트
+        new Chart(document.getElementById('listeningChart'), {
+            type: 'bar',
+            data: {
+                labels: ['10-15', '16-20', '21-25', '26-30', '31-35'],
+                datasets: [{
+                    label: '듣기 성적 분포',
+                    data: [5, 10, 30, 40, 15],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '수험자 수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '점수 구간'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 읽기 영역 성적 분포 차트
+        new Chart(document.getElementById('readingChart'), {
+            type: 'bar',
+            data: {
+                labels: ['15-20', '21-25', '26-30', '31-35'],
+                datasets: [{
+                    label: '읽기 성적 분포',
+                    data: [15, 25, 35, 25],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '수험자 수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '점수 구간'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 말하기 항목별 성적 분포 차트
+        new Chart(document.getElementById('speakingChart'), {
+            type: 'radar',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    label: '평균 점수',
+                    data: [8, 7, 9, 8, 9],
+                    fill: true,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                elements: {
+                    line: {
+                        borderWidth: 3
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: false
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 10
+                    }
+                }
+            }
+        });
+
+        // 연령 그룹 간 성적 비교 차트
+        new Chart(document.getElementById('ageGroupChart'), {
+            type: 'bar',
+            data: {
+                labels: ['듣기', '읽기', '어휘/문법', '말하기'],
+                datasets: [{
+                    label: '20대',
+                    data: [30, 28, 27, 8.5],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                }, {
+                    label: '30대',
+                    data: [28, 26, 26, 7.8],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                }, {
+                    label: '40대',
+                    data: [25, 24, 25, 7.5],
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '평균 점수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '시험 영역'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말하기 평가 일관성 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">말하기 평가 일관성 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">assessment</span>
+                시험 고유번호: 21-5-51~53-1-2102
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">채점자 간 평가 일관성 분석</h2>
+                <div class="card">
+                    <div class="card-title">채점자별 평균 점수 비교</div>
+                    <div class="chart-container">
+                        <canvas id="evaluationConsistencyChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">채점 경향 분석</h2>
+                <div class="card">
+                    <div class="card-title">채점자별 평가 경향</div>
+                    <div class="chart-container">
+                        <canvas id="evaluationTrendChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">채점자 간 일관성 지표</h2>
+                <div class="card">
+                    <p><strong>채점자 간 평균 점수 차이:</strong> 0.8점 (전반적으로 일관성 있음)</p>
+                    <p><strong>일관성 지표(Cronbach's Alpha):</strong> 0.85 (신뢰도 높음)</p>
+                    <p><strong>점수 차이 주요 항목:</strong> 유창성, 담화 구성력 항목에서 채점자 간의 점수 차이가 비교적 큼</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">채점 일관성 개선 방향</h2>
+                <div class="card">
+                    <h3>평가 기준 재확립</h3>
+                    <p>채점자 간 점수 차이가 큰 항목(유창성, 담화 구성력)에 대해 평가 기준을 구체화하고, 평가 지침을 강화할 필요가 있습니다.</p>
+                </div>
+                <div class="card">
+                    <h3>채점자 교육 프로그램</h3>
+                    <p>일관된 채점이 이루어질 수 있도록 채점자 간의 워크샵 또는 교육 프로그램을 통해 평가 지침을 재검토해야 합니다.</p>
+                </div>
+                <div class="card">
+                    <h3>모의 채점 세션</h3>
+                    <p>채점자 간의 모의 채점 세션을 진행하여, 동일한 기준으로 채점이 이루어지는지 확인하고 피드백을 제공해야 합니다.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>학습 리포트 제공 © 2024 K-LEAP</p>
+        </footer>
+    </div>
+
+    <script>
+        // 채점자별 평균 점수 비교 차트
+        new Chart(document.getElementById('evaluationConsistencyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    label: '채점자 A',
+                    data: [8.5, 7.5, 9.5, 8.0, 9.0],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                }, {
+                    label: '채점자 B',
+                    data: [9.0, 8.0, 9.0, 7.5, 9.2],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                }, {
+                    label: '채점자 C',
+                    data: [8.8, 7.0, 9.3, 7.0, 9.0],
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: '평균 점수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '평가 항목'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 채점자별 평가 경향 차트
+        new Chart(document.getElementById('evaluationTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    label: '채점자 A',
+                    data: [8.5, 7.5, 9.5, 8.0, 9.0],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }, {
+                    label: '채점자 B',
+                    data: [9.0, 8.0, 9.0, 7.5, 9.2],
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }, {
+                    label: '채점자 C',
+                    data: [8.8, 7.0, 9.3, 7.0, 9.0],
+                    borderColor: 'rgb(255, 206, 86)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        title: {
+                            display: true,
+                            text: '점수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '평가 항목'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

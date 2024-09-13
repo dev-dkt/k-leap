@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>능력 향상 추적 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">능력 향상 추적 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">person</span>
+                홍길동 | 시험 고유번호: 21-5-1-1-2102 | 2024년 9월 10일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">기본 정보</h2>
+                <div class="card">
+                    <p><strong>비교 시험:</strong> 21-4-1-1-2102 (2024년 5월 1일)</p>
+                    <p><strong>전체 등급 변화:</strong> 3급 → 4급</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">영역별 성적 변화</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <div class="card-title">필기시험 성적 변화</div>
+                        <div class="chart-container">
+                            <canvas id="writtenScoreChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">말하기 시험 성적 변화</div>
+                        <div class="chart-container">
+                            <canvas id="speakingScoreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">총 성적 변화 분석</h2>
+                <div class="card">
+                    <div class="card-title">전체 성적 추이</div>
+                    <div class="chart-container">
+                        <canvas id="totalScoreChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">개선 사항 및 학습 권장 사항</h2>
+                <div class="card">
+                    <h3 class="card-title">듣기</h3>
+                    <p>유사 발음 단어 구분 능력에서 향상이 있었으나, 여전히 반복 학습을 통해 강화 필요.</p>
+                    <p><strong>추천 학습 자료:</strong> 고급 듣기 연습 문제, 발음 구별 학습 도구</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">읽기</h3>
+                    <p>긴 문장과 복잡한 문장 구조에 대한 이해도가 상승했으나, 긴 문단 해석 능력은 지속적으로 연습 필요.</p>
+                    <p><strong>추천 학습 자료:</strong> 긴 문단 읽기 연습 문제</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">유창성</h3>
+                    <p>긴 문장에서의 자연스러운 구사 능력이 개선되었으나, 연속적 발화 연습을 통해 더 높은 유창성 달성 가능.</p>
+                    <p><strong>추천 학습 자료:</strong> 긴 문장 말하기 연습 도구 및 대화 연습</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>학습 리포트 제공 © 2024 K-LEAP</p>
+        </footer>
+    </div>
+
+    <script>
+        // 필기시험 성적 변화 차트
+        const writtenCtx = document.getElementById('writtenScoreChart').getContext('2d');
+        new Chart(writtenCtx, {
+            type: 'bar',
+            data: {
+                labels: ['듣기', '읽기', '어휘/문법'],
+                datasets: [
+                    {
+                        label: '이전 점수',
+                        data: [25, 20, 28],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    },
+                    {
+                        label: '현재 점수',
+                        data: [30, 25, 30],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 35
+                    }
+                }
+            }
+        });
+
+        // 말하기 시험 성적 변화 차트
+        const speakingCtx = document.getElementById('speakingScoreChart').getContext('2d');
+        new Chart(speakingCtx, {
+            type: 'radar',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [
+                    {
+                        label: '이전 점수',
+                        data: [7, 6, 9, 7, 9],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                    },
+                    {
+                        label: '현재 점수',
+                        data: [9, 8, 10, 8, 10],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: false
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 10
+                    }
+                }
+            }
+        });
+
+        // 전체 성적 추이 차트
+        const totalCtx = document.getElementById('totalScoreChart').getContext('2d');
+        new Chart(totalCtx, {
+            type: 'line',
+            data: {
+                labels: ['이전 시험', '현재 시험'],
+                datasets: [
+                    {
+                        label: '필기시험 총점',
+                        data: [73, 85],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        tension: 0.1
+                    },
+                    {
+                        label: '말하기 시험 총점',
+                        data: [38, 45],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

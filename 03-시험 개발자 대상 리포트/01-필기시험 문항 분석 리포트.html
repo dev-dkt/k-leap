@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>필기시험 문항 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e5e5e5;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f4f8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">필기시험 문항 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">assignment</span>
+                시험 고유번호: 21-5-1-1-2102
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">문항 난이도 분석</h2>
+                <div class="card">
+                    <div class="card-title">문항별 난이도</div>
+                    <div class="chart-container">
+                        <canvas id="difficultyChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">문항 변별도 분석</h2>
+                <div class="card">
+                    <div class="card-title">문항별 변별도</div>
+                    <div class="chart-container">
+                        <canvas id="discriminationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">문항 상세 분석</h2>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>문항 번호</th>
+                                <th>난이도</th>
+                                <th>변별도</th>
+                                <th>신뢰도</th>
+                                <th>평가</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>0.75</td>
+                                <td>0.45</td>
+                                <td>0.82</td>
+                                <td>양호</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>0.62</td>
+                                <td>0.38</td>
+                                <td>0.79</td>
+                                <td>개선 필요</td>
+                            </tr>
+                            <!-- 추가 문항 데이터 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">결론 및 개선 사항</h2>
+                <div class="card">
+                    <h3>결론</h3>
+                    <p>전반적으로 문항의 난이도와 변별도는 적절한 수준을 유지하고 있으나, 일부 문항에서 개선이 필요한 것으로 분석되었습니다.</p>
+                </div>
+                <div class="card">
+                    <h3>개선 사항</h3>
+                    <ul>
+                        <li>문항 2의 변별도가 낮으므로, 문항의 구성을 재검토하고 수정이 필요합니다.</li>
+                        <li>전체적인 난이도 분포를 고려하여, 고난이도 문항의 비율을 약간 높일 것을 제안합니다.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>학습 리포트 제공 © 2024 K-LEAP</p>
+        </footer>
+    </div>
+
+    <script>
+        // 난이도 차트
+        new Chart(document.getElementById('difficultyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['문항1', '문항2', '문항3', '문항4', '문항5'],
+                datasets: [{
+                    label: '난이도',
+                    data: [0.75, 0.62, 0.58, 0.80, 0.70],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+
+        // 변별도 차트
+        new Chart(document.getElementById('discriminationChart'), {
+            type: 'bar',
+            data: {
+                labels: ['문항1', '문항2', '문항3', '문항4', '문항5'],
+                datasets: [{
+                    label: '변별도',
+                    data: [0.45, 0.38, 0.52, 0.48, 0.42],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

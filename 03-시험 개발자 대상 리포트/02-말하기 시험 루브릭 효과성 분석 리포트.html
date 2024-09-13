@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말하기 시험 루브릭 효과성 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e5e5e5;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f4f8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">말하기 시험 루브릭 효과성 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">assessment</span>
+                시험 고유번호: 21-5-51~53-1-2102
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">루브릭 항목 간 상관관계 분석</h2>
+                <div class="card">
+                    <div class="card-title">상관관계 매트릭스</div>
+                    <div class="chart-container">
+                        <canvas id="correlationMatrix"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">루브릭 항목별 변별력 분석</h2>
+                <div class="card">
+                    <div class="card-title">변별도 지수</div>
+                    <div class="chart-container">
+                        <canvas id="discriminationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">루브릭 항목별 일관성 분석</h2>
+                <div class="card">
+                    <p><strong>크론바흐 알파(Cronbach's Alpha):</strong> 0.82</p>
+                    <p>루브릭 항목 간의 평가 일관성은 0.7 이상이므로, 채점자 간에 충분한 일관성이 있음을 의미합니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">루브릭 평가의 개선 방향</h2>
+                <div class="card">
+                    <h3>항목별 개선 방안</h3>
+                    <ul>
+                        <li><strong>발음:</strong> 발음과 어휘 사용을 통합 평가하는 방법 검토</li>
+                        <li><strong>유창성:</strong> 문법적 정확성과의 연계성을 높일 필요가 있음</li>
+                        <li><strong>문법:</strong> 문법 오류에 대한 구체적인 피드백 제공 필요</li>
+                        <li><strong>담화 구성력:</strong> 유창성과의 일관성을 유지할 필요가 있음</li>
+                        <li><strong>어휘 다양성:</strong> 발음 및 문법 평가와 연결하여 평가 강화</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>학습 리포트 제공 © 2024 K-LEAP</p>
+        </footer>
+    </div>
+
+    <script>
+        // 상관관계 매트릭스
+        new Chart(document.getElementById('correlationMatrix'), {
+            type: 'heatmap',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    data: [
+                        {x: '발음', y: '발음', v: 1},
+                        {x: '발음', y: '유창성', v: 0.65},
+                        {x: '발음', y: '문법', v: 0.5},
+                        {x: '발음', y: '담화 구성력', v: 0.7},
+                        {x: '발음', y: '어휘 다양성', v: 0.7},
+                        {x: '유창성', y: '유창성', v: 1},
+                        {x: '유창성', y: '문법', v: 0.55},
+                        {x: '유창성', y: '담화 구성력', v: 0.8},
+                        {x: '유창성', y: '어휘 다양성', v: 0.6},
+                        {x: '문법', y: '문법', v: 1},
+                        {x: '문법', y: '담화 구성력', v: 0.65},
+                        {x: '문법', y: '어휘 다양성', v: 0.6},
+                        {x: '담화 구성력', y: '담화 구성력', v: 1},
+                        {x: '담화 구성력', y: '어휘 다양성', v: 0.75},
+                        {x: '어휘 다양성', y: '어휘 다양성', v: 1}
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'category',
+                        position: 'top'
+                    },
+                    y: {
+                        type: 'category',
+                        position: 'left'
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `상관계수: ${context.raw.v.toFixed(2)}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 변별도 차트
+        new Chart(document.getElementById('discriminationChart'), {
+            type: 'bar',
+            data: {
+                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    label: '변별도 지수',
+                    data: [0.48, 0.60, 0.52, 0.68, 0.55],
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
