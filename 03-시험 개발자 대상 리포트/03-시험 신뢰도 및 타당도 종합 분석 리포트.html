@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>시험 신뢰도 및 타당도 종합 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">시험 신뢰도 및 타당도 종합 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 시험의 일관성(신뢰도)과 적절한 평가 도구로서의 역할(타당도)을 평가하여 시험의 품질을 개선하고 향후 시험 개발 과정에서의 보완 방향을 제시합니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 시험 신뢰도 분석</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <h3 class="card-title">내적 신뢰도 (Cronbach's Alpha)</h3>
+                        <div class="chart-container">
+                            <canvas id="reliabilityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">신뢰도 해석</h3>
+                        <ul>
+                            <li><strong>필기시험:</strong> 0.85 (매우 높음)</li>
+                            <li><strong>말하기 시험:</strong> 0.78 (적절함)</li>
+                        </ul>
+                        <p>두 시험 모두 신뢰할 만한 수준의 내적 일관성을 보입니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. 시험 타당도 분석</h2>
+                <div class="card">
+                    <h3 class="card-title">구조 타당도 (상관관계)</h3>
+                    <div class="chart-container">
+                        <canvas id="validityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. 분석 결과 요약</h2>
+                <div class="card">
+                    <h3 class="card-title">신뢰도 및 타당도 요약</h3>
+                    <ul>
+                        <li><strong>신뢰도:</strong> 필기 및 말하기 시험 모두 높은 신뢰도를 보임</li>
+                        <li><strong>타당도:</strong> 내용, 구조, 결과 타당도 모두 적절한 수준으로 평가됨</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">5. 개선 방향 및 권장 사항</h2>
+                <div class="card">
+                    <ul>
+                        <li>필기시험: 듣기 평가와 어휘/문법 간 연관성 강화</li>
+                        <li>말하기 시험: 문법 평가의 구체적 기준 마련</li>
+                        <li>채점자 간 평가 워크숍을 통한 일관성 강화</li>
+                        <li>실제 업무 환경이나 사회적 요구를 반영한 평가 요소 도입 고려</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 신뢰도 차트
+        const reliabilityCtx = document.getElementById('reliabilityChart').getContext('2d');
+        new Chart(reliabilityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                datasets: [{
+                    label: 'Cronbach\'s Alpha',
+                    data: [0.82, 0.80, 0.83, 0.76, 0.79, 0.74, 0.81, 0.77],
+                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                    borderColor: 'rgba(74, 144, 226, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+
+        // 타당도 차트 (상관관계)
+        const validityCtx = document.getElementById('validityChart').getContext('2d');
+        new Chart(validityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['듣기-어휘/문법', '읽기-어휘/문법', '발음-유창성', '문법-담화 구성력'],
+                datasets: [{
+                    label: '상관계수(Pearson)',
+                    data: [0.70, 0.68, 0.65, 0.75],
+                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
+                    borderColor: 'rgba(80, 227, 194, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

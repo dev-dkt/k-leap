@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>루브릭 기반 평가의 장기적 효과 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">루브릭 기반 평가의 장기적 효과 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 말하기 시험에서 사용된 루브릭 항목(발음, 유창성, 문법 정확성, 담화 구성력, 어휘 다양성)이 수험자의 장기적인 한국어 능력 향상에 미치는 영향을 평가하고 분석하는 것을 목적으로 합니다. 루브릭 기반 평가 방식이 수험자의 한국어 능력 향상에 기여하는 정도를 평가하고, 평가 방식의 장기적 효과를 연구하는 데 필요한 데이터를 제공합니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 루브릭 항목별 성적 변화 분석</h2>
+                <div class="card">
+                    <h3 class="card-title">장기적 성적 변화 추이</h3>
+                    <div class="chart-container">
+                        <canvas id="longTermTrendChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. 평가 항목 간 상관관계 분석</h2>
+                <div class="card">
+                    <h3 class="card-title">상관관계 히트맵</h3>
+                    <div id="correlationHeatmap"></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. 루브릭 항목별 성적 변화 요약</h2>
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>항목</th>
+                                <th>첫 시험 평균 점수</th>
+                                <th>마지막 시험 평균 점수</th>
+                                <th>향상 비율</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>발음</td>
+                                <td>1.8</td>
+                                <td>2.3</td>
+                                <td>27%</td>
+                            </tr>
+                            <tr>
+                                <td>유창성</td>
+                                <td>2.0</td>
+                                <td>2.5</td>
+                                <td>25%</td>
+                            </tr>
+                            <tr>
+                                <td>문법 정확성</td>
+                                <td>1.7</td>
+                                <td>2.4</td>
+                                <td>41%</td>
+                            </tr>
+                            <tr>
+                                <td>담화 구성력</td>
+                                <td>2.0</td>
+                                <td>2.6</td>
+                                <td>30%</td>
+                            </tr>
+                            <tr>
+                                <td>어휘 다양성</td>
+                                <td>1.9</td>
+                                <td>2.4</td>
+                                <td>26%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 장기적 성적 변화 추이 차트
+        const ctx = document.getElementById('longTermTrendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1년차', '2년차', '3년차'],
+                datasets: [{
+                    label: '발음',
+                    data: [1.8, 2.1, 2.3],
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }, {
+                    label: '유창성',
+                    data: [2.0, 2.3, 2.5],
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
+                }, {
+                    label: '문법 정확성',
+                    data: [1.7, 2.1, 2.4],
+                    borderColor: 'rgb(255, 206, 86)',
+                    tension: 0.1
+                }, {
+                    label: '담화 구성력',
+                    data: [2.0, 2.3, 2.6],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }, {
+                    label: '어휘 다양성',
+                    data: [1.9, 2.2, 2.4],
+                    borderColor: 'rgb(153, 102, 255)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '루브릭 항목별 장기적 성적 변화 추이'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 3
+                    }
+                }
+            }
+        });
+
+        // 상관관계 히트맵
+        const correlationData = [
+            [1, 0.7, 0.6, 0.5, 0.4],
+            [0.7, 1, 0.8, 0.6, 0.5],
+            [0.6, 0.8, 1, 0.7, 0.6],
+            [0.5, 0.6, 0.7, 1, 0.8],
+            [0.4, 0.5, 0.6, 0.8, 1]
+        ];
+
+        const margin = { top: 30, right: 30, bottom: 70, left: 70 },
+              width = 450 - margin.left - margin.right,
+              height = 450 - margin.top - margin.bottom;
+
+        const svg = d3.select("#correlationHeatmap")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const categories = ['발음', '유창성', '문법 정확성', '담화 구성력', '어휘 다양성'];
+
+        const x = d3.scaleBand()
+            .range([0, width])
+            .domain(categories)
+            .padding(0.01);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-65)");
+
+        const y = d3.scaleBand()
+            .range([height, 0])
+            .domain(categories)
+            .padding(0.01);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        const colorScale = d3.scaleSequential()
+            .interpolator(d3.interpolateBlues)
+            .domain([0, 1]);
+
+        svg.selectAll()
+            .data(correlationData.flat())
+            .enter()
+            .append("rect")
+            .attr("x", (d, i) => x(categories[i % 5]))
+            .attr("y", (d, i) => y(categories[Math.floor(i / 5)]))
+            .attr("width", x.bandwidth())
+            .attr("height", y.bandwidth())
+            .style("fill", d => colorScale(d));
+
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", -10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text("루브릭 항목 간 상관관계 히트맵");
+    </script>
+</body>
+</html>

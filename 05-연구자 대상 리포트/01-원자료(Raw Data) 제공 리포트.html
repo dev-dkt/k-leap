@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>원자료(Raw Data) 제공 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">원자료(Raw Data) 제공 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 한국어 능력 시험에 대한 필기 및 말하기 시험 성적을 기반으로 한 익명화된 원자료를 연구자들에게 제공하는 것을 목적으로 합니다. 연구자들은 이 데이터를 활용하여 통계 분석, 언어 능력 연구, 시험 품질 분석 등의 다양한 연구를 진행할 수 있습니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 제공 데이터 유형</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <h3 class="card-title">필기시험 데이터</h3>
+                        <ul>
+                            <li>문항별 응답 데이터</li>
+                            <li>문항별 점수 데이터</li>
+                            <li>영역별 성적 데이터</li>
+                            <li>시험지 정보</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">말하기 시험 데이터</h3>
+                        <ul>
+                            <li>루브릭 평가 데이터</li>
+                            <li>응답 녹취 및 전사 데이터 (요청 시)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. 데이터 포맷</h2>
+                <div class="card">
+                    <h3 class="card-title">CSV 파일 구조 예시</h3>
+                    <div class="chart-container">
+                        <canvas id="csvStructureChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. 데이터 사용 가이드라인</h2>
+                <div class="card">
+                    <ul>
+                        <li>제공되는 원자료는 익명화 처리되어 개인 정보가 보호됩니다.</li>
+                        <li>데이터는 연구 목적으로만 사용 가능하며, 상업적 사용은 금지됩니다.</li>
+                        <li>연구자는 제공된 데이터를 안전하게 저장하고 관리해야 합니다.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">5. 개인정보 보호</h2>
+                <div class="card">
+                    <ul>
+                        <li>모든 데이터는 수험자의 개인정보가 익명화 처리되어 제공됩니다.</li>
+                        <li>연구자는 데이터 사용 동의서를 제출하고 보안 조치에 동의해야 합니다.</li>
+                        <li>데이터는 제공된 연구 목적 이외의 용도로 사용할 수 없습니다.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // CSV 파일 구조 예시 차트
+        const ctx = document.getElementById('csvStructureChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['응시자 ID', '답안_1', '답안_2', '답안_3', '점수_어휘', '점수_읽기', '점수_듣기', '점수_발음', '점수_유창성', '국적', '연령대', '학습 기간'],
+                datasets: [{
+                    label: 'CSV 파일 필드',
+                    data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                    borderColor: 'rgba(74, 144, 226, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'CSV 파일 구조'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>국제 언어 능력 표준과의 비교 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">국제 언어 능력 표준과의 비교 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 한국어 능력 시험 결과를 국제 언어 평가 기준과 비교 분석하여, 한국어 능력 평가가 글로벌 표준과 얼마나 일치하는지 평가합니다. 특히, CEFR와 같은 글로벌 기준과 비교하여 한국어 능력의 국제적 수준을 파악하고, 정책 입안자가 이를 바탕으로 교육 정책 수립에 필요한 데이터를 제공하는 것을 목표로 합니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. CEFR 등급과의 비교 분석</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <h3 class="card-title">CEFR 등급 분포</h3>
+                        <div class="chart-container">
+                            <canvas id="cefrDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">필기시험과 CEFR 기준 비교</h3>
+                        <ul>
+                            <li><strong>듣기:</strong> B1 수준 이상 80%</li>
+                            <li><strong>읽기:</strong> B1 수준 70%</li>
+                            <li><strong>어휘 및 문법:</strong> 평균 B2 수준</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. 국제 표준과 한국어 능력 평가의 차이 분석</h2>
+                <div class="card">
+                    <h3 class="card-title">CEFR 기준과의 차이점</h3>
+                    <ul>
+                        <li><strong>듣기 및 읽기 평가:</strong> 한국어 능력 시험은 문화적 배경 지식을 반영한 문항 포함</li>
+                        <li><strong>말하기 평가:</strong> 한국어 능력 시험은 문법적 정확성에 더 중점</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. 국제 표준과의 조화를 위한 권장 사항</h2>
+                <div class="card">
+                    <h3 class="card-title">개선 방안</h3>
+                    <ul>
+                        <li>말하기 시험에 상호작용 능력과 실제 대화 상황을 반영한 평가 항목 추가</li>
+                        <li>글로벌 문화 요소를 반영한 문항 추가</li>
+                        <li>C1~C2 수준의 수험자를 위한 고급 한국어 시험 도입</li>
+                        <li>다국적 수험자를 위한 맞춤형 교재 및 학습 자료 제공</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // CEFR 등급 분포 차트
+        const cefrCtx = document.getElementById('cefrDistributionChart').getContext('2d');
+        new Chart(cefrCtx, {
+            type: 'pie',
+            data: {
+                labels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+                datasets: [{
+                    data: [10, 20, 30, 25, 10, 5],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'CEFR 등급별 한국어 능력 시험 수험자 비율'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

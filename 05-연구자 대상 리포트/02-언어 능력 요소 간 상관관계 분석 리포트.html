@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>언어 능력 요소 간 상관관계 분석 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .heatmap-tooltip {
+            position: absolute;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #heatmap {
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%; /* 정사각형 비율 유지 */
+            position: relative;
+        }
+        #heatmap svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">언어 능력 요소 간 상관관계 분석 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 한국어 능력 시험의 필기 및 말하기 영역의 각 요소 간 상관관계를 분석하여, 연구자들이 언어 능력 요소가 서로 어떻게 연관되는지를 파악할 수 있도록 합니다. 이를 통해 어휘, 문법, 듣기, 읽기, 발음, 유창성 등의 요소들이 서로 어떤 관계를 가지고 있는지 확인하고, 언어 능력 향상에 기여하는 핵심 요소를 분석하는 데 목적이 있습니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 언어 능력 요소 분석 대상</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <h3 class="card-title">필기시험 요소</h3>
+                        <ul>
+                            <li>듣기</li>
+                            <li>읽기</li>
+                            <li>어휘/문법</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">말하기 시험 요소</h3>
+                        <ul>
+                            <li>발음</li>
+                            <li>유창성</li>
+                            <li>문법</li>
+                            <li>담화 구성력</li>
+                            <li>어휘 다양성</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+              <h2 class="section-title">3. 상관관계 분석 결과</h2>
+              <div class="card">
+                  <h3 class="card-title">상관관계 히트맵</h3>
+                  <div id="heatmap"></div>
+              </div>
+          </section>
+
+          <section>
+            <h2 class="section-title">4. 주요 상관관계 분석</h2>
+            <div class="card">
+                <h3 class="card-title">상관관계 분석 요약</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>요소</th>
+                            <th>듣기</th>
+                            <th>읽기</th>
+                            <th>어휘/문법</th>
+                            <th>발음</th>
+                            <th>유창성</th>
+                            <th>문법</th>
+                            <th>담화 구성력</th>
+                            <th>어휘 다양성</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>듣기</strong></td>
+                            <td>완전 일치</td>
+                            <td>매우 강함</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                        </tr>
+                        <tr>
+                            <td><strong>읽기</strong></td>
+                            <td>매우 강함</td>
+                            <td>완전 일치</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                        </tr>
+                        <tr>
+                            <td><strong>어휘/문법</strong></td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>완전 일치</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>매우 강함</td>
+                            <td>강함</td>
+                            <td>강함</td>
+                        </tr>
+                        <tr>
+                            <td><strong>발음</strong></td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>완전 일치</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                        </tr>
+                        <tr>
+                            <td><strong>유창성</strong></td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>완전 일치</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                        </tr>
+                        <tr>
+                            <td><strong>문법</strong></td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>매우 강함</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>완전 일치</td>
+                            <td>매우 강함</td>
+                            <td>강함</td>
+                        </tr>
+                        <tr>
+                            <td><strong>담화 구성력</strong></td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>매우 강함</td>
+                            <td>완전 일치</td>
+                            <td>강함</td>
+                        </tr>
+                        <tr>
+                            <td><strong>어휘 다양성</strong></td>
+                            <td>중간</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>중간</td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>강함</td>
+                            <td>완전 일치</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // D3.js를 사용한 히트맵 구현
+        const abilities = ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'];
+        
+        const correlationData = [
+            ['완전 일치', '매우 강함', '강함', '중간', '중간', '강함', '중간', '중간'],
+            ['매우 강함', '완전 일치', '강함', '중간', '중간', '강함', '강함', '중간'],
+            ['강함', '강함', '완전 일치', '중간', '중간', '매우 강함', '강함', '강함'],
+            ['중간', '중간', '중간', '완전 일치', '강함', '중간', '중간', '중간'],
+            ['중간', '중간', '중간', '강함', '완전 일치', '강함', '중간', '강함'],
+            ['강함', '강함', '매우 강함', '중간', '강함', '완전 일치', '매우 강함', '강함'],
+            ['중간', '강함', '강함', '중간', '중간', '매우 강함', '완전 일치', '강함'],
+            ['중간', '중간', '강함', '중간', '강함', '강함', '강함', '완전 일치']
+        ];
+
+        const colorScale = d3.scaleOrdinal()
+            .domain(['완전 일치', '매우 강함', '강함', '중간', '약함'])
+            .range(['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff']);
+
+        function createHeatmap() {
+            const margin = { top: 50, right: 50, bottom: 100, left: 100 };
+            const width = 600;
+            const height = 600;
+
+            d3.select("#heatmap svg").remove();
+
+            const svg = d3.select("#heatmap")
+                .append("svg")
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .range([0, width])
+                .domain(abilities)
+                .padding(0.01);
+
+            svg.append("g")
+                .attr("transform", `translate(0, ${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-65)");
+
+            const y = d3.scaleBand()
+                .range([height, 0])
+                .domain(abilities)
+                .padding(0.01);
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // 툴팁 생성
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "heatmap-tooltip")
+                .style("opacity", 0);
+
+            svg.selectAll()
+                .data(correlationData.flatMap((row, i) => 
+                    row.map((value, j) => ({i, j, value}))
+                ))
+                .enter()
+                .append("rect")
+                .attr("x", d => x(abilities[d.j]))
+                .attr("y", d => y(abilities[d.i]))
+                .attr("width", x.bandwidth())
+                .attr("height", y.bandwidth())
+                .style("fill", d => colorScale(d.value))
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`${abilities[d.i]} - ${abilities[d.j]}: ${d.value}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            // 히트맵 제목 추가
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", -margin.top / 2)
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .text("언어 능력 요소 간 상관관계 히트맵");
+        }
+
+        // 초기 히트맵 생성
+        createHeatmap();
+
+        // 윈도우 리사이즈 이벤트에 대응
+        window.addEventListener('resize', createHeatmap);
+    </script>
+</body>
+</html>

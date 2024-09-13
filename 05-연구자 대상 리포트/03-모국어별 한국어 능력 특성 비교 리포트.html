@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>모국어별 한국어 능력 특성 비교 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">모국어별 한국어 능력 특성 비교 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span> 2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 목적</h2>
+                <div class="card">
+                    <p>이 리포트는 한국어 능력 시험에서 각 모국어 사용자 그룹의 성적을 비교 분석하여, 모국어가 한국어 학습 및 평가에 미치는 영향을 연구하는 것을 목적으로 합니다. 필기 및 말하기 시험 데이터를 기반으로 모국어별로 한국어 습득 과정에서 특징적 차이가 있는지를 분석하여, 한국어 교육 정책 수립과 교재 개발에 필요한 데이터를 제공합니다.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 모국어별 성적 비교 분석</h2>
+                <div class="grid-sub-container">
+                    <div class="card">
+                        <h3 class="card-title">필기시험 성적 비교</h3>
+                        <div class="chart-container">
+                            <canvas id="writtenTestChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">말하기 시험 성적 비교</h3>
+                        <div class="chart-container">
+                            <canvas id="speakingTestChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+              <h2 class="section-title">3. 모국어별 한국어 학습 패턴 분석</h2>
+              <div class="card">
+                  <h3 class="card-title">모국어별 강점 및 약점</h3>
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>모국어</th>
+                              <th>필기시험 평균 성적</th>
+                              <th>말하기 시험 평균 성적</th>
+                              <th>주요 강점 영역</th>
+                              <th>주요 약점 영역</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr>
+                              <td>중국어</td>
+                              <td>78</td>
+                              <td>72</td>
+                              <td>어휘</td>
+                              <td>발음</td>
+                          </tr>
+                          <tr>
+                              <td>베트남어</td>
+                              <td>75</td>
+                              <td>74</td>
+                              <td>발음</td>
+                              <td>문법</td>
+                          </tr>
+                          <tr>
+                              <td>영어</td>
+                              <td>72</td>
+                              <td>78</td>
+                              <td>유창성</td>
+                              <td>듣기</td>
+                          </tr>
+                          <tr>
+                              <td>일본어</td>
+                              <td>80</td>
+                              <td>76</td>
+                              <td>듣기</td>
+                              <td>담화 구성력</td>
+                          </tr>
+                          <tr>
+                              <td>러시아어</td>
+                              <td>70</td>
+                              <td>68</td>
+                              <td>문법</td>
+                              <td>어휘</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </section>
+
+            <section>
+                <h2 class="section-title">4. 상관관계 분석</h2>
+                <div class="card">
+                    <h3 class="card-title">모국어와 한국어 능력 간 상관관계</h3>
+                    <div id="correlationHeatmap"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 필기시험 성적 비교 차트
+        const writtenCtx = document.getElementById('writtenTestChart').getContext('2d');
+        new Chart(writtenCtx, {
+            type: 'bar',
+            data: {
+                labels: ['중국어', '베트남어', '영어', '일본어', '러시아어'],
+                datasets: [{
+                    label: '필기시험 평균 성적',
+                    data: [78, 75, 72, 80, 70],
+                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                    borderColor: 'rgba(74, 144, 226, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 말하기 시험 성적 비교 차트
+        const speakingCtx = document.getElementById('speakingTestChart').getContext('2d');
+        new Chart(speakingCtx, {
+            type: 'bar',
+            data: {
+                labels: ['중국어', '베트남어', '영어', '일본어', '러시아어'],
+                datasets: [{
+                    label: '말하기 시험 평균 성적',
+                    data: [72, 74, 78, 76, 68],
+                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
+                    borderColor: 'rgba(80, 227, 194, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // 상관관계 히트맵
+        const correlationData = [
+            [1, 0.7, 0.6, 0.5, 0.4],
+            [0.7, 1, 0.8, 0.6, 0.5],
+            [0.6, 0.8, 1, 0.7, 0.6],
+            [0.5, 0.6, 0.7, 1, 0.8],
+            [0.4, 0.5, 0.6, 0.8, 1]
+        ];
+
+        const margin = { top: 30, right: 30, bottom: 30, left: 30 },
+              width = 450 - margin.left - margin.right,
+              height = 450 - margin.top - margin.bottom;
+
+        const svg = d3.select("#correlationHeatmap")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .range([0, width])
+            .domain(['중국어', '베트남어', '영어', '일본어', '러시아어'])
+            .padding(0.01);
+
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x));
+
+        const y = d3.scaleBand()
+            .range([height, 0])
+            .domain(['중국어', '베트남어', '영어', '일본어', '러시아어'])
+            .padding(0.01);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        const colorScale = d3.scaleSequential()
+            .interpolator(d3.interpolateBlues)
+            .domain([0, 1]);
+
+        svg.selectAll()
+            .data(correlationData.flat())
+            .enter()
+            .append("rect")
+            .attr("x", (d, i) => x(x.domain()[i % 5]))
+            .attr("y", (d, i) => y(y.domain()[Math.floor(i / 5)]))
+            .attr("width", x.bandwidth())
+            .attr("height", y.bandwidth())
+            .style("fill", d => colorScale(d));
+    </script>
+</body>
+</html>
