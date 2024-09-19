@@ -10,15 +10,12 @@
     <link rel="stylesheet" href="../styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      /* 추가적인 스타일 */
-      .chart-container {
-          position: relative;
-          height: 300px;
-          width: 100%;
-          max-width: 400px; /* 최대 너비 설정 */
-          margin: 0 auto; /* 중앙 정렬 */
-      }
-  </style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -149,12 +146,14 @@
                 borderWidth: 1
             }]
         };
-
+        
         // 차트 생성
         new Chart(document.getElementById('score-chart').getContext('2d'), {
             type: 'bar',
             data: areaScoreData,
             options: {
+                responsive: true,
+                maintainAspectRatio: true,
                 scales: {
                     y: {
                         beginAtZero: true,
