@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>출제 문항 품질 평가 리포트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <div class="report-title">출제 문항 품질 평가 리포트</div>
+            <div class="report-info">
+                <span class="material-icons">event</span>
+                2024년 9월 15일
+            </div>
+        </header>
+
+        <main>
+            <section>
+                <h2 class="section-title">1. 난이도 및 변별도 분석</h2>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="difficultyDiscriminationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">2. 오답 선택 비율 분석</h2>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="incorrectAnswerChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">3. 문항 반응 이론(IRT) 분석</h2>
+                <div class="card">
+                    <div id="irtChart" class="chart-container"></div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">4. 문항 품질 평가 요약</h2>
+                <div class="card">
+                    <table id="summaryTable">
+                        <thead>
+                            <tr>
+                                <th>문항 번호</th>
+                                <th>난이도</th>
+                                <th>변별도</th>
+                                <th>오답 선택 비율</th>
+                                <th>IRT 기반 난이도</th>
+                                <th>IRT 기반 변별도</th>
+                                <th>IRT 기반 추측도</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 데이터는 JavaScript에서 동적으로 추가됩니다 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 K-LEAP. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 난이도 및 변별도 차트
+        const difficultyDiscriminationCtx = document.getElementById('difficultyDiscriminationChart').getContext('2d');
+        new Chart(difficultyDiscriminationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['문항 1', '문항 2', '문항 3'],
+                datasets: [{
+                    label: '난이도',
+                    data: [0.85, 0.60, 0.30],
+                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                    borderColor: 'rgba(74, 144, 226, 1)',
+                    borderWidth: 1
+                }, {
+                    label: '변별도',
+                    data: [0.45, 0.50, 0.35],
+                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
+                    borderColor: 'rgba(80, 227, 194, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Allow the chart to fit within its container
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1
+                    }
+                }
+            }
+        });
+
+        // 오답 선택 비율 차트
+        const incorrectAnswerCtx = document.getElementById('incorrectAnswerChart').getContext('2d');
+        new Chart(incorrectAnswerCtx, {
+            type: 'pie',
+            data: {
+                labels: ['문항 1', '문항 2', '문항 3'],
+                datasets: [{
+                    data: [30, 20, 50],
+                    backgroundColor: [
+                        'rgba(74, 144, 226, 0.7)',
+                        'rgba(80, 227, 194, 0.7)',
+                        'rgba(245, 166, 35, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Allow the chart to fit within its container
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '가장 많이 선택된 오답의 비율 (%)'
+                    }
+                }
+            }
+        });
+        function drawIRTChart() {
+            // Clear any existing chart
+            d3.select("#irtChart").selectAll("*").remove();
+
+            // Set dimensions
+            const margin = {top: 20, right: 120, bottom: 30, left: 50}; // Extra space for the legend
+            const containerWidth = document.getElementById('irtChart').clientWidth;
+            const width = containerWidth - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            // Create SVG
+            const svg = d3.select("#irtChart")
+                .append("svg")
+                .attr("viewBox", `0 0 ${containerWidth} 300`)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const x = d3.scaleLinear().range([0, width]).domain([-3, 3]);
+            const y = d3.scaleLinear().range([height, 0]).domain([0, 1]);
+
+            // Axes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Line generator
+            const line = d3.line()
+                .x(d => x(d.ability))
+                .y(d => y(d.probability))
+                .curve(d3.curveBasis); // Use curve for smooth line
+
+            const items = [
+                {a: 1.2, b: 0.9, c: 0.2},
+                {a: 1.5, b: 1.1, c: 0.1},
+                {a: 2.0, b: 0.7, c: 0.3}
+            ];
+
+            const colors = ['#4a90e2', '#50e3c2', '#f5a623'];
+
+            // Draw IRT curves
+            items.forEach((item, index) => {
+                const data = d3.range(-3, 3, 0.1).map(ability => ({
+                    ability: ability,
+                    probability: item.c + (1 - item.c) / (1 + Math.exp(-item.a * (ability - item.b)))
+                }));
+
+                svg.append("path")
+                    .datum(data)
+                    .attr("fill", "none")
+                    .attr("stroke", colors[index])
+                    .attr("stroke-width", 2)
+                    .attr("d", line);
+            });
+
+            // Add legend
+            const legend = svg.selectAll(".legend")
+                .data(items)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+            legend.append("rect")
+                .attr("x", width + 10)
+                .attr("width", 10)
+                .attr("height", 10)
+                .style("fill", (d, i) => colors[i]);
+
+            legend.append("text")
+                .attr("x", width + 25)
+                .attr("y", 5)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text((d, i) => `문항 ${i + 1}`);
+        }
+
+
+        // 요약 테이블 데이터
+        const summaryData = [
+            {itemNumber: 1, difficulty: 0.85, discrimination: 0.45, incorrectAnswerRate: '30%', irtDifficulty: 1.2, irtDiscrimination: 0.9, irtGuessing: 0.2},
+            {itemNumber: 2, difficulty: 0.60, discrimination: 0.50, incorrectAnswerRate: '20%', irtDifficulty: 1.5, irtDiscrimination: 1.1, irtGuessing: 0.1},
+            {itemNumber: 3, difficulty: 0.30, discrimination: 0.35, incorrectAnswerRate: '50%', irtDifficulty: 2.0, irtDiscrimination: 0.7, irtGuessing: 0.3}
+        ];
+
+        const tableBody = document.querySelector('#summaryTable tbody');
+        summaryData.forEach(item => {
+            const row = tableBody.insertRow();
+            Object.values(item).forEach(value => {
+                const cell = row.insertCell();
+                cell.textContent = value;
+            });
+        });        // Draw chart initially
+        drawIRTChart();
+
+        // Redraw chart on window resize
+        window.addEventListener('resize', drawIRTChart);
+    </script>
+</body>
+</html>

@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -86,55 +95,54 @@
     </div>
 
     <script>
-        // 신뢰도 차트
-        const reliabilityCtx = document.getElementById('reliabilityChart').getContext('2d');
-        new Chart(reliabilityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
-                datasets: [{
-                    label: 'Cronbach\'s Alpha',
-                    data: [0.82, 0.80, 0.83, 0.76, 0.79, 0.74, 0.81, 0.77],
-                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
-                    borderColor: 'rgba(74, 144, 226, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 1
+        // 차트 생성 함수
+        function createChart(ctx, type, labels, data, label, color) {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: color,
+                        borderColor: color.replace('0.7', '1'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        // 신뢰도 차트
+        const reliabilityCtx = document.getElementById('reliabilityChart').getContext('2d');
+        createChart(
+            reliabilityCtx,
+            'bar',
+            ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+            [0.82, 0.80, 0.83, 0.76, 0.79, 0.74, 0.81, 0.77],
+            'Cronbach\'s Alpha',
+            'rgba(74, 144, 226, 0.7)'
+        );
 
         // 타당도 차트 (상관관계)
         const validityCtx = document.getElementById('validityChart').getContext('2d');
-        new Chart(validityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['듣기-어휘/문법', '읽기-어휘/문법', '발음-유창성', '문법-담화 구성력'],
-                datasets: [{
-                    label: '상관계수(Pearson)',
-                    data: [0.70, 0.68, 0.65, 0.75],
-                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
-                    borderColor: 'rgba(80, 227, 194, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 1
-                    }
-                }
-            }
-        });
+        createChart(
+            validityCtx,
+            'bar',
+            ['듣기-어휘/문법', '읽기-어휘/문법', '발음-유창성', '문법-담화 구성력'],
+            [0.70, 0.68, 0.65, 0.75],
+            '상관계수(Pearson)',
+            'rgba(80, 227, 194, 0.7)'
+        );
     </script>
 </body>
 </html>

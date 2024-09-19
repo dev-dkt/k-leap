@@ -9,6 +9,20 @@
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+        #correlationHeatmap {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -115,55 +129,54 @@
     </div>
 
     <script>
-        // 필기시험 성적 비교 차트
-        const writtenCtx = document.getElementById('writtenTestChart').getContext('2d');
-        new Chart(writtenCtx, {
-            type: 'bar',
-            data: {
-                labels: ['중국어', '베트남어', '영어', '일본어', '러시아어'],
-                datasets: [{
-                    label: '필기시험 평균 성적',
-                    data: [78, 75, 72, 80, 70],
-                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
-                    borderColor: 'rgba(74, 144, 226, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
+        // 차트 생성 함수
+        function createChart(ctx, type, labels, data, label, color) {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: color,
+                        borderColor: color.replace('0.7', '1'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        // 필기시험 성적 비교 차트
+        const writtenCtx = document.getElementById('writtenTestChart').getContext('2d');
+        createChart(
+            writtenCtx,
+            'bar',
+            ['중국어', '베트남어', '영어', '일본어', '러시아어'],
+            [78, 75, 72, 80, 70],
+            '필기시험 평균 성적',
+            'rgba(74, 144, 226, 0.7)'
+        );
 
         // 말하기 시험 성적 비교 차트
         const speakingCtx = document.getElementById('speakingTestChart').getContext('2d');
-        new Chart(speakingCtx, {
-            type: 'bar',
-            data: {
-                labels: ['중국어', '베트남어', '영어', '일본어', '러시아어'],
-                datasets: [{
-                    label: '말하기 시험 평균 성적',
-                    data: [72, 74, 78, 76, 68],
-                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
-                    borderColor: 'rgba(80, 227, 194, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
+        createChart(
+            speakingCtx,
+            'bar',
+            ['중국어', '베트남어', '영어', '일본어', '러시아어'],
+            [72, 74, 78, 76, 68],
+            '말하기 시험 평균 성적',
+            'rgba(80, 227, 194, 0.7)'
+        );
 
         // 상관관계 히트맵
         const correlationData = [
@@ -180,8 +193,7 @@
 
         const svg = d3.select("#correlationHeatmap")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -192,7 +204,10 @@
 
         svg.append("g")
             .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end");
 
         const y = d3.scaleBand()
             .range([height, 0])

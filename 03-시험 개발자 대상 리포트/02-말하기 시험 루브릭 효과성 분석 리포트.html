@@ -91,27 +91,34 @@
     <script>
         // 상관관계 매트릭스
         new Chart(document.getElementById('correlationMatrix'), {
-            type: 'heatmap',
+            type: 'scatter',
             data: {
-                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
                 datasets: [{
+                    label: '상관계수',
                     data: [
-                        {x: '발음', y: '발음', v: 1},
-                        {x: '발음', y: '유창성', v: 0.65},
-                        {x: '발음', y: '문법', v: 0.5},
-                        {x: '발음', y: '담화 구성력', v: 0.7},
-                        {x: '발음', y: '어휘 다양성', v: 0.7},
-                        {x: '유창성', y: '유창성', v: 1},
-                        {x: '유창성', y: '문법', v: 0.55},
-                        {x: '유창성', y: '담화 구성력', v: 0.8},
-                        {x: '유창성', y: '어휘 다양성', v: 0.6},
-                        {x: '문법', y: '문법', v: 1},
-                        {x: '문법', y: '담화 구성력', v: 0.65},
-                        {x: '문법', y: '어휘 다양성', v: 0.6},
-                        {x: '담화 구성력', y: '담화 구성력', v: 1},
-                        {x: '담화 구성력', y: '어휘 다양성', v: 0.75},
-                        {x: '어휘 다양성', y: '어휘 다양성', v: 1}
-                    ]
+                        {x: 0, y: 0, v: 1},
+                        {x: 0, y: 1, v: 0.65},
+                        {x: 0, y: 2, v: 0.5},
+                        {x: 0, y: 3, v: 0.7},
+                        {x: 0, y: 4, v: 0.7},
+                        {x: 1, y: 1, v: 1},
+                        {x: 1, y: 2, v: 0.55},
+                        {x: 1, y: 3, v: 0.8},
+                        {x: 1, y: 4, v: 0.6},
+                        {x: 2, y: 2, v: 1},
+                        {x: 2, y: 3, v: 0.65},
+                        {x: 2, y: 4, v: 0.6},
+                        {x: 3, y: 3, v: 1},
+                        {x: 3, y: 4, v: 0.75},
+                        {x: 4, y: 4, v: 1}
+                    ],
+                    backgroundColor: (context) => {
+                        const value = context.dataset.data[context.dataIndex].v;
+                        const alpha = value;
+                        return `rgba(75, 192, 192, ${alpha})`;
+                    },
+                    pointRadius: 20,
+                    pointHoverRadius: 20
                 }]
             },
             options: {
@@ -119,12 +126,27 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'category',
-                        position: 'top'
+                        type: 'linear',
+                        position: 'bottom',
+                        min: -0.5,
+                        max: 4.5,
+                        ticks: {
+                            callback: function(value) {
+                                return ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'][value];
+                            }
+                        }
                     },
                     y: {
-                        type: 'category',
-                        position: 'left'
+                        type: 'linear',
+                        position: 'left',
+                        min: -0.5,
+                        max: 4.5,
+                        ticks: {
+                            callback: function(value) {
+                                return ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'][value];
+                            }
+                        },
+                        reverse: true
                     }
                 },
                 plugins: {
@@ -134,7 +156,11 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `상관계수: ${context.raw.v.toFixed(2)}`;
+                                const x = context.parsed.x;
+                                const y = context.parsed.y;
+                                const v = context.raw.v;
+                                const labels = ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'];
+                                return `${labels[x]} - ${labels[y]}: ${v.toFixed(2)}`;
                             }
                         }
                     }

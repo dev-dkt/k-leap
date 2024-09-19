@@ -9,6 +9,20 @@
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+        #correlationHeatmap {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -135,6 +149,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -165,8 +180,7 @@
 
         const svg = d3.select("#correlationHeatmap")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 

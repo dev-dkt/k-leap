@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -99,61 +108,57 @@
     </div>
 
     <script>
-        // 필기시험 차트
-        const writtenCtx = document.getElementById('writtenTestChart').getContext('2d');
-        new Chart(writtenCtx, {
-            type: 'bar',
-            data: {
-                labels: ['어휘', '문법', '읽기'],
-                datasets: [{
-                    label: '정답률',
-                    data: [55, 50, 40],
-                    backgroundColor: 'rgba(74, 144, 226, 0.7)',
-                    borderColor: 'rgba(74, 144, 226, 1)',
-                    borderWidth: 1
-                }, {
-                    label: '오답률',
-                    data: [45, 50, 60],
-                    backgroundColor: 'rgba(245, 166, 35, 0.7)',
-                    borderColor: 'rgba(245, 166, 35, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
+        // 차트 생성 함수
+        function createChart(ctx, type, labels, datasets, maxY = 100) {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxY
+                        }
                     }
                 }
-            }
-        });
+            });
+        }        
+        // 필기시험 차트
+        const writtenCtx = document.getElementById('writtenTestChart').getContext('2d');
+        createChart(writtenCtx, 'bar', 
+            ['어휘', '문법', '읽기'],
+            [{
+                label: '정답률',
+                data: [55, 50, 40],
+                backgroundColor: 'rgba(74, 144, 226, 0.7)',
+                borderColor: 'rgba(74, 144, 226, 1)',
+                borderWidth: 1
+            }, {
+                label: '오답률',
+                data: [45, 50, 60],
+                backgroundColor: 'rgba(245, 166, 35, 0.7)',
+                borderColor: 'rgba(245, 166, 35, 1)',
+                borderWidth: 1
+            }]
+        );
 
         // 말하기 시험 차트
         const speakingCtx = document.getElementById('speakingTestChart').getContext('2d');
-        new Chart(speakingCtx, {
-            type: 'bar',
-            data: {
-                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
-                datasets: [{
-                    label: '오류 발생 빈도 (%)',
-                    data: [35, 50, 40, 45, 30],
-                    backgroundColor: 'rgba(80, 227, 194, 0.7)',
-                    borderColor: 'rgba(80, 227, 194, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
+        createChart(speakingCtx, 'bar',
+            ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+            [{
+                label: '오류 발생 빈도 (%)',
+                data: [35, 50, 40, 45, 30],
+                backgroundColor: 'rgba(80, 227, 194, 0.7)',
+                borderColor: 'rgba(80, 227, 194, 1)',
+                borderWidth: 1
+            }]
+        );
     </script>
 </body>
 </html>
