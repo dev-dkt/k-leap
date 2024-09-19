@@ -9,40 +9,37 @@
     <link rel="stylesheet" href="../styles.css" />
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <style>
-        .heatmap-tooltip {
-            position: absolute;
-            padding: 10px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            pointer-events: none;
-            font-size: 12px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        #heatmap {
-            width: 100%;
-            height: 0;
-            padding-bottom: 100%; /* 정사각형 비율 유지 */
-            position: relative;
-        }
-        #heatmap svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+    .heatmap-tooltip {
+        position: absolute;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #333;
+        border-radius: 4px;
+        pointer-events: none;
+        font-size: 12px;
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    #heatmap {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    #heatmap svg {
+        width: 100%;
+        height: auto;
+    }
     </style>
 </head>
 <body>
@@ -213,98 +210,101 @@
     </div>
 
     <script>
-        // D3.js를 사용한 히트맵 구현
-        const abilities = ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'];
-        
-        const correlationData = [
-            ['완전 일치', '매우 강함', '강함', '중간', '중간', '강함', '중간', '중간'],
-            ['매우 강함', '완전 일치', '강함', '중간', '중간', '강함', '강함', '중간'],
-            ['강함', '강함', '완전 일치', '중간', '중간', '매우 강함', '강함', '강함'],
-            ['중간', '중간', '중간', '완전 일치', '강함', '중간', '중간', '중간'],
-            ['중간', '중간', '중간', '강함', '완전 일치', '강함', '중간', '강함'],
-            ['강함', '강함', '매우 강함', '중간', '강함', '완전 일치', '매우 강함', '강함'],
-            ['중간', '강함', '강함', '중간', '중간', '매우 강함', '완전 일치', '강함'],
-            ['중간', '중간', '강함', '중간', '강함', '강함', '강함', '완전 일치']
-        ];
 
-        const colorScale = d3.scaleOrdinal()
-            .domain(['완전 일치', '매우 강함', '강함', '중간', '약함'])
-            .range(['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff']);
+const abilities = ['듣기', '읽기', '어휘/문법', '발음', '유창성', '문법', '담화 구성력', '어휘 다양성'];
+    
+    const correlationData = [
+        ['완전 일치', '매우 강함', '강함', '중간', '중간', '강함', '중간', '중간'],
+        ['매우 강함', '완전 일치', '강함', '중간', '중간', '강함', '강함', '중간'],
+        ['강함', '강함', '완전 일치', '중간', '중간', '매우 강함', '강함', '강함'],
+        ['중간', '중간', '중간', '완전 일치', '강함', '중간', '중간', '중간'],
+        ['중간', '중간', '중간', '강함', '완전 일치', '강함', '중간', '강함'],
+        ['강함', '강함', '매우 강함', '중간', '강함', '완전 일치', '매우 강함', '강함'],
+        ['중간', '강함', '강함', '중간', '중간', '매우 강함', '완전 일치', '강함'],
+        ['중간', '중간', '강함', '중간', '강함', '강함', '강함', '완전 일치']
+    ];
 
-        function createHeatmap() {
-            const margin = { top: 50, right: 50, bottom: 100, left: 100 };
-            const width = 600;
-            const height = 600;
+    const colorScale = d3.scaleOrdinal()
+        .domain(['완전 일치', '매우 강함', '강함', '중간', '약함'])
+        .range(['#08519c', '#3182bd', '#6baed6', '#bdd7e7', '#eff3ff']);
 
-            d3.select("#heatmap svg").remove();
+    function createHeatmap() {
+        const margin = { top: 50, right: 50, bottom: 100, left: 100 };
+        const containerWidth = document.getElementById('heatmap').offsetWidth;
+        const size = containerWidth - margin.left - margin.right;
+        const width = size;
+        const height = size;
 
-            const svg = d3.select("#heatmap")
-                .append("svg")
-                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+        d3.select("#heatmap svg").remove();
 
-            const x = d3.scaleBand()
-                .range([0, width])
-                .domain(abilities)
-                .padding(0.01);
+        const svg = d3.select("#heatmap")
+            .append("svg")
+            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            svg.append("g")
-                .attr("transform", `translate(0, ${height})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)");
+        const x = d3.scaleBand()
+            .range([0, width])
+            .domain(abilities)
+            .padding(0.01);
 
-            const y = d3.scaleBand()
-                .range([height, 0])
-                .domain(abilities)
-                .padding(0.01);
+        svg.append("g")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-65)");
 
-            svg.append("g")
-                .call(d3.axisLeft(y));
+        const y = d3.scaleBand()
+            .range([height, 0])
+            .domain(abilities)
+            .padding(0.01);
 
-            // 툴팁 생성
-            const tooltip = d3.select("body").append("div")
-                .attr("class", "heatmap-tooltip")
-                .style("opacity", 0);
+        svg.append("g")
+            .call(d3.axisLeft(y));
 
-            svg.selectAll()
-                .data(correlationData.flatMap((row, i) => 
-                    row.map((value, j) => ({i, j, value}))
-                ))
-                .enter()
-                .append("rect")
-                .attr("x", d => x(abilities[d.j]))
-                .attr("y", d => y(abilities[d.i]))
-                .attr("width", x.bandwidth())
-                .attr("height", y.bandwidth())
-                .style("fill", d => colorScale(d.value))
-                .on("mouseover", function(event, d) {
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                    tooltip.html(`${abilities[d.i]} - ${abilities[d.j]}: ${d.value}`)
-                        .style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(d) {
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
+        // 툴팁 생성
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "heatmap-tooltip")
+            .style("opacity", 0);
 
-            // 히트맵 제목 추가
-            svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", -margin.top / 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text("언어 능력 요소 간 상관관계 히트맵");
-        }
+        svg.selectAll()
+            .data(correlationData.flatMap((row, i) => 
+                row.map((value, j) => ({i, j, value}))
+            ))
+            .enter()
+            .append("rect")
+            .attr("x", d => x(abilities[d.j]))
+            .attr("y", d => y(abilities[d.i]))
+            .attr("width", x.bandwidth())
+            .attr("height", y.bandwidth())
+            .style("fill", d => colorScale(d.value))
+            .on("mouseover", function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`${abilities[d.i]} - ${abilities[d.j]}: ${d.value}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        // 히트맵 제목 추가
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", -margin.top / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("언어 능력 요소 간 상관관계 히트맵");
+    }
 
         // 초기 히트맵 생성
         createHeatmap();
