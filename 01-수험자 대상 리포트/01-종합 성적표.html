@@ -26,10 +26,11 @@
                 <div class="card">
                     <table>
                         <tr><th>수험자 이름</th><td>홍길동</td></tr>
-                        <tr><th>시험 고유번호</th><td>21-5-1-1-2102</td></tr>
-                        <tr><th>시험 날짜</th><td>2024년 9월 10일</td></tr>
+                        <tr><th>시험일</th><td>2024년 9월 10일</td></tr>
                         <tr><th>시험 종류</th><td>사전평가</td></tr>
-                        <tr><th>전체 등급</th><td>4급 (CEFR: B2)</td></tr>
+                        <tr><th>시험장</th><td>CBT평가센터</td></tr>
+                        <tr><th>회차</th><td>100회차</td></tr>
+                        <tr><th>단계</th><td>3단계</td></tr>
                     </table>
                 </div>
             </section>
@@ -88,45 +89,150 @@
 
     <script>
         // 종합 성적 요약 데이터
+
+        // item : 영역, score : 점수, totalScore :  총점, hitcnt : 정답 개수, totalcnt : 총 문항 수
+
+        // 필기시험 성적 요약 데이터
         const writingSummaryData = [
-            { item: "필기시험 총점", score: "85/100" },
-            { item: "듣기", score: "30/35" },
-            { item: "읽기", score: "25/35" },
-            { item: "어휘/문법", score: "30/30" }
+            { item: "어휘", totalcnt: 13, totalScore : 19.5, hitcnt: 10, score: 15.0 },
+            { item: "문법", totalcnt: 15, totalScore : 22.5, hitcnt: 10, score: 15.0 },
+            { item: "쓰기", totalcnt: 7, totalScore : 10.5, hitcnt: 4,  score: 6.0},
+            { item: "읽기", totalcnt: 5, totalScore : 7.5, hitcnt: 3,  score: 4.5 },
+            { item: "문화", totalcnt: 10, totalScore : 15.0, hitcnt: 5,  score: 7.5 }
         ];
 
+        // 말하기시험 성적 요약 데이터
         const speakingSummaryData = [
-            { item: "말하기 시험 총점", score: "45/50" },
-            { item: "발음", score: "9/10" },
-            { item: "유창성", score: "8/10" },
-            { item: "문법", score: "10/10" },
-            { item: "담화 구성력", score: "8/10" },
-            { item: "어휘 다양성", score: "10/10" }
+            { item: "발음", totalScore : 5, score: 3, totalcnt: 1 },
+            { item: "말하기", totalScore : 5, score: 3, totalcnt: 1 },
+            { item: "통합", totalScore : 15, score: 9, totalcnt: 3 },
         ];
 
-        // 표에 데이터 추가
-        function populateTable(tableId, data) {
+        function populateWritingTable(tableId, data) {
             const table = document.getElementById(tableId);
-            data.forEach(row => {
-                const tr = table.insertRow();
-                tr.insertCell().textContent = row.item;
-                tr.insertCell().textContent = row.score;
+            table.className = 'summary-table';
+            
+            // 테이블 헤더 추가
+            const thead = table.createTHead();
+            const headerRow = thead.insertRow();
+            ['영역', '문항수', '정답수', '총점', '득점'].forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                th.className = 'text-center';
+                headerRow.appendChild(th);
             });
-        }
 
-        populateTable('writing-summary-table', writingSummaryData);
-        populateTable('speaking-summary-table', speakingSummaryData);
+            // 테이블 본문 추가
+            const tbody = table.createTBody();
+            data.forEach(row => {
+                const tr = tbody.insertRow();
+                const tdItem = tr.insertCell();
+                tdItem.textContent = row.item;
+                tdItem.className = 'text-center';
+                ['totalcnt', 'hitcnt', 'totalScore', 'score'].forEach(key => {
+                    const td = tr.insertCell();
+                    td.textContent = (key === 'totalScore' || key === 'score') ? row[key].toFixed(1) : row[key];
+                    td.className = 'text-right';
+                });
+            });
+
+            // 총계 계산
+            const totals = data.reduce((acc, row) => {
+                acc.totalcnt += row.totalcnt;
+                acc.hitcnt += row.hitcnt;
+                acc.totalScore += row.totalScore;
+                acc.score += row.score;
+                return acc;
+            }, { totalcnt: 0, hitcnt: 0, totalScore: 0, score: 0 });
+
+            // 총계 행 추가
+            const totalRow = tbody.insertRow();
+            const tdTotal = totalRow.insertCell();
+            tdTotal.textContent = '총계';
+            tdTotal.className = 'text-center font-bold';
+            ['totalcnt', 'hitcnt', 'totalScore', 'score'].forEach(key => {
+                const td = totalRow.insertCell();
+                td.textContent = (key === 'totalScore' || key === 'score') ? totals[key].toFixed(1) : totals[key];
+                td.className = 'text-right font-bold';
+            });
+
+            // 총계 행 스타일 적용
+            totalRow.className = 'bg-gray-100';
+        }
+        function populateSpeakingTable(tableId, data) {
+            const table = document.getElementById(tableId);
+            table.className = 'summary-table';
+            
+            // 테이블 헤더 추가
+            const thead = table.createTHead();
+            const headerRow = thead.insertRow();
+            ['영역', '문항수', '총점', '득점'].forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                th.className = 'text-center';
+                headerRow.appendChild(th);
+            });
+
+            // 테이블 본문 추가
+            const tbody = table.createTBody();
+            data.forEach(row => {
+                const tr = tbody.insertRow();
+                const tdItem = tr.insertCell();
+                tdItem.textContent = row.item;
+                tdItem.className = 'text-center';
+                ['totalcnt', 'totalScore', 'score'].forEach(key => {
+                    const td = tr.insertCell();
+                    td.textContent = row[key].toFixed(1);
+                    td.className = 'text-right';
+                });
+            });
+
+            // 총계 계산
+            const totals = data.reduce((acc, row) => {
+                acc.totalcnt += row.totalcnt;
+                acc.totalScore += row.totalScore;
+                acc.score += row.score;
+                return acc;
+            }, { totalcnt: 0, totalScore: 0, score: 0 });
+
+            // 총계 행 추가
+            const totalRow = tbody.insertRow();
+            const tdTotal = totalRow.insertCell();
+            tdTotal.textContent = '총계';
+            tdTotal.className = 'text-center font-bold';
+            ['totalcnt', 'totalScore', 'score'].forEach(key => {
+                const td = totalRow.insertCell();
+                td.textContent = totals[key].toFixed(1);
+                td.className = 'text-right font-bold';
+            });
+
+            // 총계 행 스타일 적용
+            totalRow.className = 'bg-gray-100';
+        }    
+        populateWritingTable('writing-summary-table', writingSummaryData);
+        populateSpeakingTable('speaking-summary-table', speakingSummaryData);
 
         // 필기시험 차트
+        const writingLabels = writingSummaryData.map(item => item.item);
+        const writingScores = writingSummaryData.map(item => item.score);
+        const writingRemainingScores = writingSummaryData.map(item => item.totalScore - item.score);
+
         new Chart(document.getElementById('writing-chart'), {
             type: 'bar',
             data: {
-                labels: ['듣기', '읽기', '어휘/문법'],
+                labels: writingLabels,
                 datasets: [{
-                    label: '점수',
-                    data: [30, 25, 30],
-                    backgroundColor: ['rgba(74, 144, 226, 0.6)', 'rgba(80, 227, 194, 0.6)', 'rgba(245, 166, 35, 0.6)'],
-                    borderColor: ['rgb(74, 144, 226)', 'rgb(80, 227, 194)', 'rgb(245, 166, 35)'],
+                    label: '영역 점수',
+                    data: writingScores,
+                    backgroundColor: 'rgba(74, 144, 226, 0.6)',
+                    borderColor: 'rgb(74, 144, 226)',
+                    borderWidth: 1
+                },
+                {
+                    label: '영역 총점',
+                    data: writingRemainingScores,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgb(255, 99, 132)',
                     borderWidth: 1
                 }]
             },
@@ -135,78 +241,273 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false
+                        display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(1);
+                                }
+                                return label;
+                            },
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const totalScore = writingSummaryData[dataIndex].totalScore;
+                                return `총점: ${totalScore.toFixed(1)}`;
+                            }
+                        }
                     }
                 },
                 scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: '영역'
+                        }
+                    },
                     y: {
+                        stacked: true,
                         beginAtZero: true,
-                        max: 35
+                        max: Math.max(...writingSummaryData.map(item => item.totalScore)),
+                        title: {
+                            display: true,
+                            text: '점수'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1);
+                            }
+                        }
                     }
                 }
             }
         });
-
+        
         // 말하기시험 차트
+        const speakingLabels = speakingSummaryData.map(item => item.item);
+        const speakingScores = speakingSummaryData.map(item => item.score);
+        const speakingRemainingScores = speakingSummaryData.map(item => item.totalScore - item.score);
+
         new Chart(document.getElementById('speaking-chart'), {
-            type: 'radar',
+            type: 'bar',
             data: {
-                labels: ['발음', '유창성', '문법', '담화 구성력', '어휘 다양성'],
+                labels: speakingLabels,
                 datasets: [{
-                    label: '점수',
-                    data: [9, 8, 10, 8, 10],
-                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                    label: '영역 점수',
+                    data: speakingScores,
+                    backgroundColor: 'rgba(74, 144, 226, 0.6)',
                     borderColor: 'rgb(74, 144, 226)',
-                    pointBackgroundColor: 'rgb(74, 144, 226)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(74, 144, 226)'
+                    borderWidth: 1
+                },
+                {
+                    label: '영역 총점',
+                    data: speakingRemainingScores,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(1);
+                                }
+                                return label;
+                            },
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const totalScore = speakingSummaryData[dataIndex].totalScore;
+                                return `총점: ${totalScore.toFixed(1)}`;
+                            }
+                        }
+                    }
+                },
                 scales: {
-                    r: {
-                        angleLines: {
-                            display: false
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: '영역'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        max: Math.max(...speakingSummaryData.map(item => item.totalScore)),
+                        title: {
+                            display: true,
+                            text: '점수'
                         },
-                        suggestedMin: 0,
-                        suggestedMax: 10
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(1);
+                            }
+                        }
                     }
                 }
             }
         });
 
         // 영역별 성적 분석
-        const analysisData = [
-            { area: "듣기", content: "정답률: 85%, 오답 유형: 동일 발음 단어 혼동 발생, 개선 방향: 발음이 유사한 단어 구별 학습 필요" },
-            { area: "읽기", content: "정답률: 70%, 오답 유형: 긴 문장의 해석 오류, 개선 방향: 복잡한 구문의 해석 능력 향상 필요" },
-            { area: "어휘/문법", content: "정답률: 100%, 오답 없음" },
-            { area: "발음", content: "평가: 발음은 명확하고 정확하나, 몇몇 단어에서 억양 문제가 발견됨, 개선 방향: 특정 단어의 억양 개선 필요" },
-            { area: "유창성", content: "평가: 비교적 유창하게 말하지만, 긴 문장에서 약간의 망설임이 있었음, 개선 방향: 긴 문장 말하기 연습 필요" },
-            { area: "문법", content: "평가: 문법 사용은 완벽했으며, 다양한 문법 구조를 정확하게 사용함" },
-            { area: "담화 구성력", content: "평가: 대화 주제를 잘 유지했으나, 논리적인 연결에 약간의 부족함이 있음, 개선 방향: 논리적 연결어 사용 연습 필요" },
-            { area: "어휘 다양성", content: "평가: 매우 다양한 어휘를 사용하여, 말하기 시험에서 고급 어휘 사용 능력 확인됨" }
-        ];
+        function generateAnalysis(writingData, speakingData) {
+            const analysisData = {
+                writing: [],
+                speaking: []
+            };
+
+            // 필기시험 분석
+            writingData.forEach(item => {
+                const percentScore = (item.score / item.totalScore * 100).toFixed(1);
+                let content = `정답률: ${percentScore}%, `;
+
+                if (percentScore >= 90) {
+                    content += "매우 우수한 성적입니다. 현재 수준을 유지하세요.";
+                } else if (percentScore >= 70) {
+                    content += "좋은 성적입니다. 조금 더 노력하면 더 좋은 결과를 얻을 수 있습니다.";
+                } else if (percentScore >= 50) {
+                    content += "개선의 여지가 있습니다. 이 영역에 대한 추가 학습이 필요합니다.";
+                } else {
+                    content += "이 영역에 대한 집중적인 학습이 필요합니다. 기초부터 차근차근 학습하세요.";
+                }
+
+                analysisData.writing.push({ area: item.item, content: content });
+            });
+
+            // 말하기시험 분석
+            speakingData.forEach(item => {
+                const percentScore = (item.score / item.totalScore * 100).toFixed(1);
+                let content = `영역 점수: ${item.score}/${item.totalScore} (${percentScore}%), `;
+
+                if (item.item === "발음") {
+                    if (percentScore >= 80) {
+                        content += "발음이 매우 정확합니다. 자연스러운 억양에 조금 더 집중하세요.";
+                    } else if (percentScore >= 60) {
+                        content += "대체로 정확한 발음입니다. 일부 발음에 주의가 필요합니다.";
+                    } else {
+                        content += "발음 향상이 필요합니다. 특히 한국어 특유의 발음에 주의를 기울이세요.";
+                    }
+                } else if (item.item === "말하기") {
+                    if (percentScore >= 80) {
+                        content += "유창하고 자연스러운 말하기 능력을 보여줍니다. 더 복잡한 주제에 도전해보세요.";
+                    } else if (percentScore >= 60) {
+                        content += "대체로 원활한 의사소통이 가능합니다. 더 다양한 표현을 사용해보세요.";
+                    } else {
+                        content += "기본적인 의사소통은 가능하지만, 유창성 향상이 필요합니다. 말하기 연습을 더 해보세요.";
+                    }
+                } else if (item.item === "통합") {
+                    if (percentScore >= 80) {
+                        content += "다양한 상황에서 언어를 효과적으로 사용할 수 있습니다. 더 높은 수준의 통합 능력을 위해 노력하세요.";
+                    } else if (percentScore >= 60) {
+                        content += "대부분의 상황에서 적절히 언어를 사용할 수 있습니다. 더 복잡한 상황에서의 언어 사용을 연습해보세요.";
+                    } else {
+                        content += "기본적인 통합 능력은 있지만, 개선이 필요합니다. 다양한 상황에서의 언어 사용을 연습하세요.";
+                    }
+                }
+
+                analysisData.speaking.push({ area: item.item, content: content });
+            });
+
+            return analysisData;
+        }
+
+        const analysisData = generateAnalysis(writingSummaryData, speakingSummaryData);
 
         const analysisDiv = document.getElementById('analysis');
-        analysisData.forEach(item => {
+
+        // 필기시험 분석 추가
+        const writingHeader = document.createElement('h3');
+        writingHeader.textContent = '필기시험 분석';
+        analysisDiv.appendChild(writingHeader);
+
+        analysisData.writing.forEach(item => {
             const p = document.createElement('p');
             p.innerHTML = `<strong>${item.area}:</strong> ${item.content}`;
             analysisDiv.appendChild(p);
         });
 
-        // 개선 방향 및 학습 권장 사항
-        const recommendations = [
-            "듣기: 유사 발음 단어 구별을 위한 연습 문제 제공",
-            "읽기: 긴 문장 해석을 위한 독해 연습 자료 제공",
-            "유창성: 긴 문장 연습 및 발음 교정 자료 제공",
-            "담화 구성력: 논리적 연결어 사용 연습을 위한 학습 자료 제공"
-        ];
+        // 말하기시험 분석 추가
+        const speakingHeader = document.createElement('h3');
+        speakingHeader.textContent = '말하기시험 분석';
+        analysisDiv.appendChild(speakingHeader);
+
+        analysisData.speaking.forEach(item => {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${item.area}:</strong> ${item.content}`;
+            analysisDiv.appendChild(p);
+        });
+
+        // 개선 방향 및 학습 권장 사항 생성 함수
+        function generateRecommendations(writingData, speakingData) {
+            const recommendations = [];
+
+            // 필기시험 권장 사항
+            writingData.forEach(item => {
+                const percentScore = (item.score / item.totalScore * 100);
+                if (percentScore < 70) {
+                    let recommendation = `${item.item}: `;
+                    if (item.item === "어휘") {
+                        recommendation += "단어 학습에 더 집중하세요. 매일 새로운 단어를 학습하고 복습하는 습관을 들이세요.";
+                    } else if (item.item === "문법") {
+                        recommendation += "기본 문법 규칙을 복습하고, 다양한 문장 구조를 연습해보세요.";
+                    } else if (item.item === "쓰기") {
+                        recommendation += "다양한 주제로 짧은 에세이를 작성하는 연습을 해보세요. 문장 구조와 단락 구성에 주의를 기울이세요.";
+                    } else if (item.item === "읽기") {
+                        recommendation += "다양한 종류의 텍스트를 읽고 이해하는 연습을 하세요. 주요 아이디어를 파악하는 연습도 함께 하면 좋습니다.";
+                    } else if (item.item === "문화") {
+                        recommendation += "한국 문화에 대한 다양한 자료를 접하세요. 한국 드라마, 영화, 뉴스 등을 통해 실생활 문화를 학습하세요.";
+                    }
+                    recommendations.push(recommendation);
+                }
+            });
+
+            // 말하기시험 권장 사항
+            speakingData.forEach(item => {
+                const percentScore = (item.score / item.totalScore * 100);
+                if (percentScore < 70) {
+                    let recommendation = `${item.item}: `;
+                    if (item.item === "발음") {
+                        recommendation += "한국어 발음 연습에 더 집중하세요. 특히 한국어 특유의 발음과 억양에 주의를 기울이세요.";
+                    } else if (item.item === "말하기") {
+                        recommendation += "일상 대화 연습을 많이 하세요. 가능하다면 한국어 원어민과의 대화 기회를 찾아보세요.";
+                    } else if (item.item === "통합") {
+                        recommendation += "다양한 상황에서의 언어 사용을 연습하세요. 롤플레이나 시뮬레이션 활동이 도움이 될 수 있습니다.";
+                    }
+                    recommendations.push(recommendation);
+                }
+            });
+
+            // 전체적인 학습 조언 추가
+            if (recommendations.length === 0) {
+                recommendations.push("전반적으로 우수한 성적을 보여주고 있습니다. 현재의 학습 방식을 유지하면서 더 높은 수준의 한국어 능력을 위해 노력해보세요.");
+            } else {
+                recommendations.push("위의 권장 사항에 따라 학습하면서, 전반적인 한국어 능력 향상을 위해 다양한 한국어 콘텐츠를 접하고 실제 의사소통 상황에서 한국어를 사용해보세요.");
+            }
+
+            return recommendations;
+        }
+
+        const recommendationsData = generateRecommendations(writingSummaryData, speakingSummaryData);
 
         const recommendationsList = document.getElementById('recommendations');
-        recommendations.forEach(item => {
+        recommendationsData.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
             recommendationsList.appendChild(li);

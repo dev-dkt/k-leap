@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bullet Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .bullet { font: 10px sans-serif; }
+        .bullet .marker { stroke: #000; stroke-width: 2px; }
+        .bullet .tick line { stroke: #666; stroke-width: .5px; }
+        .bullet .range.s0 { fill: #eee; }
+        .bullet .range.s1 { fill: #ddd; }
+        .bullet .range.s2 { fill: #ccc; }
+        .bullet .measure.s0 { fill: lightsteelblue; }
+        .bullet .title { font-size: 14px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="bulletChart"></div>
+    <script>
+        const data = [
+            {"title":"발음","ranges":[5],"measures":[3],"markers":[5]},
+            {"title":"말하기","ranges":[5],"measures":[3],"markers":[5]},
+            {"title":"통합","ranges":[15],"measures":[9],"markers":[15]}
+        ];
+
+        function bulletChart() {
+            let width = 380;
+            let height = 30;
+            let margin = {top: 5, right: 40, bottom: 20, left: 120};
+
+            function chart(selection) {
+                selection.each(function(d) {
+                    const range = d3.scaleLinear()
+                        .domain([0, Math.max(d.ranges[0], d.markers[0])])
+                        .range([0, width - margin.left - margin.right]);
+
+                    const svg = d3.select(this).append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    const g = svg.append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                    g.append("rect")
+                        .attr("class", "range s0")
+                        .attr("width", range(d.ranges[0]))
+                        .attr("height", height - margin.top - margin.bottom);
+
+                    g.append("rect")
+                        .attr("class", "measure s0")
+                        .attr("width", range(d.measures[0]))
+                        .attr("height", (height - margin.top - margin.bottom) / 3);
+
+                    g.append("line")
+                        .attr("class", "marker")
+                        .attr("x1", range(d.markers[0]))
+                        .attr("x2", range(d.markers[0]))
+                        .attr("y1", height / 6)
+                        .attr("y2", height - margin.top - margin.bottom - height / 6);
+
+                    g.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + (height - margin.top - margin.bottom) + ")")
+                        .call(d3.axisBottom(range).ticks(5));
+
+                    g.append("text")
+                        .attr("class", "title")
+                        .attr("x", -margin.left)
+                        .attr("y", height / 2 - margin.top)
+                        .attr("dy", ".35em")
+                        .text(d.title);
+                });
+            }
+
+            return chart;
+        }
+
+        const chart = bulletChart();
+
+        d3.select("#bulletChart")
+            .selectAll("div")
+            .data(data)
+            .enter().append("div")
+            .attr("class", "bullet")
+            .call(chart);
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stacked Bar Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <svg id="stackedBarChart" width="400" height="300"></svg>
+    <script>
+        const data = [
+            {category: "발음", score: 3, max: 5},
+            {category: "말하기", score: 3, max: 5},
+            {category: "통합", score: 9, max: 15}
+        ];
+
+        const svg = d3.select("#stackedBarChart");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
+        const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .rangeRound([0, width])
+            .padding(0.1)
+            .domain(data.map(d => d.category));
+
+        const y = d3.scaleLinear()
+            .rangeRound([height, 0])
+            .domain([0, d3.max(data, d => d.max)]);
+
+        const colors = d3.scaleOrdinal()
+            .domain(["score", "remaining"])
+            .range(["#4CAF50", "#FFA726"]);
+
+        const stack = d3.stack()
+            .keys(["score", "remaining"])
+            .order(d3.stackOrderNone)
+            .offset(d3.stackOffsetNone);
+
+        const stackedData = stack(data.map(d => ({
+            category: d.category,
+            score: d.score,
+            remaining: d.max - d.score
+        })));
+
+        g.selectAll(".bar")
+            .data(stackedData)
+            .enter().append("g")
+                .attr("fill", d => colors(d.key))
+            .selectAll("rect")
+            .data(d => d)
+            .enter().append("rect")
+                .attr("x", d => x(d.data.category))
+                .attr("y", d => y(d[1]))
+                .attr("height", d => y(d[0]) - y(d[1]))
+                .attr("width", x.bandwidth());
+
+        g.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+
+        g.append("g")
+            .call(d3.axisLeft(y));
+    </script>
+</body>
+</html>

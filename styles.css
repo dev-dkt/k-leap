@@ -254,3 +254,34 @@ th {
 tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem;
+}
+
+.summary-table th {
+  background-color: #f7fafc;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.bg-gray-100 {
+  background-color: #f7fafc;
+}
