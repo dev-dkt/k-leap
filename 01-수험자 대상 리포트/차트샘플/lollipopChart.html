@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lollipop Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <svg id="lollipopChart" width="500" height="300"></svg>
+    <script>
+        const data = [
+            {category: "발음", score: 3, max: 5},
+            {category: "말하기", score: 3, max: 5},
+            {category: "통합", score: 9, max: 15}
+        ];
+
+        const svg = d3.select("#lollipopChart");
+        const margin = {top: 30, right: 30, bottom: 70, left: 60};
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .range([0, width])
+            .domain(data.map(d => d.category))
+            .padding(1);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.max)])
+            .range([height, 0]);
+
+        g.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+                .attr("transform", "translate(-10,0)rotate(-45)")
+                .style("text-anchor", "end");
+
+        g.append("g")
+            .call(d3.axisLeft(y));
+
+        g.selectAll("myline")
+            .data(data)
+            .enter()
+            .append("line")
+                .attr("x1", d => x(d.category))
+                .attr("x2", d => x(d.category))
+                .attr("y1", d => y(d.max))
+                .attr("y2", d => y(d.score))
+                .attr("stroke", "grey");
+
+        g.selectAll("mycircle")
+            .data(data)
+            .enter()
+            .append("circle")
+                .attr("cx", d => x(d.category))
+                .attr("cy", d => y(d.score))
+                .attr("r", "7")
+                .style("fill", "#69b3a2")
+                .attr("stroke", "black");
+
+        g.selectAll("mytext")
+            .data(data)
+            .enter()
+            .append("text")
+                .attr("x", d => x(d.category))
+                .attr("y", d => y(d.score) - 15)
+                .text(d => `${d.score}/${d.max}`)
+                .attr("text-anchor", "middle");
+    </script>
+</body>
+</html>
