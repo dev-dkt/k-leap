@@ -1,292 +1,388 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 문항 파라미터 분석 요약 보고서</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./report-styles.css">
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./report-styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <h1>한국어능력시험 문항 파라미터 분석 요약 보고서</h1>
+      <h1>한국어능력시험 문항 파라미터 분석 요약 보고서</h1>
 
-        <div class="section">
-            <h2>시험 개요</h2>
-            <table>
-                <tr><th>시험일</th><td>2024년 9월 10일</td></tr>
-                <tr><th>시험 유형</th><td>사전평가</td></tr>
-                <tr><th>시험장</th><td>CBT평가센터</td></tr>
-                <tr><th>시행 회차</th><td>100회차</td></tr>
-            </table>
-        </div>
+      <div class="section">
+        <table>
+          <tr>
+            <th>시험일</th>
+            <td>2024년 9월 10일</td>
+          </tr>
+          <tr>
+            <th>시험 유형</th>
+            <td>사전평가</td>
+          </tr>
+          <tr>
+            <th>시험장</th>
+            <td>CBT평가센터</td>
+          </tr>
+          <tr>
+            <th>시행 회차</th>
+            <td>100회차</td>
+          </tr>
+        </table>
+      </div>
 
-        <div class="section">
-            <h2>1. 분석 결과 요약</h2>
-            <h3>시험 통계</h3>
+      <div class="section">
+        <h2>1. 분석 결과 요약</h2>
+        <h3>시험 통계</h3>
+        <ul>
+          <li>총 응시자 수: 30명</li>
+          <li>필답형 평가 문항 수: 50문항</li>
+          <li>구술형 평가 문항 수: 5문항</li>
+          <li>필답형 평가 평균 점수: 33.07점 (100점 만점 기준)</li>
+          <li>구술형 평가 평균 점수: 8.33점 (25점 만점 기준)</li>
+          <li>필답형 평가 합격률: 10% (64점 이상 기준)</li>
+        </ul>
+
+        <h3>주요 분석 결과</h3>
+        <ul>
+          <li>
+            필답형 평가 문항 난이도 분포:
             <ul>
-                <li>총 응시자 수: 30명</li>
-                <li>필답형 평가 문항 수: 50문항</li>
-                <li>구술형 평가 문항 수: 5문항</li>
-                <li>필답형 평가 평균 점수: 33.07점 (100점 만점 기준)</li>
-                <li>구술형 평가 평균 점수: 8.33점 (25점 만점 기준)</li>
-                <li>필답형 평가 합격률: 10% (64점 이상 기준)</li>
+              <li>저난도(0.0-0.3) 7문항</li>
+              <li>중난도(0.3-0.7) 41문항</li>
+              <li>고난도(0.7-1.0) 2문항</li>
             </ul>
-
-            <h3>주요 분석 결과</h3>
+          </li>
+          <li>
+            6개 필답형 평가 문항(11, 16, 24, 43, 45, 46번)에서 고변별도(>1.0)가
+            관찰되었습니다.
+          </li>
+          <li>
+            평가영역별 필답형 문항 구성:
             <ul>
-                <li>필답형 평가 문항 난이도 분포: 
-                    <ul>
-                        <li>저난도(0.0-0.3) 7문항</li>
-                        <li>중난도(0.3-0.7) 41문항</li>
-                        <li>고난도(0.7-1.0) 2문항</li>
-                    </ul>
-                </li>
-                <li>6개 필답형 평가 문항(11, 16, 24, 43, 45, 46번)에서 고변별도(>1.0)가 관찰되었습니다.</li>
-                <li>평가영역별 필답형 문항 구성: 
-                    <ul>
-                        <li>어휘 14문항</li>
-                        <li>문법 14문항</li>
-                        <li>쓰기 5문항</li>
-                        <li>읽기 5문항</li>
-                        <li>문화 12문항</li>
-                    </ul>
-                </li>
-                <li>구술형 평가 문항은 모두 높은 변별도(>0.6)를 나타냈습니다.</li>
+              <li>어휘 14문항</li>
+              <li>문법 14문항</li>
+              <li>쓰기 5문항</li>
+              <li>읽기 5문항</li>
+              <li>문화 12문항</li>
             </ul>
-        </div>
+          </li>
+          <li>구술형 평가 문항은 모두 높은 변별도(>0.6)를 나타냈습니다.</li>
+        </ul>
+      </div>
 
-        <div class="section">
-            <h2>2. 필답형 평가 문항 파라미터 분석</h2>
-            <div class="chart-grid">
-                <div class="chart-container">
-                    <canvas id="difficultyChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="discriminationChart"></canvas>
-                </div>
-            </div>
+      <div class="section">
+        <h2>2. 필답형 평가 문항 파라미터 분석</h2>
+        <div class="chart-grid">
+          <div class="chart-container">
+            <canvas id="difficultyChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="discriminationChart"></canvas>
+          </div>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>3. 구술형 평가 문항 파라미터 분석</h2>
-            <div class="chart-grid">
-                <div class="chart-container">
-                    <canvas id="oralDifficultyChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas id="oralDiscriminationChart"></canvas>
-                </div>
-            </div>
+      <div class="section">
+        <h2>3. 구술형 평가 문항 파라미터 분석</h2>
+        <div class="chart-grid">
+          <div class="chart-container">
+            <canvas id="oralDifficultyChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="oralDiscriminationChart"></canvas>
+          </div>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>4. 고변별도 문항 분석</h2>
-            <h3>필답형 평가</h3>
-            <ul>
-                <li>고변별도 문항 기준: 변별도 > 1.0</li>
-                <li>해당 문항: 11, 16, 24, 43, 45, 46번</li>
-            </ul>
-            <h3>구술형 평가</h3>
-            <ul>
-                <li>모든 문항이 높은 변별도를 보임 (변별도 > 0.6)</li>
-            </ul>
-        </div>
+      <div class="section">
+        <h2>4. 고변별도 문항 분석</h2>
+        <h3>필답형 평가</h3>
+        <ul>
+          <li>고변별도 문항 기준: 변별도 > 1.0</li>
+          <li>해당 문항: 11, 16, 24, 43, 45, 46번</li>
+        </ul>
+        <h3>구술형 평가</h3>
+        <ul>
+          <li>모든 문항이 높은 변별도를 보임 (변별도 > 0.6)</li>
+        </ul>
+      </div>
 
-        <div class="section">
-            <h2>5. 개선 제언</h2>
-            <ol>
-                <li>필답형 평가의 난이도 분포의 적절성을 검토하고, 필요시 난이도 조정을 고려하십시오.</li>
-                <li>필답형 평가에서 저변별도(< 0.3) 문항을 식별하고 개선 방안을 모색하십시오.</li>
-                <li>고변별도 문항의 특성을 분석하여 향후 문항 개발에 참고하십시오.</li>
-                <li>평가영역별 문항 수의 균형을 재검토하고, 필요시 조정을 고려하십시오.</li>
-                <li>필답형 평가와 구술형 평가 간의 난이도 균형을 검토하고, 필요시 조정하십시오.</li>
-                <li>낮은 합격률을 고려하여 전반적인 시험 난이도의 적절성을 평가하십시오.</li>
-            </ol>
+      <div class="section">
+        <h2>5. 개선 제언</h2>
+        <ol>
+          <li>
+            필답형 평가의 난이도 분포의 적절성을 검토하고, 필요시 난이도 조정을
+            고려하십시오.
+          </li>
+          <li>
+            필답형 평가에서 저변별도(< 0.3) 문항을 식별하고 개선 방안을
+            모색하십시오.
+          </li>
+          <li>
+            고변별도 문항의 특성을 분석하여 향후 문항 개발에 참고하십시오.
+          </li>
+          <li>
+            평가영역별 문항 수의 균형을 재검토하고, 필요시 조정을 고려하십시오.
+          </li>
+          <li>
+            필답형 평가와 구술형 평가 간의 난이도 균형을 검토하고, 필요시
+            조정하십시오.
+          </li>
+          <li>
+            낮은 합격률을 고려하여 전반적인 시험 난이도의 적절성을 평가하십시오.
+          </li>
+        </ol>
 
-            <p>이러한 개선을 통해 한국어능력시험의 신뢰도와 타당도를 높이고, 응시자의 언어 능력을 더욱 정확하게 평가할 수 있을 것으로 기대됩니다.</p>
-        </div>
+        <p>
+          이러한 개선을 통해 한국어능력시험의 신뢰도와 타당도를 높이고, 응시자의
+          언어 능력을 더욱 정확하게 평가할 수 있을 것으로 기대됩니다.
+        </p>
+      </div>
     </div>
 
     <footer>
-        <p>본 가이드라인은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에 따라 내용이 수정될 수 있습니다.</p>
+      <p>
+        본 가이드라인은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+        변경에 따라 내용이 수정될 수 있습니다.
+      </p>
     </footer>
 
     <script type="module">
-        import { df_irt, s_irt } from './data.js';
+      import { df_irt, s_irt } from "./data.js";
 
-        // 집계 함수
-        function calculateAggregates(data) {
-            let totalDifficulty = 0;
-            let totalDiscrimination = 0;
-            let lowDifficultyCount = 0;
-            let mediumDifficultyCount = 0;
-            let highDifficultyCount = 0;
-            let highDiscriminationItems = [];
+      // 집계 함수
+      function calculateAggregates(data) {
+        let totalDifficulty = 0;
+        let totalDiscrimination = 0;
+        let lowDifficultyCount = 0;
+        let mediumDifficultyCount = 0;
+        let highDifficultyCount = 0;
+        let highDiscriminationItems = [];
 
-            data.forEach(item => {
-                const difficulty = item['난이도 (beta)'];
-                const discrimination = item['변별도 (alpha)'];
+        data.forEach((item) => {
+          const difficulty = item["난이도 (beta)"];
+          const discrimination = item["변별도 (alpha)"];
 
-                totalDifficulty += difficulty;
-                totalDiscrimination += discrimination;
+          totalDifficulty += difficulty;
+          totalDiscrimination += discrimination;
 
-                // 난이도 분포 계산
-                if (difficulty <= 0.3) {
-                    lowDifficultyCount++;
-                } else if (difficulty > 0.3 && difficulty <= 0.7) {
-                    mediumDifficultyCount++;
-                } else {
-                    highDifficultyCount++;
-                }
+          // 난이도 분포 계산
+          if (difficulty <= 0.3) {
+            lowDifficultyCount++;
+          } else if (difficulty > 0.3 && difficulty <= 0.7) {
+            mediumDifficultyCount++;
+          } else {
+            highDifficultyCount++;
+          }
 
-                // 고변별도 문항 (변별도 > 1.0)
-                if (discrimination > 1.0) {
-                    highDiscriminationItems.push(item['문항 번호']);
-                }
-            });
+          // 고변별도 문항 (변별도 > 1.0)
+          if (discrimination > 1.0) {
+            highDiscriminationItems.push(item["문항 번호"]);
+          }
+        });
 
-            const meanDifficulty = totalDifficulty / data.length;
-            const meanDiscrimination = totalDiscrimination / data.length;
+        const meanDifficulty = totalDifficulty / data.length;
+        const meanDiscrimination = totalDiscrimination / data.length;
 
-            return {
-                meanDifficulty,
-                meanDiscrimination,
-                lowDifficultyCount,
-                mediumDifficultyCount,
-                highDifficultyCount,
-                highDiscriminationItems
-            };
-        }
-
-        // 필기 및 구술 시험 데이터로부터 집계
-        const writtenExamAggregates = calculateAggregates(df_irt);
-        const oralExamAggregates = calculateAggregates(s_irt);
-
-        // 집계된 데이터를 aggregatedData로 설정
-        const aggregatedData = {
-            writtenExam: writtenExamAggregates,
-            oralExam: oralExamAggregates
+        return {
+          meanDifficulty,
+          meanDiscrimination,
+          lowDifficultyCount,
+          mediumDifficultyCount,
+          highDifficultyCount,
+          highDiscriminationItems,
         };
+      }
 
-        // 결과를 HTML에 반영
-        function displaySummary() {
-            // 필기 시험 통계 업데이트
-            document.getElementById('writtenMeanDifficulty').innerText = aggregatedData.writtenExam.meanDifficulty.toFixed(2);
-            document.getElementById('writtenMeanDiscrimination').innerText = aggregatedData.writtenExam.meanDiscrimination.toFixed(2);
-            document.getElementById('writtenLowDifficulty').innerText = aggregatedData.writtenExam.lowDifficultyCount;
-            document.getElementById('writtenMediumDifficulty').innerText = aggregatedData.writtenExam.mediumDifficultyCount;
-            document.getElementById('writtenHighDifficulty').innerText = aggregatedData.writtenExam.highDifficultyCount;
-            document.getElementById('writtenHighDiscrimination').innerText = aggregatedData.writtenExam.highDiscriminationItems.length ? aggregatedData.writtenExam.highDiscriminationItems.join(', ') : '없음';
+      // 필기 및 구술 시험 데이터로부터 집계
+      const writtenExamAggregates = calculateAggregates(df_irt);
+      const oralExamAggregates = calculateAggregates(s_irt);
 
-            // 구술 시험 통계 업데이트
-            document.getElementById('oralMeanDifficulty').innerText = aggregatedData.oralExam.meanDifficulty.toFixed(2);
-            document.getElementById('oralMeanDiscrimination').innerText = aggregatedData.oralExam.meanDiscrimination.toFixed(2);
-            document.getElementById('oralLowDifficulty').innerText = aggregatedData.oralExam.lowDifficultyCount;
-            document.getElementById('oralMediumDifficulty').innerText = aggregatedData.oralExam.mediumDifficultyCount;
-            document.getElementById('oralHighDifficulty').innerText = aggregatedData.oralExam.highDifficultyCount;
-            document.getElementById('oralHighDiscrimination').innerText = aggregatedData.oralExam.highDiscriminationItems.length ? aggregatedData.oralExam.highDiscriminationItems.join(', ') : '없음';
+      // 집계된 데이터를 aggregatedData로 설정
+      const aggregatedData = {
+        writtenExam: writtenExamAggregates,
+        oralExam: oralExamAggregates,
+      };
+
+      // 결과를 HTML에 반영
+      function displaySummary() {
+        // 필기 시험 통계 업데이트
+        document.getElementById("writtenMeanDifficulty").innerText =
+          aggregatedData.writtenExam.meanDifficulty.toFixed(2);
+        document.getElementById("writtenMeanDiscrimination").innerText =
+          aggregatedData.writtenExam.meanDiscrimination.toFixed(2);
+        document.getElementById("writtenLowDifficulty").innerText =
+          aggregatedData.writtenExam.lowDifficultyCount;
+        document.getElementById("writtenMediumDifficulty").innerText =
+          aggregatedData.writtenExam.mediumDifficultyCount;
+        document.getElementById("writtenHighDifficulty").innerText =
+          aggregatedData.writtenExam.highDifficultyCount;
+        document.getElementById("writtenHighDiscrimination").innerText =
+          aggregatedData.writtenExam.highDiscriminationItems.length
+            ? aggregatedData.writtenExam.highDiscriminationItems.join(", ")
+            : "없음";
+
+        // 구술 시험 통계 업데이트
+        document.getElementById("oralMeanDifficulty").innerText =
+          aggregatedData.oralExam.meanDifficulty.toFixed(2);
+        document.getElementById("oralMeanDiscrimination").innerText =
+          aggregatedData.oralExam.meanDiscrimination.toFixed(2);
+        document.getElementById("oralLowDifficulty").innerText =
+          aggregatedData.oralExam.lowDifficultyCount;
+        document.getElementById("oralMediumDifficulty").innerText =
+          aggregatedData.oralExam.mediumDifficultyCount;
+        document.getElementById("oralHighDifficulty").innerText =
+          aggregatedData.oralExam.highDifficultyCount;
+        document.getElementById("oralHighDiscrimination").innerText =
+          aggregatedData.oralExam.highDiscriminationItems.length
+            ? aggregatedData.oralExam.highDiscriminationItems.join(", ")
+            : "없음";
+      }
+
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      };
+
+      function createChart(ctx, data, options) {
+        return new Chart(ctx, {
+          type: "bar",
+          data: data,
+          options: options,
+        });
+      }
+
+      window.onload = function () {
+        // Function to extract and format the data for chart.js
+        function extractData(jsonData, key) {
+          return jsonData.map((item) => item[key]);
         }
 
-        const chartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
+        // 필기 시험 데이터
+        const 필기문항번호 = extractData(df_irt, "문항 번호");
+        const 필기변별도 = extractData(df_irt, "변별도 (alpha)");
+        const 필기난이도 = extractData(df_irt, "난이도 (beta)");
+
+        // 구술 시험 데이터
+        const 구술문항번호 = extractData(s_irt, "문항 번호");
+        const 구술변별도 = extractData(s_irt, "변별도 (alpha)");
+        const 구술난이도 = extractData(s_irt, "난이도 (beta)");
+
+        // Create 필기 시험 난이도 차트
+        createChart(
+          document.getElementById("difficultyChart").getContext("2d"),
+          {
+            labels: 필기문항번호,
+            datasets: [
+              {
+                label: "필기시험 난이도",
+                data: 필기난이도,
+                backgroundColor: "rgba(52, 152, 219, 0.6)",
+                borderColor: "rgba(52, 152, 219, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          {
+            ...chartOptions,
             plugins: {
-                legend: {
-                    position: 'top',
-                },
+              ...chartOptions.plugins,
+              title: { display: true, text: "필기시험 난이도 분포" },
             },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        };
+          }
+        );
 
-        function createChart(ctx, data, options) {
-            return new Chart(ctx, {
-                type: 'bar',
-                data: data,
-                options: options
-            });
-        }
+        // Create 필기 시험 변별도 차트
+        createChart(
+          document.getElementById("discriminationChart").getContext("2d"),
+          {
+            labels: 필기문항번호,
+            datasets: [
+              {
+                label: "필기시험 변별도",
+                data: 필기변별도,
+                backgroundColor: "rgba(46, 204, 113, 0.6)",
+                borderColor: "rgba(46, 204, 113, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          {
+            ...chartOptions,
+            plugins: {
+              ...chartOptions.plugins,
+              title: { display: true, text: "필기시험 변별도" },
+            },
+          }
+        );
 
-        window.onload = function() {
-            // Function to extract and format the data for chart.js
-            function extractData(jsonData, key) {
-                return jsonData.map(item => item[key]);
-            }
+        // Create 구술 시험 난이도 차트
+        createChart(
+          document.getElementById("oralDifficultyChart").getContext("2d"),
+          {
+            labels: 구술문항번호,
+            datasets: [
+              {
+                label: "구술시험 난이도",
+                data: 구술난이도,
+                backgroundColor: "rgba(231, 76, 60, 0.6)",
+                borderColor: "rgba(231, 76, 60, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          {
+            ...chartOptions,
+            plugins: {
+              ...chartOptions.plugins,
+              title: { display: true, text: "구술시험 난이도" },
+            },
+          }
+        );
 
-            // 필기 시험 데이터
-            const 필기문항번호 = extractData(df_irt, "문항 번호");
-            const 필기변별도 = extractData(df_irt, "변별도 (alpha)");
-            const 필기난이도 = extractData(df_irt, "난이도 (beta)");
+        // Create 구술 시험 변별도 차트
+        createChart(
+          document.getElementById("oralDiscriminationChart").getContext("2d"),
+          {
+            labels: 구술문항번호,
+            datasets: [
+              {
+                label: "구술시험 변별도",
+                data: 구술변별도,
+                backgroundColor: "rgba(241, 196, 15, 0.6)",
+                borderColor: "rgba(241, 196, 15, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          {
+            ...chartOptions,
+            plugins: {
+              ...chartOptions.plugins,
+              title: { display: true, text: "구술시험 변별도" },
+            },
+          }
+        );
 
-            // 구술 시험 데이터
-            const 구술문항번호 = extractData(s_irt, "문항 번호");
-            const 구술변별도 = extractData(s_irt, "변별도 (alpha)");
-            const 구술난이도 = extractData(s_irt, "난이도 (beta)");
-
-            // Create 필기 시험 난이도 차트
-            createChart(document.getElementById('difficultyChart').getContext('2d'), {
-                labels: 필기문항번호,
-                datasets: [{
-                    label: '필기시험 난이도',
-                    data: 필기난이도,
-                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
-                    borderColor: 'rgba(52, 152, 219, 1)',
-                    borderWidth: 1,
-                }]
-            }, {
-                ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: '필기시험 난이도 분포' }}
-            });
-
-            // Create 필기 시험 변별도 차트
-            createChart(document.getElementById('discriminationChart').getContext('2d'), {
-                labels: 필기문항번호,
-                datasets: [{
-                    label: '필기시험 변별도',
-                    data: 필기변별도,
-                    backgroundColor: 'rgba(46, 204, 113, 0.6)',
-                    borderColor: 'rgba(46, 204, 113, 1)',
-                    borderWidth: 1,
-                }]
-            }, {
-                ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: '필기시험 변별도' }}
-            });
-
-            // Create 구술 시험 난이도 차트
-            createChart(document.getElementById('oralDifficultyChart').getContext('2d'), {
-                labels: 구술문항번호,
-                datasets: [{
-                    label: '구술시험 난이도',
-                    data: 구술난이도,
-                    backgroundColor: 'rgba(231, 76, 60, 0.6)',
-                    borderColor: 'rgba(231, 76, 60, 1)',
-                    borderWidth: 1,
-                }]
-            }, {
-                ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: '구술시험 난이도' }}
-            });
-
-            // Create 구술 시험 변별도 차트
-            createChart(document.getElementById('oralDiscriminationChart').getContext('2d'), {
-                labels: 구술문항번호,
-                datasets: [{
-                    label: '구술시험 변별도',
-                    data: 구술변별도,
-                    backgroundColor: 'rgba(241, 196, 15, 0.6)',
-                    borderColor: 'rgba(241, 196, 15, 1)',
-                    borderWidth: 1,
-                }]
-            }, {
-                ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: '구술시험 변별도' }}
-            });
-
-            // Display the aggregated results
-            displaySummary();
-        };
+        // Display the aggregated results
+        displaySummary();
+      };
     </script>
-</body>
+  </body>
 </html>

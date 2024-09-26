@@ -1,319 +1,377 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 결과 분석 및 학습 가이드</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="report-styles.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .chart-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-            margin: 20px 0;
-        }
-        .chart-wrapper {
-            width: 100%;
-            max-width: 600px;
-        }
+      .chart-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 400px;
+        margin: 20px 0;
+      }
+      .chart-wrapper {
+        width: 100%;
+        max-width: 600px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>한국어능력시험 결과 분석 및 학습 가이드</h1>
+      <h1>한국어능력시험 결과 분석 및 학습 가이드</h1>
 
-        <div class="section">
-            <h2>시험 정보</h2>
-            <table>
-                <tr><th>시험일</th><td>2024년 9월 10일</td></tr>
-                <tr><th>시험 유형</th><td>사전평가</td></tr>
-                <tr><th>시험장</th><td>CBT평가센터</td></tr>
-                <tr><th>시행 회차</th><td>100회차</td></tr>
-            </table>
+      <div class="section">
+        <table>
+          <tr>
+            <th>시험일</th>
+            <td>2024년 9월 10일</td>
+          </tr>
+          <tr>
+            <th>시험 유형</th>
+            <td>사전평가</td>
+          </tr>
+          <tr>
+            <th>시험장</th>
+            <td>CBT평가센터</td>
+          </tr>
+          <tr>
+            <th>시행 회차</th>
+            <td>100회차</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>1. 개인 성적 요약</h2>
+        <table>
+          <tr>
+            <th>이름</th>
+            <td id="studentName"></td>
+          </tr>
+          <tr>
+            <th>필기 점수</th>
+            <td id="writtenScore"></td>
+          </tr>
+          <tr>
+            <th>구술 점수</th>
+            <td id="oralScore"></td>
+          </tr>
+          <tr>
+            <th>총점</th>
+            <td id="totalScore"></td>
+          </tr>
+          <tr>
+            <th>통과 여부</th>
+            <td id="passFail"></td>
+          </tr>
+          <tr>
+            <th>백분위</th>
+            <td id="percentile"></td>
+          </tr>
+        </table>
+
+        <h3>영역별 점수</h3>
+        <div class="chart-container">
+          <canvas id="scoreChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>2. 강점 및 약점 분석</h2>
+        <h3>난이도별 정답률</h3>
+        <div class="chart-container">
+          <canvas id="difficultyChart"></canvas>
         </div>
 
-        <div class="section">
-            <h2>1. 개인 성적 요약</h2>
-            <table>
-                <tr>
-                    <th>이름</th>
-                    <td id="studentName"></td>
-                </tr>
-                <tr>
-                    <th>필기 점수</th>
-                    <td id="writtenScore"></td>
-                </tr>
-                <tr>
-                    <th>구술 점수</th>
-                    <td id="oralScore"></td>
-                </tr>
-                <tr>
-                    <th>총점</th>
-                    <td id="totalScore"></td>
-                </tr>
-                <tr>
-                    <th>통과 여부</th>
-                    <td id="passFail"></td>
-                </tr>
-                <tr>
-                    <th>백분위</th>
-                    <td id="percentile"></td>
-                </tr>
-            </table>
-
-            <h3>영역별 점수</h3>
-            <div class="chart-container">
-                <canvas id="scoreChart"></canvas>
-            </div>
+        <h3>평가영역별 정답률</h3>
+        <div class="chart-container">
+          <canvas id="categoryChart"></canvas>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>2. 강점 및 약점 분석</h2>
-            <h3>난이도별 정답률</h3>
-            <div class="chart-container">
-                <canvas id="difficultyChart"></canvas>
-            </div>
+      <div class="section">
+        <h3>3. 오답 문항 분석</h3>
+        <p>
+          다음은 오답한 주요 문항들입니다. 각 문항에 대한 설명과 학습 방향을
+          참고하세요.
+        </p>
+        <ul id="wrongAnswersList">
+          <!-- JavaScript로 동적 생성 -->
+        </ul>
+      </div>
 
-            <h3>평가영역별 정답률</h3>
-            <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
-            </div>
+      <div class="section">
+        <h2>4. 능력 수준별 학습 전략</h2>
+        <div id="learningStrategy">
+          <!-- JavaScript로 동적 생성 -->
         </div>
+      </div>
 
-        <div class="section">
-            <h3>3. 오답 문항 분석</h3>
-            <p>다음은 오답한 주요 문항들입니다. 각 문항에 대한 설명과 학습 방향을 참고하세요.</p>
-            <ul id="wrongAnswersList">
-                <!-- JavaScript로 동적 생성 -->
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>4. 능력 수준별 학습 전략</h2>
-            <div id="learningStrategy">
-                <!-- JavaScript로 동적 생성 -->
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>5. 다음 시험 준비 팁</h2>
-            <ul>
-                <li>정기적인 학습 계획을 세우고 꾸준히 실천하세요.</li>
-                <li>다양한 주제의 한국어 텍스트를 읽고 듣는 연습을 하세요.</li>
-                <li>한국어로 일기를 쓰거나 에세이를 작성하는 연습을 하세요.</li>
-                <li>한국어 원어민과의 대화 기회를 많이 가지세요.</li>
-                <li>실전과 유사한 모의고사를 통해 시험 감각을 유지하세요.</li>
-            </ul>
-        </div>
+      <div class="section">
+        <h2>5. 다음 시험 준비 팁</h2>
+        <ul>
+          <li>정기적인 학습 계획을 세우고 꾸준히 실천하세요.</li>
+          <li>다양한 주제의 한국어 텍스트를 읽고 듣는 연습을 하세요.</li>
+          <li>한국어로 일기를 쓰거나 에세이를 작성하는 연습을 하세요.</li>
+          <li>한국어 원어민과의 대화 기회를 많이 가지세요.</li>
+          <li>실전과 유사한 모의고사를 통해 시험 감각을 유지하세요.</li>
+        </ul>
+      </div>
     </div>
 
     <footer>
-        <p>본 보고서는 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에 따라 내용이 수정될 수 있습니다.</p>
+      <p>
+        본 보고서는 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
     </footer>
 
     <script type="module">
-        import { df_questions, df_responses, s_responses, df_irt, df_ability } from './data.js';
+      import {
+        df_questions,
+        df_responses,
+        s_responses,
+        df_irt,
+        df_ability,
+      } from "./data.js";
 
-        // 학생 데이터 (예시)
-        const studentData = df_responses[0];  // 첫 번째 학생의 데이터를 사용
-        const studentOralData = s_responses.find(item => item.이름 === studentData.이름);
-        const studentAbility = df_ability.find(item => item.이름 === studentData.이름);
+      // 학생 데이터 (예시)
+      const studentData = df_responses[0]; // 첫 번째 학생의 데이터를 사용
+      const studentOralData = s_responses.find(
+        (item) => item.이름 === studentData.이름
+      );
+      const studentAbility = df_ability.find(
+        (item) => item.이름 === studentData.이름
+      );
 
-        window.onload = function() {
-            // 개인 정보 표시
-            document.getElementById('studentName').textContent = studentData.이름;
-            document.getElementById('writtenScore').textContent = studentData.점수;
-            document.getElementById('oralScore').textContent = studentOralData.점수;
-            
-            const totalScore = studentData.점수 + studentOralData.점수;
-            document.getElementById('totalScore').textContent = totalScore;
-            
-            const passFail = totalScore >= 60 ? '통과' : '미통과';
-            document.getElementById('passFail').textContent = passFail;
-            
-            // 백분위는 실제 데이터에 없으므로 임의로 계산
-            const percentile = Math.round((totalScore / 125) * 100);
-            document.getElementById('percentile').textContent = `${percentile}%`;
+      window.onload = function () {
+        // 개인 정보 표시
+        document.getElementById("studentName").textContent = studentData.이름;
+        document.getElementById("writtenScore").textContent = studentData.점수;
+        document.getElementById("oralScore").textContent = studentOralData.점수;
 
-            // 영역별 점수 차트
-            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
-            new Chart(scoreCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['어휘', '문법', '쓰기', '읽기', '문화', '구술'],
-                    datasets: [{
-                        label: '점수',
-                        data: [
-                            calculateCategoryScore(studentData, '어휘'),
-                            calculateCategoryScore(studentData, '문법'),
-                            calculateCategoryScore(studentData, '쓰기'),
-                            calculateCategoryScore(studentData, '읽기'),
-                            calculateCategoryScore(studentData, '문화'),
-                            (studentOralData.점수 / 25) * 100  // 구술 점수를 100점 만점으로 환산
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgb(54, 162, 235)',
-                        pointBackgroundColor: 'rgb(54, 162, 235)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(54, 162, 235)'
-                    }]
+        const totalScore = studentData.점수 + studentOralData.점수;
+        document.getElementById("totalScore").textContent = totalScore;
+
+        const passFail = totalScore >= 60 ? "통과" : "미통과";
+        document.getElementById("passFail").textContent = passFail;
+
+        // 백분위는 실제 데이터에 없으므로 임의로 계산
+        const percentile = Math.round((totalScore / 125) * 100);
+        document.getElementById("percentile").textContent = `${percentile}%`;
+
+        // 영역별 점수 차트
+        const scoreCtx = document.getElementById("scoreChart").getContext("2d");
+        new Chart(scoreCtx, {
+          type: "radar",
+          data: {
+            labels: ["어휘", "문법", "쓰기", "읽기", "문화", "구술"],
+            datasets: [
+              {
+                label: "점수",
+                data: [
+                  calculateCategoryScore(studentData, "어휘"),
+                  calculateCategoryScore(studentData, "문법"),
+                  calculateCategoryScore(studentData, "쓰기"),
+                  calculateCategoryScore(studentData, "읽기"),
+                  calculateCategoryScore(studentData, "문화"),
+                  (studentOralData.점수 / 25) * 100, // 구술 점수를 100점 만점으로 환산
+                ],
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgb(54, 162, 235)",
+                pointBackgroundColor: "rgb(54, 162, 235)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgb(54, 162, 235)",
+              },
+            ],
+          },
+          options: {
+            elements: {
+              line: {
+                borderWidth: 3,
+              },
+            },
+            scales: {
+              r: {
+                angleLines: {
+                  display: false,
                 },
-                options: {
-                    elements: {
-                        line: {
-                            borderWidth: 3
-                        }
-                    },
-                    scales: {
-                        r: {
-                            angleLines: {
-                                display: false
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    }
-                }
-            });
+                suggestedMin: 0,
+                suggestedMax: 100,
+              },
+            },
+          },
+        });
 
-            // 난이도별 정답률 차트
-            const difficultyCtx = document.getElementById('difficultyChart').getContext('2d');
-            new Chart(difficultyCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['쉬움', '보통', '어려움'],
-                    datasets: [{
-                        label: '정답률',
-                        data: [
-                            calculateDifficultyAccuracy(studentData, 'easy'),
-                            calculateDifficultyAccuracy(studentData, 'medium'),
-                            calculateDifficultyAccuracy(studentData, 'hard')
-                        ],
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
+        // 난이도별 정답률 차트
+        const difficultyCtx = document
+          .getElementById("difficultyChart")
+          .getContext("2d");
+        new Chart(difficultyCtx, {
+          type: "bar",
+          data: {
+            labels: ["쉬움", "보통", "어려움"],
+            datasets: [
+              {
+                label: "정답률",
+                data: [
+                  calculateDifficultyAccuracy(studentData, "easy"),
+                  calculateDifficultyAccuracy(studentData, "medium"),
+                  calculateDifficultyAccuracy(studentData, "hard"),
+                ],
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                borderColor: "rgb(75, 192, 192)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+              },
+            },
+          },
+        });
 
-            // 평가영역별 정답률 차트
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            new Chart(categoryCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['어휘', '문법', '쓰기', '읽기', '문화'],
-                    datasets: [{
-                        label: '정답률',
-                        data: [
-                            calculateCategoryAccuracy(studentData, '어휘'),
-                            calculateCategoryAccuracy(studentData, '문법'),
-                            calculateCategoryAccuracy(studentData, '쓰기'),
-                            calculateCategoryAccuracy(studentData, '읽기'),
-                            calculateCategoryAccuracy(studentData, '문화')
-                        ],
-                        backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                        borderColor: 'rgb(153, 102, 255)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
+        // 평가영역별 정답률 차트
+        const categoryCtx = document
+          .getElementById("categoryChart")
+          .getContext("2d");
+        new Chart(categoryCtx, {
+          type: "bar",
+          data: {
+            labels: ["어휘", "문법", "쓰기", "읽기", "문화"],
+            datasets: [
+              {
+                label: "정답률",
+                data: [
+                  calculateCategoryAccuracy(studentData, "어휘"),
+                  calculateCategoryAccuracy(studentData, "문법"),
+                  calculateCategoryAccuracy(studentData, "쓰기"),
+                  calculateCategoryAccuracy(studentData, "읽기"),
+                  calculateCategoryAccuracy(studentData, "문화"),
+                ],
+                backgroundColor: "rgba(153, 102, 255, 0.6)",
+                borderColor: "rgb(153, 102, 255)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+              },
+            },
+          },
+        });
 
-            // 오답 문항 분석
-            const wrongAnswers = analyzeWrongAnswers(studentData);
-            const wrongAnswersList = document.getElementById('wrongAnswersList');
-            wrongAnswers.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>문항 ${item.questionNumber}</strong> (${item.category}): ${item.description}`;
-                wrongAnswersList.appendChild(li);
-            });
+        // 오답 문항 분석
+        const wrongAnswers = analyzeWrongAnswers(studentData);
+        const wrongAnswersList = document.getElementById("wrongAnswersList");
+        wrongAnswers.forEach((item) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>문항 ${item.questionNumber}</strong> (${item.category}): ${item.description}`;
+          wrongAnswersList.appendChild(li);
+        });
 
-            // 학습 전략
-            const learningStrategyDiv = document.getElementById('learningStrategy');
-            const strategy = getLearningStrategy(studentAbility['능력 추정치 (theta)']);
-            learningStrategyDiv.innerHTML = `<p>${strategy}</p>`;
+        // 학습 전략
+        const learningStrategyDiv = document.getElementById("learningStrategy");
+        const strategy = getLearningStrategy(
+          studentAbility["능력 추정치 (theta)"]
+        );
+        learningStrategyDiv.innerHTML = `<p>${strategy}</p>`;
+      };
+
+      function calculateCategoryScore(studentData, category) {
+        const categoryQuestions = df_questions.filter(
+          (q) => q.평가영역 === category
+        );
+        const categoryResponses = studentData.OX리스트.split("").slice(
+          0,
+          categoryQuestions.length
+        );
+        const correctAnswers = categoryResponses.filter(
+          (r) => r === "O"
+        ).length;
+        return (correctAnswers / categoryQuestions.length) * 100;
+      }
+
+      function calculateDifficultyAccuracy(studentData, difficulty) {
+        const difficultyQuestions = df_questions.filter((q) => {
+          const beta = df_irt.find((item) => item["문항 번호"] === q.문제번호)[
+            "난이도 (beta)"
+          ];
+          if (difficulty === "easy") return beta < -0.5;
+          if (difficulty === "medium") return beta >= -0.5 && beta <= 0.5;
+          if (difficulty === "hard") return beta > 0.5;
+        });
+        const difficultyResponses = studentData.OX리스트.split("").filter(
+          (_, index) =>
+            difficultyQuestions.some((q) => q.문제번호 === index + 1)
+        );
+        const correctAnswers = difficultyResponses.filter(
+          (r) => r === "O"
+        ).length;
+        return (correctAnswers / difficultyResponses.length) * 100;
+      }
+
+      function calculateCategoryAccuracy(studentData, category) {
+        const categoryQuestions = df_questions.filter(
+          (q) => q.평가영역 === category
+        );
+        const categoryResponses = studentData.OX리스트.split("").filter(
+          (_, index) => categoryQuestions.some((q) => q.문제번호 === index + 1)
+        );
+        const correctAnswers = categoryResponses.filter(
+          (r) => r === "O"
+        ).length;
+        return (correctAnswers / categoryResponses.length) * 100;
+      }
+
+      function analyzeWrongAnswers(studentData) {
+        const wrongAnswers = studentData.OX리스트.split("")
+          .map((answer, index) => ({ answer, index: index + 1 }))
+          .filter((item) => item.answer === "X");
+
+        return wrongAnswers.slice(0, 5).map((item) => {
+          const question = df_questions.find((q) => q.문제번호 === item.index);
+          return {
+            questionNumber: item.index,
+            category: question.평가영역,
+            description: getQuestionDescription(question),
+          };
+        });
+      }
+
+      function getQuestionDescription(question) {
+        // 실제로는 더 상세한 설명이 필요합니다. 여기서는 간단한 예시만 제공합니다.
+        return `${question.평가영역}에 관한 문제로, ${question.평가항목}을(를) 평가합니다. 이 유형의 문제를 더 연습하세요.`;
+      }
+
+      function getLearningStrategy(abilityEstimate) {
+        if (abilityEstimate < -1) {
+          return "기초 문법과 어휘에 집중하세요. 간단한 문장 구조를 익히고, 일상생활에서 자주 사용되는 표현을 학습하세요.";
+        } else if (abilityEstimate < 0) {
+          return "기본적인 문법 구조를 복습하고, 어휘력을 확장하세요. 짧은 문단을 읽고 이해하는 연습을 하세요.";
+        } else if (abilityEstimate < 1) {
+          return "다양한 문법 구조를 학습하고, 주제별 어휘를 확장하세요. 중급 수준의 텍스트를 읽고 요약하는 연습을 하세요.";
+        } else {
+          return "고급 문법과 학술적/전문적 어휘를 학습하세요. 복잡한 주제에 대해 논리적으로 글을 쓰고 토론하는 능력을 기르세요.";
         }
-
-        function calculateCategoryScore(studentData, category) {
-            const categoryQuestions = df_questions.filter(q => q.평가영역 === category);
-            const categoryResponses = studentData.OX리스트.split('').slice(0, categoryQuestions.length);
-            const correctAnswers = categoryResponses.filter(r => r === 'O').length;
-            return (correctAnswers / categoryQuestions.length) * 100;
-        }
-
-        function calculateDifficultyAccuracy(studentData, difficulty) {
-            const difficultyQuestions = df_questions.filter(q => {
-                const beta = df_irt.find(item => item['문항 번호'] === q.문제번호)['난이도 (beta)'];
-                if (difficulty === 'easy') return beta < -0.5;
-                if (difficulty === 'medium') return beta >= -0.5 && beta <= 0.5;
-                if (difficulty === 'hard') return beta > 0.5;
-            });
-            const difficultyResponses = studentData.OX리스트.split('').filter((_, index) => 
-                difficultyQuestions.some(q => q.문제번호 === index + 1)
-            );
-            const correctAnswers = difficultyResponses.filter(r => r === 'O').length;
-            return (correctAnswers / difficultyResponses.length) * 100;
-        }
-
-        function calculateCategoryAccuracy(studentData, category) {
-            const categoryQuestions = df_questions.filter(q => q.평가영역 === category);
-            const categoryResponses = studentData.OX리스트.split('').filter((_, index) => 
-                categoryQuestions.some(q => q.문제번호 === index + 1)
-            );
-            const correctAnswers = categoryResponses.filter(r => r === 'O').length;
-            return (correctAnswers / categoryResponses.length) * 100;
-        }
-
-        function analyzeWrongAnswers(studentData) {
-            const wrongAnswers = studentData.OX리스트.split('')
-                .map((answer, index) => ({ answer, index: index + 1 }))
-                .filter(item => item.answer === 'X');
-            
-            return wrongAnswers.slice(0, 5).map(item => {
-                const question = df_questions.find(q => q.문제번호 === item.index);
-                return {
-                    questionNumber: item.index,
-                    category: question.평가영역,
-                    description: getQuestionDescription(question)
-                };
-            });
-        }
-
-        function getQuestionDescription(question) {
-            // 실제로는 더 상세한 설명이 필요합니다. 여기서는 간단한 예시만 제공합니다.
-            return `${question.평가영역}에 관한 문제로, ${question.평가항목}을(를) 평가합니다. 이 유형의 문제를 더 연습하세요.`;
-        }
-
-        function getLearningStrategy(abilityEstimate) {
-            if (abilityEstimate < -1) {
-                return "기초 문법과 어휘에 집중하세요. 간단한 문장 구조를 익히고, 일상생활에서 자주 사용되는 표현을 학습하세요.";
-            } else if (abilityEstimate < 0) {
-                return "기본적인 문법 구조를 복습하고, 어휘력을 확장하세요. 짧은 문단을 읽고 이해하는 연습을 하세요.";
-            } else if (abilityEstimate < 1) {
-                return "다양한 문법 구조를 학습하고, 주제별 어휘를 확장하세요. 중급 수준의 텍스트를 읽고 요약하는 연습을 하세요.";
-            } else {
-                return "고급 문법과 학술적/전문적 어휘를 학습하세요. 복잡한 주제에 대해 논리적으로 글을 쓰고 토론하는 능력을 기르세요.";
-            }
-        }
+      }
     </script>
-</body>
+  </body>
 </html>

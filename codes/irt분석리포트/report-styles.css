@@ -1,194 +1,203 @@
 /* report-styles.css */
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #34495e;
-    --background-color: #f4f4f4;
-    --text-color: #333;
-    --border-color: #ddd;
-    --chart-color-1: rgba(52, 152, 219, 0.6);
-    --chart-color-2: rgba(46, 204, 113, 0.6);
-    --chart-color-3: rgba(231, 76, 60, 0.6);
-    --chart-color-4: rgba(241, 196, 15, 0.6);
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --background-color: #f4f4f4;
+  --text-color: #333;
+  --border-color: #ddd;
+  --chart-color-1: rgba(52, 152, 219, 0.6);
+  --chart-color-2: rgba(46, 204, 113, 0.6);
+  --chart-color-3: rgba(231, 76, 60, 0.6);
+  --chart-color-4: rgba(241, 196, 15, 0.6);
 }
 
 @media print {
-    body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
-body { 
-    font-family: 'Noto Sans KR', 'Roboto', sans-serif;
-    font-size: 16px;
-    line-height: 1.6; 
-    color: var(--text-color); 
-    background-color: var(--background-color);
-    margin: 0;
-    padding: 0;
+body {
+  font-family: "Noto Sans KR", "Roboto", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-    max-width: 1200px;
-    width: 90%;
-    margin: 20px auto;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    padding: 40px;
-    box-sizing: border-box;
+  max-width: 1200px;
+  width: 90%;
+  margin: 20px auto;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  box-sizing: border-box;
 }
 
-h1, h2, h3 { 
-    color: var(--primary-color);
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
+h1,
+h2,
+h3 {
+  color: var(--primary-color);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 
 h1 {
-    font-size: 32px;
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 10px;
+  font-size: 32px;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
 }
 
 h2 {
-    font-size: 28px;
-    color: var(--secondary-color);
+  font-size: 28px;
+  color: var(--secondary-color);
 }
 
 h3 {
-    font-size: 24px;
+  font-size: 24px;
 }
 
-p, li {
-    font-size: 18px;
-    line-height: 1.8;
+p,
+li {
+  font-size: 18px;
+  line-height: 1.8;
 }
 
 .chart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 30px;
-    margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
 }
 
 .chart-container {
-    background-color: white;
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    height: 400px;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  height: 400px;
 }
 
-ul, ol {
-    padding-left: 30px;
-    margin-bottom: 30px;
+ul,
+ol {
+  padding-left: 30px;
+  margin-bottom: 30px;
 }
 
 li {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .section {
-    margin-bottom: 50px;
+  margin-bottom: 50px;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
-th, td {
-    border: 1px solid var(--border-color);
-    padding: 10px;
-    text-align: left;
+th,
+td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  text-align: left;
 }
 
 th {
-    background-color: var(--background-color);
-    font-weight: bold;
+  background-color: var(--background-color);
+  font-weight: bold;
 }
 
 .example {
-    background-color: #f9f9f9;
-    border-left: 5px solid var(--primary-color);
-    padding: 15px;
-    margin-bottom: 20px;
+  background-color: #f9f9f9;
+  border-left: 5px solid var(--primary-color);
+  padding: 15px;
+  margin-bottom: 20px;
 }
 
 .note {
-    background-color: #ffe6e6;
-    border: 1px solid #ffcccc;
-    padding: 15px;
-    margin-bottom: 20px;
+  background-color: #e7f3fe;
+  border: 1px solid #c2e0ff;
+  border-left: 5px solid #3498db;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #2c3e50;
 }
 
 .nested-table {
-    width: 100%;
-    border: none;
+  width: 100%;
+  border: none;
 }
 
-.nested-table td, .nested-table th {
-    border: none;
-    padding: 4px 8px;
+.nested-table td,
+.nested-table th {
+  border: none;
+  padding: 4px 8px;
 }
 
 footer {
-    background-color: var(--secondary-color);
-    color: white;
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 50px;
+  background-color: var(--secondary-color);
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  margin-top: 50px;
 }
 
 footer p {
-    margin: 0;
-    font-size: 14px;
+  margin: 0;
+  font-size: 14px;
 }
 
 @media (max-width: 1200px) {
-    .container {
-        width: 95%;
-        padding: 30px;
-    }
-    
-    h1 {
-        font-size: 28px;
-    }
-    
-    h2 {
-        font-size: 24px;
-    }
-    
-    h3 {
-        font-size: 20px;
-    }
-    
-    p, li {
-        font-size: 16px;
-    }
-    
-    .chart-grid {
-        grid-template-columns: 1fr;
-    }
+  .container {
+    width: 95%;
+    padding: 30px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  p,
+  li {
+    font-size: 16px;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media print {
-    body {
-        background-color: white;
-    }
-    .container {
-        box-shadow: none;
-        margin: 0;
-        padding: 0;
-        max-width: none;
-        width: 100%;
-    }
-    .chart-container {
-        page-break-inside: avoid;
-    }
-    footer {
-        background-color: white;
-        color: var(--text-color);
-        border-top: 1px solid var(--border-color);
-    }
+  body {
+    background-color: white;
+  }
+  .container {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    width: 100%;
+  }
+  .chart-container {
+    page-break-inside: avoid;
+  }
+  footer {
+    background-color: white;
+    color: var(--text-color);
+    border-top: 1px solid var(--border-color);
+  }
 }
