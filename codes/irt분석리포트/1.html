@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어능력시험 문항 파라미터 분석 요약 보고서</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; }
+        h2 { color: #34495e; }
+        .chart-container { width: 100%; max-width: 600px; margin: 20px auto; }
+        select { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>한국어능력시험 문항 파라미터 분석 요약 보고서</h1>
+
+    <h2>1. 전체 요약</h2>
+    <h3>시험 개요</h3>
+    <ul>
+        <li>응시자 수: 30명</li>
+        <li>문항 수: 50문항</li>
+        <li>평균 점수: 54.69점 (100점 만점 기준)</li>
+        <li>합격률: 63.33%</li>
+    </ul>
+
+    <h3>주요 발견사항</h3>
+    <ul>
+        <li>문항의 난이도 분포: 쉬움 7문항, 중간 41문항, 어려움 2문항</li>
+        <li>6개의 문항에서 높은 변별도(>1.0)를 보이고 있습니다.</li>
+        <li>평가영역별 문항 구성: 어휘: 14문항, 문법: 14문항, 쓰기: 5문항, 읽기: 5문항, 문화: 12문항</li>
+    </ul>
+
+    <h2>2. 난이도 및 변별도 분석</h2>
+    <p>아래에서 난이도 또는 변별도를 선택하여 해당 분포를 확인할 수 있습니다.</p>
+    <select id="chartSelector">
+        <option value="">선택하세요</option>
+        <option value="difficulty">난이도</option>
+        <option value="discrimination">변별도</option>
+    </select>
+    <div class="chart-container">
+        <canvas id="chart"></canvas>
+    </div>
+
+    <h2>3. 고변별도 문항 목록</h2>
+    <ul>
+        <li>고변별도 문항 기준: 변별도 > 1.0</li>
+        <li>목록: 11, 16, 24, 43, 45, 46</li>
+    </ul>
+
+    <h2>4. 개선 권고사항</h2>
+    <ol>
+        <li>난이도 분포가 적절한지 검토하고, 필요시 난이도 조정을 고려하세요.</li>
+        <li>낮은 변별도(<0.5)를 가진 문항들을 식별하고 개선 방안을 모색하십시오.</li>
+        <li>고변별도 문항들의 특성을 분석하여 다른 문항 개발에 참고하십시오.</li>
+        <li>평가영역별 문항 수의 균형을 검토하고, 필요시 조정을 고려하세요.</li>
+        <li>합격률을 고려하여 전반적인 시험 난이도의 적절성을 평가하십시오.</li>
+    </ol>
+
+    <p>이러한 개선을 통해 한국어능력시험의 품질을 높이고, 응시자의 실제 능력을 더욱 정확하게 평가할 수 있을 것으로 기대됩니다.</p>
+
+    <script>
+        const difficultyData = {
+            labels: ['매우 쉬움', '쉬움', '보통', '어려움', '매우 어려움'],
+            datasets: [{
+                label: '난이도 분포',
+                data: [2, 5, 41, 1, 1],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }]
+        };
+
+        const discriminationData = {
+            labels: Array.from({length: 50}, (_, i) => i + 1),
+            datasets: [{
+                label: '변별도',
+                data: [0.87, 0.80, 0.89, 0.60, 0.84, 0.51, 0.36, 0.57, 0.91, 0.56, 1.02, 0.45, 0.30, 0.31, 0.39, 1.25, 0.48, 0.57, 0.48, 0.68, 0.58, 0.61, 0.37, 1.16, 0.27, 0.31, 0.41, 0.78, 0.28, 0.53, 0.89, 0.75, 0.35, 0.54, 0.52, 0.32, 0.70, 0.85, 0.74, 0.79, 0.58, 0.61, 1.01, 0.73, 1.05, 0.80, 0.64, 0.32, 0.63, 0.21],
+                backgroundColor: 'rgba(153, 102, 255, 0.6)'
+            }]
+        };
+
+        let chart;
+
+        document.getElementById('chartSelector').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const ctx = document.getElementById('chart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            if (selectedValue === 'difficulty') {
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: difficultyData,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } else if (selectedValue === 'discrimination') {
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: discriminationData,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
