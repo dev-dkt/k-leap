@@ -113,18 +113,18 @@
     </div>
 
     <script type="module">
-        import { df_questions, df_responses, s_responses, df_irt, s_irt, df_ability, s_ability } from './data.js';
+        import { df_questions, df_responses, df_questions_speaking, df_responses_speaking } from './data2.js';
     
         // theta 범위 정의 (-3에서 3까지 0.1 간격)
         const thetaRange = Array.from({ length: 61 }, (_, i) => -3 + i * 0.1);
-
+    
         function calculateItemInfo(theta, alpha, beta) {
             const p = 1 / (1 + Math.exp(-alpha * (theta - beta)));
             return alpha * alpha * p * (1 - p);
         }
     
-        function calculateTestInfo(theta) {
-            return df_irt.reduce((sum, item) => sum + calculateItemInfo(theta, item['변별도 (alpha)'], item['난이도 (beta)']), 0);
+        function calculateTestInfo(theta, questions) {
+            return questions.reduce((sum, item) => sum + calculateItemInfo(theta, parseFloat(item.변별도), parseFloat(item.난이도)), 0);
         }
     
         function getMaxInfo(alpha, beta) {
@@ -133,13 +133,11 @@
     
         document.addEventListener('DOMContentLoaded', () => {
             // 문항별 정보 함수 그래프
-            const thetaRange = Array.from({length: 61}, (_, i) => -3 + i * 0.1);
-            const itemInfoData = df_irt.slice(0, 5).map(item => ({
-                label: `문항 ${item['문항 번호']}`,
-                data: thetaRange.map(theta => calculateItemInfo(theta, item['변별도 (alpha)'], item['난이도 (beta)']))
+            const itemInfoData = df_questions.slice(0, 5).map(item => ({
+                label: `문항 ${item.문제번호}`,
+                data: thetaRange.map(theta => calculateItemInfo(theta, parseFloat(item.변별도), parseFloat(item.난이도)))
             }));
     
-            // 문항별 정보 함수 그래프
             new Chart(document.getElementById('itemInfoFunction'), {
                 type: 'line',
                 data: {
@@ -156,7 +154,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(tooltipItem) {
-                                    return tooltipItem.raw.toFixed(3); // 소수점 3자리로 표시
+                                    return tooltipItem.raw.toFixed(3);
                                 }
                             }
                         }
@@ -169,7 +167,7 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // x축 소수점 3자리로 표시
+                                    return value.toFixed(1);
                                 }
                             }
                         },
@@ -180,21 +178,21 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // y축 소수점 3자리로 표시
+                                    return value.toFixed(3);
                                 }
                             }
                         }
                     }
                 }
             });
-
+    
             // 최대 정보량과 IRT 파라미터와의 관계
-            const infoParamData = df_irt.map(item => ({
-                x: item['변별도 (alpha)'], // 변별도
-                y: getMaxInfo(item['변별도 (alpha)'], item['난이도 (beta)']), // 최대 정보량
-                r: Math.abs(item['난이도 (beta)']) * 5 // 버블 크기 조절
+            const infoParamData = df_questions.map(item => ({
+                x: parseFloat(item.변별도),
+                y: getMaxInfo(parseFloat(item.변별도), parseFloat(item.난이도)),
+                r: Math.abs(parseFloat(item.난이도)) * 5
             }));
-
+    
             new Chart(document.getElementById('infoParamRelation'), {
                 type: 'bubble',
                 data: {
@@ -227,7 +225,7 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // 소수점 3자리로 표시
+                                    return value.toFixed(3);
                                 }
                             }
                         },
@@ -238,30 +236,17 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // 소수점 3자리로 표시
+                                    return value.toFixed(3);
                                 }
                             }
                         }
                     }
                 }
             });
-
-
-            // 전체 시험 정보 함수 계산
-            function calculateTestInfo(theta) {
-                return df_irt.reduce((sum, item) => sum + calculateItemInfo(theta, item['변별도 (alpha)'], item['난이도 (beta)']), 0);
-            }
-
-            // 문항 정보 함수 계산
-            function calculateItemInfo(theta, alpha, beta) {
-                const p = 1 / (1 + Math.exp(-alpha * (theta - beta)));
-                return alpha * alpha * p * (1 - p);
-            }
-
-
+    
             // 전체 시험 정보 함수 데이터 생성
-            const testInfoData = thetaRange.map(theta => calculateTestInfo(theta));
-
+            const testInfoData = thetaRange.map(theta => calculateTestInfo(theta, df_questions));
+    
             // 전체 시험 정보 함수 차트 생성
             new Chart(document.getElementById('testInfoFunction'), {
                 type: 'line',
@@ -284,7 +269,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(tooltipItem) {
-                                    return `θ: ${tooltipItem.raw.x.toFixed(3)}, 정보량: ${tooltipItem.raw.y.toFixed(3)}`;
+                                    return `θ: ${tooltipItem.label}, 정보량: ${tooltipItem.raw.toFixed(3)}`;
                                 }
                             }
                         }
@@ -297,7 +282,7 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // 소수점 3자리로 표시
+                                    return value.toFixed(1);
                                 }
                             }
                         },
@@ -308,27 +293,26 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // 소수점 3자리로 표시
+                                    return value.toFixed(3);
                                 }
                             }
                         }
                     }
                 }
             });
-
-
+    
             // 능력 구간 정의 (-3 to -2, -2 to -1, ..., 2 to 3)
             const abilityBins = ['-3 to -2', '-2 to -1', '-1 to 0', '0 to 1', '1 to 2', '2 to 3'];
-
+    
             // 능력 구간별 평균 정보량 계산
             const infoByAbility = abilityBins.map((bin, index) => {
                 const start = -3 + index;
                 const end = start + 1;
                 const infoInRange = thetaRange.filter(theta => theta >= start && theta < end)
-                                            .map(calculateTestInfo);
+                                            .map(theta => calculateTestInfo(theta, df_questions));
                 return infoInRange.reduce((sum, info) => sum + info, 0) / infoInRange.length;
             });
-
+    
             // 능력 구간별 평균 정보량 차트 생성
             new Chart(document.getElementById('infoByAbilityLevel'), {
                 type: 'bar',
@@ -369,22 +353,22 @@
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toFixed(3); // 소수점 3자리로 표시
+                                    return value.toFixed(3);
                                 }
                             }
                         }
                     }
                 }
             });
-
+    
             // 주요 발견사항 업데이트
-            const highInfoItems = df_irt.filter(item => getMaxInfo(item['변별도 (alpha)'], item['난이도 (beta)']) > 1.0);
-            const highInfoPercentage = (highInfoItems.length / df_irt.length * 100).toFixed(1);
+            const highInfoItems = df_questions.filter(item => getMaxInfo(parseFloat(item.변별도), parseFloat(item.난이도)) > 1.0);
+            const highInfoPercentage = (highInfoItems.length / df_questions.length * 100).toFixed(1);
     
             const findingsElement = document.querySelector('#findings');
             findingsElement.innerHTML = `
                 <li>필기시험 문항 중 약 ${highInfoPercentage}%가 높은 정보량(1.0 이상)을 제공하고 있습니다.</li>
-                <li>구술시험 문항은 전반적으로 낮은 정보량을 보이고 있어 개선이 필요합니다.</li>
+                <li>구술시험 문항의 평균 변별도는 ${(df_questions_speaking.reduce((sum, item) => sum + parseFloat(item.변별도), 0) / df_questions_speaking.length).toFixed(3)}로, 필기시험에 비해 ${df_questions_speaking[0].변별도 < df_questions[0].변별도 ? '낮습' : '높습'}니다.</li>
                 <li>시험 전체적으로 ${abilityBins[infoByAbility.indexOf(Math.max(...infoByAbility))]} 능력 수준에서 가장 높은 정보를 제공합니다.</li>
             `;
         });

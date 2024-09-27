@@ -165,36 +165,32 @@
     </div>
 
     <script type="module">
-        import { df_questions, df_responses, s_responses, df_irt, s_irt, df_ability, s_ability } from './data.js';
-
+        import { df_questions, df_responses, df_questions_speaking, df_responses_speaking } from './data2.js';
+    
         // 정보량 계산 함수: I(beta) = alpha^2 / 4
         function calculateItemInfo(alpha) {
-            return Math.pow(alpha, 2) / 4;
+            return Math.pow(parseFloat(alpha), 2) / 4;
         }
-
+    
         // 문항별 정보량 계산 및 병합
-        const mergedData = df_questions.map(question => {
-            const irt = df_irt.find(item => item["문항 번호"] === question.문제번호);
-            if (irt) {
-                const info = calculateItemInfo(irt["변별도 (alpha)"]);
-                return {
-                    문제번호: question.문제번호,
-                    평가영역: question.평가영역,
-                    변별도: irt["변별도 (alpha)"],
-                    난이도: irt["난이도 (beta)"],
-                    정보량: info
-                };
-            } else {
-                return null;
-            }
-        }).filter(item => item !== null);
-
+        const mergedData = [...df_questions, ...df_questions_speaking].map(question => {
+            const info = calculateItemInfo(question.변별도);
+            return {
+                문제번호: question.문제번호,
+                평가영역: question.평가영역,
+                변별도: parseFloat(question.변별도),
+                난이도: parseFloat(question.난이도),
+                정보량: info,
+                문항유형: question.문항유형
+            };
+        });
+    
         // 상위 10개 문항
         const topQuestions = [...mergedData].sort((a, b) => b.정보량 - a.정보량).slice(0, 10);
-
-        // 하위 10% 문항 (5개)
-        const bottomQuestions = [...mergedData].sort((a, b) => a.정보량 - b.정보량).slice(0, 5);
-
+    
+        // 하위 10% 문항
+        const bottomQuestions = [...mergedData].sort((a, b) => a.정보량 - b.정보량).slice(0, Math.ceil(mergedData.length * 0.1));
+    
         // 평가영역별 평균 정보량 계산
         const categoryInfo = {};
         mergedData.forEach(item => {
@@ -205,12 +201,12 @@
                 categoryInfo[item.평가영역] = { sum: item.정보량, count: 1 };
             }
         });
-
+    
         const avgInfoByCategory = Object.keys(categoryInfo).map(category => ({
             category: category,
             avg_info: +(categoryInfo[category].sum / categoryInfo[category].count).toFixed(3)
         }));
-
+    
         // 상위 10개 문항 테이블 채우기
         const topTableBody = document.querySelector('#topQuestionsTable tbody');
         topQuestions.forEach((item, index) => {
@@ -225,8 +221,8 @@
             `;
             topTableBody.appendChild(row);
         });
-
-        // 하위 5개 문항 테이블 채우기
+    
+        // 하위 10% 문항 테이블 채우기
         const bottomTableBody = document.querySelector('#bottomQuestionsTable tbody');
         bottomQuestions.forEach(item => {
             const row = document.createElement('tr');
@@ -239,15 +235,7 @@
             `;
             bottomTableBody.appendChild(row);
         });
-
-        // 필기문항 Scatter Chart 데이터 준비
-        const scatterData = mergedData.map(item => ({
-            x: item.난이도,
-            y: item.정보량,
-            r: item.변별도 * 5, // 반지름을 변별도에 비례하게 설정
-            label: `문항 ${item.문제번호}`
-        }));
-
+    
         // 문항별 최대 정보량 및 해당 능력 수준 차트
         const itemInfoScatterChart = new Chart(
             document.getElementById('itemInfoScatter'),
@@ -256,8 +244,23 @@
                 data: {
                     datasets: [{
                         label: '필기문항',
-                        data: scatterData,
+                        data: mergedData.filter(item => item.문항유형 !== '구술형').map(item => ({
+                            x: item.난이도,
+                            y: item.정보량,
+                            r: item.변별도 * 5,
+                            label: `문항 ${item.문제번호}`
+                        })),
                         backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    },
+                    {
+                        label: '구술문항',
+                        data: mergedData.filter(item => item.문항유형 === '구술형').map(item => ({
+                            x: item.난이도,
+                            y: item.정보량,
+                            r: item.변별도 * 5,
+                            label: `문항 ${item.문제번호}`
+                        })),
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
                     }]
                 },
                 options: {
@@ -292,7 +295,7 @@
                 }
             }
         );
-
+    
         // 평가영역별 평균 정보량 차트
         const avgInfoByCategoryChart = new Chart(
             document.getElementById('avgInfoByCategory'),
@@ -326,7 +329,30 @@
                 }
             }
         );
-
+    
+        // 고정보량 문항 특성 분석 업데이트
+        const highInfoCharacteristics = document.querySelector('#highInfoCharacteristics');
+        const avgDiscrimination = topQuestions.reduce((sum, item) => sum + item.변별도, 0) / topQuestions.length;
+        const avgDifficulty = topQuestions.reduce((sum, item) => sum + item.난이도, 0) / topQuestions.length;
+        const commonCategories = [...new Set(topQuestions.map(item => item.평가영역))];
+    
+        highInfoCharacteristics.innerHTML = `
+            <li>평균 변별도: ${avgDiscrimination.toFixed(2)}</li>
+            <li>평균 난이도: ${avgDifficulty.toFixed(2)}</li>
+            <li>주요 평가영역: ${commonCategories.join(', ')}</li>
+        `;
+    
+        // 저정보량 문항 개선 방안 업데이트
+        const lowInfoImprovement = document.querySelector('#lowInfoImprovement');
+        const avgLowDiscrimination = bottomQuestions.reduce((sum, item) => sum + item.변별도, 0) / bottomQuestions.length;
+        const avgLowDifficulty = bottomQuestions.reduce((sum, item) => sum + item.난이도, 0) / bottomQuestions.length;
+    
+        lowInfoImprovement.innerHTML = `
+            <li>변별도 향상: 현재 평균 ${avgLowDiscrimination.toFixed(2)}에서 ${avgDiscrimination.toFixed(2)} 이상으로 개선</li>
+            <li>난이도 조정: 현재 평균 ${avgLowDifficulty.toFixed(2)}에서 ${avgDifficulty.toFixed(2)}에 가깝게 조정</li>
+            <li>주요 개선 대상 평가영역: ${[...new Set(bottomQuestions.map(item => item.평가영역))].join(', ')}</li>
+        `;
+    
     </script>
 </body>
 </html>

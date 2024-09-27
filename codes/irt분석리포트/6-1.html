@@ -12,23 +12,7 @@
     <div class="container">
         <h1>한국어능력시험 문항 적합도 분석 요약 보고서</h1>
 
-        <div class="section">
-            <h2>1. 요약</h2>
-            <ul>
-                <li>시험일: 2024년 9월 10일</li>
-                <li>시험 유형: 사전평가</li>
-                <li>시험장: CBT평가센터</li>
-                <li>시행 회차: 100회차</li>
-                <li>전체 문항 수: 필기시험 50문항, 구술시험 5문항</li>
-            </ul>
-            <h3>주요 발견사항</h3>
-            <ul>
-                <li>필기시험 문항의 평균 변별도: 0.62 (적정 범위: 0.5 이상)</li>
-                <li>필기시험 문항의 평균 난이도: 0.04 (적정 범위: -2.0 ~ 2.0)</li>
-                <li>구술시험 문항의 평균 변별도: 0.89 (매우 높음)</li>
-                <li>구술시험 문항의 평균 난이도: 0.66 (중상 수준)</li>
-            </ul>
-        </div>
+        <div class="section" id="summary"></div>
 
         <div class="section">
             <h2>2. 문항 적합도 분석</h2>
@@ -44,163 +28,183 @@
             <div id="abilityDistribution" class="chart-container"></div>
         </div>
 
-        <div class="section">
-            <h2>4. 개선 권고사항</h2>
-            <h3>4.1 필기시험</h3>
-            <ul>
-                <li>변별도가 낮은 문항 (0.4 미만) 개선: 7, 13, 14, 25, 26, 29, 36, 48, 50번 문항</li>
-                <li>난이도가 극단적인 문항 조정: 28번 (-1.27), 46번 (0.97) 문항</li>
-            </ul>
-            <h3>4.2 구술시험</h3>
-            <ul>
-                <li>전반적으로 높은 변별도와 적절한 난이도를 보이나, 1번 문항의 변별도 향상 필요</li>
-                <li>2, 3번 문항의 난이도가 다소 높으므로, 중급 수준 응시자를 위한 보완 고려</li>
-            </ul>
-        </div>
+        <div class="section" id="recommendations"></div>
     </div>
 
     <script type="module">
-        import { df_irt, df_ability , s_irt } from "./data.js";
-        // 필기시험 문항 적합도 산점도
-        const writtenItemFitData = df_irt.map(d => ({
-            x: d["변별도 (alpha)"],
-            y: d["난이도 (beta)"],
-            item: d["문항 번호"]
+        import { df_questions, df_responses, df_questions_speaking, df_responses_speaking } from './data2.js';
+
+        // 데이터 분석
+        const writtenItemCount = df_questions.length;
+        const oralItemCount = df_questions_speaking.length;
+
+        const writtenAvgDifficulty = df_questions.reduce((sum, item) => sum + item.난이도, 0) / writtenItemCount;
+        const writtenAvgDiscrimination = df_questions.reduce((sum, item) => sum + item.변별도, 0) / writtenItemCount;
+
+        const oralAvgDifficulty = df_questions_speaking.reduce((sum, item) => sum + item.난이도, 0) / oralItemCount;
+        const oralAvgDiscrimination = df_questions_speaking.reduce((sum, item) => sum + item.변별도, 0) / oralItemCount;
+
+        // 요약 정보 업데이트
+        document.getElementById('summary').innerHTML = `
+            <h2>1. 요약</h2>
+            <ul>
+                <li>전체 문항 수: 필기시험 ${writtenItemCount}문항, 구술시험 ${oralItemCount}문항</li>
+            </ul>
+            <h3>주요 발견사항</h3>
+            <ul>
+                <li>필기시험 문항의 평균 변별도: ${writtenAvgDiscrimination.toFixed(2)} (적정 범위: 0.5 이상)</li>
+                <li>필기시험 문항의 평균 난이도: ${writtenAvgDifficulty.toFixed(2)} (적정 범위: -2.0 ~ 2.0)</li>
+                <li>구술시험 문항의 평균 변별도: ${oralAvgDiscrimination.toFixed(2)}</li>
+                <li>구술시험 문항의 평균 난이도: ${oralAvgDifficulty.toFixed(2)}</li>
+            </ul>
+        `;
+
+        // 차트 데이터 준비
+        const writtenItemFitData = df_questions.map(d => ({
+            x: d.변별도,
+            y: d.난이도,
+            item: d.문제번호
         }));
 
-        const writtenSvg = d3.select("#writtenItemFit")
-            .append("svg")
-            .attr("width", 600)
-            .attr("height", 400);
-
-        const xScale = d3.scaleLinear()
-            .domain([0, 1.5])
-            .range([50, 550]);
-
-        const yScale = d3.scaleLinear()
-            .domain([-2, 2])
-            .range([350, 50]);
-
-        writtenSvg.selectAll("circle")
-            .data(writtenItemFitData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d.x))
-            .attr("cy", d => yScale(d.y))
-            .attr("r", 5)
-            .attr("fill", "blue");
-
-        writtenSvg.append("g")
-            .attr("transform", "translate(0,350)")
-            .call(d3.axisBottom(xScale));
-
-        writtenSvg.append("g")
-            .attr("transform", "translate(50,0)")
-            .call(d3.axisLeft(yScale));
-
-        writtenSvg.append("text")
-            .attr("x", 300)
-            .attr("y", 390)
-            .attr("text-anchor", "middle")
-            .text("변별도");
-
-        writtenSvg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -200)
-            .attr("y", 15)
-            .attr("text-anchor", "middle")
-            .text("난이도");
-
-        // 구술시험 문항 적합도 산점도
-        const oralItemFitData = s_irt.map(d => ({
-            x: d["변별도 (alpha)"],
-            y: d["난이도 (beta)"],
-            item: d["문항 번호"]
+        const oralItemFitData = df_questions_speaking.map(d => ({
+            x: d.변별도,
+            y: d.난이도,
+            item: d.문제번호
         }));
 
-        const oralSvg = d3.select("#oralItemFit")
-            .append("svg")
-            .attr("width", 600)
-            .attr("height", 400);
+        const abilityData = df_responses.map(d => d["능력 추정치 (theta)"]);
 
-        oralSvg.selectAll("circle")
-            .data(oralItemFitData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => xScale(d.x))
-            .attr("cy", d => yScale(d.y))
-            .attr("r", 5)
-            .attr("fill", "red");
+        // 차트 생성 함수
+        function createScatterPlot(containerId, data, xLabel, yLabel) {
+            const margin = {top: 20, right: 20, bottom: 50, left: 50};
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
 
-        oralSvg.append("g")
-            .attr("transform", "translate(0,350)")
-            .call(d3.axisBottom(xScale));
+            const svg = d3.select(`#${containerId}`)
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        oralSvg.append("g")
-            .attr("transform", "translate(50,0)")
-            .call(d3.axisLeft(yScale));
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.x)])
+                .range([0, width]);
 
-        oralSvg.append("text")
-            .attr("x", 300)
-            .attr("y", 390)
-            .attr("text-anchor", "middle")
-            .text("변별도");
+            const y = d3.scaleLinear()
+                .domain([d3.min(data, d => d.y), d3.max(data, d => d.y)])
+                .range([height, 0]);
 
-        oralSvg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -200)
-            .attr("y", 15)
-            .attr("text-anchor", "middle")
-            .text("난이도");
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
 
-        // 응시자 능력 분포 히스토그램
-        const abilityData = df_ability.map(d => d["능력 추정치 (theta)"]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
 
-        const abilitySvg = d3.select("#abilityDistribution")
-            .append("svg")
-            .attr("width", 600)
-            .attr("height", 400);
+            svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                    .attr("cx", d => x(d.x))
+                    .attr("cy", d => y(d.y))
+                    .attr("r", 5)
+                    .style("fill", "var(--chart-color-1)");
 
-        const histogram = d3.histogram()
-            .domain([-3, 3])
-            .thresholds(20);
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .text(xLabel);
 
-        const bins = histogram(abilityData);
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .text(yLabel);
+        }
 
-        const yScaleHist = d3.scaleLinear()
-            .domain([0, d3.max(bins, d => d.length)])
-            .range([350, 50]);
+        function createHistogram(containerId, data, xLabel, yLabel) {
+            const margin = {top: 20, right: 20, bottom: 50, left: 50};
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
 
-        abilitySvg.selectAll("rect")
-            .data(bins)
-            .enter()
-            .append("rect")
-            .attr("x", d => xScale(d.x0))
-            .attr("y", d => yScaleHist(d.length))
-            .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
-            .attr("height", d => 350 - yScaleHist(d.length))
-            .attr("fill", "green");
+            const svg = d3.select(`#${containerId}`)
+                .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        abilitySvg.append("g")
-            .attr("transform", "translate(0,350)")
-            .call(d3.axisBottom(xScale));
+            const x = d3.scaleLinear()
+                .domain([d3.min(data), d3.max(data)])
+                .range([0, width]);
 
-        abilitySvg.append("g")
-            .attr("transform", "translate(50,0)")
-            .call(d3.axisLeft(yScaleHist));
+            const histogram = d3.histogram()
+                .value(d => d)
+                .domain(x.domain())
+                .thresholds(x.ticks(20));
 
-        abilitySvg.append("text")
-            .attr("x", 300)
-            .attr("y", 390)
-            .attr("text-anchor", "middle")
-            .text("능력 추정치");
+            const bins = histogram(data);
 
-        abilitySvg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -200)
-            .attr("y", 15)
-            .attr("text-anchor", "middle")
-            .text("응시자 수");
+            const y = d3.scaleLinear()
+                .range([height, 0])
+                .domain([0, d3.max(bins, d => d.length)]);
+
+            svg.selectAll("rect")
+                .data(bins)
+                .enter()
+                .append("rect")
+                    .attr("x", 1)
+                    .attr("transform", d => `translate(${x(d.x0)}, ${y(d.length)})`)
+                    .attr("width", d => x(d.x1) - x(d.x0) - 1)
+                    .attr("height", d => height - y(d.length))
+                    .style("fill", "var(--chart-color-2)");
+
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .text(xLabel);
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .text(yLabel);
+        }
+
+        // 차트 생성
+        createScatterPlot("writtenItemFit", writtenItemFitData, "변별도", "난이도");
+        createScatterPlot("oralItemFit", oralItemFitData, "변별도", "난이도");
+        createHistogram("abilityDistribution", abilityData, "능력 추정치", "응시자 수");
+
+        // 개선 권고사항
+        const lowDiscriminationItems = df_questions.filter(d => d.변별도 < 0.4).map(d => d.문제번호);
+        const extremeDifficultyItems = df_questions.filter(d => Math.abs(d.난이도) > 1.5).map(d => d.문제번호);
+
+        document.getElementById('recommendations').innerHTML = `
+            <h2>4. 개선 권고사항</h2>
+            <h3>4.1 필기시험</h3>
+            <ul>
+                <li>변별도가 낮은 문항 (0.4 미만) 개선: ${lowDiscriminationItems.join(', ')}번 문항</li>
+                <li>난이도가 극단적인 문항 조정: ${extremeDifficultyItems.join(', ')}번 문항</li>
+            </ul>
+            <h3>4.2 구술시험</h3>
+            <ul>
+                <li>전반적으로 적절한 난이도와 변별도를 보임</li>
+                <li>${df_questions_speaking[0].문제번호}번 문항의 변별도(${df_questions_speaking[0].변별도.toFixed(2)}) 향상 필요</li>
+            </ul>
+        `;
     </script>
 </body>
 </html>

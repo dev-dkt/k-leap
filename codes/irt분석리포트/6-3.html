@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어능력시험 문항 적합도 기반 개선 가이드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>한국어능력시험 문항 적합도 기반 개선 가이드</h1>
+
+        <div class="section">
+            <h2>1. 문항 적합도 개요</h2>
+            <p>문항 적합도는 각 문항이 평가하려는 능력을 정확하게 측정하는지를 평가하는 중요한 지표입니다. 문항 적합도를 통해 시험의 신뢰도와 타당도를 향상시키고, 응시자의 능력에 맞는 적절한 문항을 출제할 수 있습니다.</p>
+        </div>
+
+        <div class="section">
+            <h2>2. 현행 문항 적합도 분석</h2>
+            <h3>2.1 적합도의 의미와 중요성</h3>
+            <p>문항 적합도는 문항반응이론(IRT)에 기반하여, 변별도와 난이도를 통해 평가됩니다. 변별도는 문항이 응시자의 능력 수준을 얼마나 잘 구분하는지를 나타내고, 난이도는 문항이 얼마나 어려운지를 측정합니다.</p>
+
+            <h3>2.2 현행 문항의 적합도 분석 결과</h3>
+            <p>적합도 분석 결과, 일부 문항이 응시자의 능력을 정확히 반영하지 못하는 것으로 나타났습니다. 이러한 문항에 대해서는 수정이 필요합니다.</p>
+            <ul>
+                <li>부적합 문항: 변별도 0.4 미만, 난이도 절대값 1.5 이상</li>
+                <li>변별도 낮은 문항: <span id="lowDiscriminationItems">3, 7, 12</span></li>
+                <li>난이도 높거나 낮은 문항: <span id="extremeDifficultyItems">5, 9, 14</span></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>3. 잔차 분석을 통한 문항 개선 포인트</h2>
+            <p>잔차 분석을 통해 특정 능력 수준에서 문항의 기능이 적합하지 않은지 여부를 파악할 수 있습니다.</p>
+
+            <h3>3.1 능력 수준별 잔차 패턴</h3>
+            <div id="residualAnalysis" class="chart-container">
+                <canvas id="residualChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. 문항 개선 전략</h2>
+            <h3>4.1 부적합 문항 유형별 개선 방안</h3>
+            <ul>
+                <li>변별도가 낮은 문항: 문항의 명확성을 높이거나, 선택지를 재구성하여 응시자의 능력 수준을 더 잘 구분할 수 있도록 수정</li>
+                <li>난이도가 너무 높은 문항: 문항의 난이도를 적절히 조정하거나, 응시자의 평균 능력 수준에 맞는 문항으로 대체</li>
+                <li>큰 잔차가 발생한 문항: 특정 능력 수준에서 부정확하게 기능하는 문항은 해당 능력 수준을 반영하도록 수정</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>5. 적합도 향상을 위한 문항 개발 팁</h2>
+            <p>적합도 높은 문항을 개발하기 위한 몇 가지 주요 팁은 다음과 같습니다:</p>
+            <ul>
+                <li>선택지는 명확하고 중복되지 않도록 작성</li>
+                <li>문항 난이도는 응시자 능력 수준에 맞추어 조정</li>
+                <li>변별도를 높이기 위해 정답이 아닌 선택지는 혼란을 주지 않도록 작성</li>
+                <li>높은 적합도를 보이는 문항의 특성을 분석하여 유사한 문항을 개발</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>6. 문항 정보 함수(IIF) 그래프</h2>
+            <p>문항 정보 함수는 각 문항이 응시자의 능력 수준을 얼마나 잘 측정하는지를 나타냅니다. 아래 그래프는 각 문항의 정보 함수를 나타낸 것입니다.</p>
+            <div id="itemInformationFunction" class="chart-container">
+                <canvas id="iifChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>7. 결론</h2>
+            <p>이 보고서는 한국어능력시험 문항의 적합도를 기반으로 개선 방안을 제안하였습니다. 문항 분석을 통해 부적합 문항을 식별하고, 그에 대한 개선 방안을 제시함으로써 시험의 신뢰도와 타당도를 향상시킬 수 있습니다.</p>
+            <ul>
+                <li>문항 적합도를 정기적으로 분석하여 시험의 품질을 유지할 것</li>
+                <li>부적합 문항은 난이도와 변별도를 조정하여 개선할 것</li>
+                <li>문항 개발 시 잔차 분석 결과를 적극 반영하여 능력 수준별 적합성을 보장할 것</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { df_questions, df_questions_speaking } from './data2.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 잔차 분석 차트 데이터 설정
+            const residualData = df_questions.map(item => ({
+                x: item.난이도, // 능력 수준을 대신하여 난이도 사용
+                y: item.변별도
+            }));
+
+            const ctxResidual = document.getElementById('residualChart').getContext('2d');
+            new Chart(ctxResidual, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '필기시험 잔차 분석',
+                        data: residualData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: '난이도' } },
+                        y: { title: { display: true, text: '변별도' } }
+                    }
+                }
+            });
+
+            // 문항 정보 함수 차트 데이터 설정
+            const iifData1 = df_questions.map(item => ({
+                x: item.난이도, // 난이도 축에 표시
+                y: item.변별도 // 변별도를 정보량으로 간주
+            }));
+            const iifData2 = df_questions_speaking.map(item => ({
+                x: item.난이도, // 난이도 축에 표시
+                y: item.변별도 // 변별도를 정보량으로 간주
+            }));
+            console.log(iifData1);
+            console.log(iifData2);
+            const ctxIIF = document.getElementById('iifChart').getContext('2d');
+            new Chart(ctxIIF, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '필기시험 문항 정보 함수',
+                        data: iifData1,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        fill: false
+                    }, {
+                        label: '구술시험 문항 정보 함수',
+                        data: iifData2,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: '난이도' } },
+                        y: { title: { display: true, text: '변별도 (문항 정보량)' } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

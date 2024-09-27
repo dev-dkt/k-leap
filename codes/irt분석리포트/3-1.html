@@ -70,20 +70,20 @@
     </div>
 
     <script type="module">
-        import { df_questions, df_responses, s_questions ,s_responses, df_irt, s_irt, df_ability, s_ability } from './data.js';
-
+        import { df_questions, df_responses, df_questions_speaking, df_responses_speaking } from './data2.js';
+    
         function calculateMean(data, key) {
-            return data.reduce((sum, item) => sum + item[key], 0) / data.length;
+            return data.reduce((sum, item) => sum + parseFloat(item[key]), 0) / data.length;
         }
-
+    
         function getTopNByKey(data, key, n) {
-            return data.sort((a, b) => b[key] - a[key]).slice(0, n);
+            return data.sort((a, b) => parseFloat(b[key]) - parseFloat(a[key])).slice(0, n);
         }
-
+    
         function getDistribution(data, key, bins) {
             const distribution = new Array(bins.length).fill(0);
             data.forEach(item => {
-                const value = item[key];
+                const value = parseFloat(item[key]);
                 for (let i = 0; i < bins.length; i++) {
                     if (value < bins[i]) {
                         distribution[i]++;
@@ -93,11 +93,11 @@
             });
             return distribution;
         }
-
+    
         function updateElement(id, content) {
             document.getElementById(id).textContent = content;
         }
-
+    
         function createTableRows(tableId, data) {
             const table = document.getElementById(tableId);
             data.forEach(item => {
@@ -108,7 +108,7 @@
                 });
             });
         }
-
+    
         function createChart(canvasId, type, labels, data, title) {
             return new Chart(document.getElementById(canvasId), {
                 type: type,
@@ -133,66 +133,63 @@
                 }
             });
         }
-
+    
         // 데이터 분석 및 차트 생성
         document.addEventListener('DOMContentLoaded', () => {
             // 기본 통계
             updateElement('writtenQuestions', df_questions.length);
-            updateElement('oralQuestions', s_questions.length);
-            updateElement('meanAlpha', calculateMean(df_irt, '변별도 (alpha)').toFixed(4));
-            updateElement('meanBeta', calculateMean(df_irt, '난이도 (beta)').toFixed(4));
+            updateElement('oralQuestions', df_questions_speaking.length);
+            updateElement('meanAlpha', calculateMean(df_questions, '변별도').toFixed(4));
+            updateElement('meanBeta', calculateMean(df_questions, '난이도').toFixed(4));
             updateElement('numExaminees', df_responses.length);
-
+    
             // 주요 발견사항
             const keyFindings = [
-                '필기시험의 문항 난이도는 대체로 적절하나, 일부 문항의 변별도가 낮습니다.',
-                '구술시험은 전반적으로 높은 난이도를 보이고 있습니다.',
-                `응시자의 능력 추정치는 ${Math.min(...df_ability.map(item => item['능력 추정치 (theta)'])).toFixed(2)}에서 ${Math.max(...df_ability.map(item => item['능력 추정치 (theta)'])).toFixed(2)} 사이에 분포하고 있습니다.`,
-                '국적, 직업, 한국어 수준에 따라 능력 차이가 관찰됩니다.'
+                `필기시험의 평균 난이도는 ${calculateMean(df_questions, '난이도').toFixed(2)}로, 중간 수준입니다.`,
+                `구술시험의 평균 난이도는 ${calculateMean(df_questions_speaking, '난이도').toFixed(2)}로, 필기시험보다 약간 높습니다.`,
+                `응시자의 능력 추정치는 ${Math.min(...df_responses.map(item => parseFloat(item['능력 추정치 (theta)']))).toFixed(2)}에서 ${Math.max(...df_responses.map(item => parseFloat(item['능력 추정치 (theta)']))).toFixed(2)} 사이에 분포하고 있습니다.`,
+                '한국어 수준이 높을수록 더 높은 점수를 받는 경향이 있습니다.'
             ];
             document.getElementById('keyFindings').innerHTML = keyFindings.map(item => `<li>${item}</li>`).join('');
-
+    
             // 상위 5개 고변별도 문항
-            const topItems = getTopNByKey(df_irt, '변별도 (alpha)', 5).map(item => {
-                const question = df_questions.find(q => q.문제번호 === item['문항 번호']);
-                return {
-                    '문항 번호': item['문항 번호'],
-                    '변별도 (alpha)': item['변별도 (alpha)'].toFixed(4),
-                    '난이도 (beta)': item['난이도 (beta)'].toFixed(4),
-                    '평가영역': question.평가영역,
-                    '평가항목': question.평가항목
-                };
-            });
+            const topItems = getTopNByKey(df_questions, '변별도', 5).map(item => ({
+                '문항 번호': item.문제번호,
+                '변별도': parseFloat(item.변별도).toFixed(4),
+                '난이도': parseFloat(item.난이도).toFixed(4),
+                '평가영역': item.평가영역,
+                '평가항목': item.평가항목 || '-'
+            }));
             createTableRows('topItemsTable', topItems);
-
+    
             // 변별도 분포 차트
             const alphaBins = [0.2, 0.4, 0.6, 0.8, 1.0, Infinity];
-            const alphaDistribution = getDistribution(df_irt, '변별도 (alpha)', alphaBins);
-            createChart('infoDistribution', 'bar', ['0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0', '1.0+'], alphaDistribution, '변별도 (alpha) 분포');
-
+            const alphaDistribution = getDistribution(df_questions, '변별도', alphaBins);
+            createChart('infoDistribution', 'bar', ['0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0', '1.0+'], alphaDistribution, '변별도 분포');
+    
             // 능력 수준별 정보 분포
             const abilityBins = [-3, -2, -1, 0, 1, 2, 3];
-            const abilityDistribution = getDistribution(df_ability, '능력 추정치 (theta)', abilityBins);
+            const abilityDistribution = getDistribution(df_responses, '능력 추정치 (theta)', abilityBins);
             createChart('infoByAbility', 'line', abilityBins.map(String), abilityDistribution, '능력 수준별 분포');
             updateElement('abilityDistribution', '시험은 중간 수준의 능력(-1 ~ 1)에서 가장 많은 정보를 제공하고 있습니다.');
-
+    
             // 문항 유형별 정보량 비교
             const typeInfo = {
-                '객관식': calculateMean(df_irt.filter(item => df_questions[item['문항 번호'] - 1].문항유형 === '객관식'), '변별도 (alpha)'),
-                '단답형': calculateMean(df_irt.filter(item => df_questions[item['문항 번호'] - 1].문항유형 === '단답형'), '변별도 (alpha)'),
-                '구술형': calculateMean(s_irt, '변별도 (alpha)')
+                '객관식': calculateMean(df_questions.filter(item => item.문항유형 === '객관식'), '변별도'),
+                '단답형': calculateMean(df_questions.filter(item => item.문항유형 === '단답형'), '변별도'),
+                '구술형': calculateMean(df_questions_speaking, '변별도')
             };
             createChart('infoByType', 'bar', Object.keys(typeInfo), Object.values(typeInfo), '문항 유형별 평균 변별도');
             updateElement('typeComparison', `객관식 문항이 가장 높은 평균 변별도(${typeInfo['객관식'].toFixed(4)})를 보이고 있으며, 구술형 문항의 변별도(${typeInfo['구술형'].toFixed(4)})가 상대적으로 낮습니다.`);
-
+    
             // 개선 권고사항
-            const lowInfoItems = df_irt.filter(item => item['변별도 (alpha)'] < 0.4).map(item => item['문항 번호']);
+            const lowInfoItems = df_questions.filter(item => parseFloat(item.변별도) < 0.4).map(item => item.문제번호);
             document.getElementById('lowInfoItems').innerHTML = `
                 <li>문항 ${lowInfoItems.join(', ')}의 변별도 향상이 필요합니다.</li>
                 <li>특히 어휘 영역의 동사, 형용사 관련 문항의 개선이 시급합니다.</li>
             `;
             document.getElementById('balanceImprovement').innerHTML = `
-                <li>고난도(beta > 1) 및 저난도(beta < -1) 영역의 문항 보강이 필요합니다.</li>
+                <li>고난도(난이도 > 0.5) 및 저난도(난이도 < -0.5) 영역의 문항 보강이 필요합니다.</li>
                 <li>구술시험의 난이도를 다양화하여 변별도를 증가시켜야 합니다.</li>
             `;
         });
