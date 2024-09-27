@@ -19,7 +19,7 @@
         <table>
           <tr>
             <th>시험일</th>
-            <td>2024년 9월 10일</td>
+            <td>2024년 9월 27일</td>
           </tr>
           <tr>
             <th>시험 유형</th>
@@ -53,13 +53,13 @@
           <li>
             필답형 평가 문항 난이도 분포:
             <ul>
-              <li>저난도(0.0-0.3) 7문항</li>
-              <li>중난도(0.3-0.7) 41문항</li>
-              <li>고난도(0.7-1.0) 2문항</li>
+              <li>저난도(-3.0 ~ -1.0) 11문항</li>
+              <li>중난도(-1.0 ~ 1.0) 35문항</li>
+              <li>고난도(1.0 ~ 3.0) 4문항</li>
             </ul>
           </li>
           <li>
-            6개 필답형 평가 문항(11, 16, 24, 43, 45, 46번)에서 고변별도(>1.0)가
+            6개 필답형 평가 문항(11, 16, 24, 37, 43, 45번)에서 고변별도(>1.0)가
             관찰되었습니다.
           </li>
           <li>
@@ -105,7 +105,7 @@
         <h3>필답형 평가</h3>
         <ul>
           <li>고변별도 문항 기준: 변별도 > 1.0</li>
-          <li>해당 문항: 11, 16, 24, 43, 45, 46번</li>
+          <li>해당 문항: 11, 16, 24, 37, 43, 45번</li>
         </ul>
         <h3>구술형 평가</h3>
         <ul>
@@ -154,97 +154,78 @@
     </footer>
 
     <script type="module">
-      import { df_irt, s_irt } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
 
-      // 집계 함수
-      function calculateAggregates(data) {
-        let totalDifficulty = 0;
-        let totalDiscrimination = 0;
-        let lowDifficultyCount = 0;
-        let mediumDifficultyCount = 0;
-        let highDifficultyCount = 0;
-        let highDiscriminationItems = [];
+      // 필답형 평가 데이터 처리
+      function processWrittenData(questions, responses) {
+        const totalQuestions = questions.length;
+        const totalResponses = responses.length;
+        let totalScore = 0;
+        let passCount = 0;
 
-        data.forEach((item) => {
-          const difficulty = item["난이도 (beta)"];
-          const discrimination = item["변별도 (alpha)"];
-
-          totalDifficulty += difficulty;
-          totalDiscrimination += discrimination;
-
-          // 난이도 분포 계산
-          if (difficulty <= 0.3) {
-            lowDifficultyCount++;
-          } else if (difficulty > 0.3 && difficulty <= 0.7) {
-            mediumDifficultyCount++;
-          } else {
-            highDifficultyCount++;
-          }
-
-          // 고변별도 문항 (변별도 > 1.0)
-          if (discrimination > 1.0) {
-            highDiscriminationItems.push(item["문항 번호"]);
-          }
+        responses.forEach((r) => {
+          const score = parseInt(r.점수);
+          totalScore += score;
+          if (score >= 64) passCount++;
         });
 
-        const meanDifficulty = totalDifficulty / data.length;
-        const meanDiscrimination = totalDiscrimination / data.length;
+        const averageScore = totalScore / totalResponses;
+        const passRate = (passCount / totalResponses) * 100;
+
+        const difficultyData = questions.map((q) => ({
+          number: q.문제번호,
+          difficulty: parseFloat(q.난이도),
+          discrimination: parseFloat(q.변별도),
+          area: q.평가영역,
+        }));
+
+        const areaCount = difficultyData.reduce((acc, curr) => {
+          acc[curr.area] = (acc[curr.area] || 0) + 1;
+          return acc;
+        }, {});
 
         return {
-          meanDifficulty,
-          meanDiscrimination,
-          lowDifficultyCount,
-          mediumDifficultyCount,
-          highDifficultyCount,
-          highDiscriminationItems,
+          totalQuestions,
+          totalResponses,
+          averageScore,
+          passRate,
+          difficultyData,
+          areaCount,
         };
       }
 
-      // 필기 및 구술 시험 데이터로부터 집계
-      const writtenExamAggregates = calculateAggregates(df_irt);
-      const oralExamAggregates = calculateAggregates(s_irt);
+      // 구술형 평가 데이터 처리
+      function processOralData(questions, responses) {
+        const totalQuestions = questions.length;
+        const totalResponses = responses.length;
+        let totalScore = 0;
 
-      // 집계된 데이터를 aggregatedData로 설정
-      const aggregatedData = {
-        writtenExam: writtenExamAggregates,
-        oralExam: oralExamAggregates,
-      };
+        responses.forEach((r) => {
+          totalScore += parseInt(r.점수);
+        });
 
-      // 결과를 HTML에 반영
-      function displaySummary() {
-        // 필기 시험 통계 업데이트
-        document.getElementById("writtenMeanDifficulty").innerText =
-          aggregatedData.writtenExam.meanDifficulty.toFixed(2);
-        document.getElementById("writtenMeanDiscrimination").innerText =
-          aggregatedData.writtenExam.meanDiscrimination.toFixed(2);
-        document.getElementById("writtenLowDifficulty").innerText =
-          aggregatedData.writtenExam.lowDifficultyCount;
-        document.getElementById("writtenMediumDifficulty").innerText =
-          aggregatedData.writtenExam.mediumDifficultyCount;
-        document.getElementById("writtenHighDifficulty").innerText =
-          aggregatedData.writtenExam.highDifficultyCount;
-        document.getElementById("writtenHighDiscrimination").innerText =
-          aggregatedData.writtenExam.highDiscriminationItems.length
-            ? aggregatedData.writtenExam.highDiscriminationItems.join(", ")
-            : "없음";
+        const averageScore = totalScore / totalResponses;
 
-        // 구술 시험 통계 업데이트
-        document.getElementById("oralMeanDifficulty").innerText =
-          aggregatedData.oralExam.meanDifficulty.toFixed(2);
-        document.getElementById("oralMeanDiscrimination").innerText =
-          aggregatedData.oralExam.meanDiscrimination.toFixed(2);
-        document.getElementById("oralLowDifficulty").innerText =
-          aggregatedData.oralExam.lowDifficultyCount;
-        document.getElementById("oralMediumDifficulty").innerText =
-          aggregatedData.oralExam.mediumDifficultyCount;
-        document.getElementById("oralHighDifficulty").innerText =
-          aggregatedData.oralExam.highDifficultyCount;
-        document.getElementById("oralHighDiscrimination").innerText =
-          aggregatedData.oralExam.highDiscriminationItems.length
-            ? aggregatedData.oralExam.highDiscriminationItems.join(", ")
-            : "없음";
+        const difficultyData = questions.map((q) => ({
+          number: q.문제번호,
+          difficulty: parseFloat(q.난이도),
+          discrimination: parseFloat(q.변별도),
+        }));
+
+        return {
+          totalQuestions,
+          totalResponses,
+          averageScore,
+          difficultyData,
+        };
       }
 
+      // 차트 옵션
       const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -260,6 +241,7 @@
         },
       };
 
+      // 차트 생성 함수
       function createChart(ctx, data, options) {
         return new Chart(ctx, {
           type: "bar",
@@ -269,30 +251,93 @@
       }
 
       window.onload = function () {
-        // Function to extract and format the data for chart.js
-        function extractData(jsonData, key) {
-          return jsonData.map((item) => item[key]);
+        const writtenData = processWrittenData(df_questions, df_responses);
+        const oralData = processOralData(
+          df_questions_speaking,
+          df_responses_speaking
+        );
+
+        // 특정 텍스트를 포함하는 li 요소를 찾는 함수
+        function findListItem(text) {
+          const items = document.querySelectorAll("li");
+          for (let item of items) {
+            if (item.textContent.includes(text)) {
+              return item;
+            }
+          }
+          return null;
         }
 
-        // 필기 시험 데이터
-        const 필기문항번호 = extractData(df_irt, "문항 번호");
-        const 필기변별도 = extractData(df_irt, "변별도 (alpha)");
-        const 필기난이도 = extractData(df_irt, "난이도 (beta)");
+        // 통계 정보 업데이트
+        findListItem(
+          "총 응시자 수"
+        ).textContent = `총 응시자 수: ${writtenData.totalResponses}명`;
+        findListItem(
+          "필답형 평가 문항 수"
+        ).textContent = `필답형 평가 문항 수: ${writtenData.totalQuestions}문항`;
+        findListItem(
+          "구술형 평가 문항 수"
+        ).textContent = `구술형 평가 문항 수: ${oralData.totalQuestions}문항`;
+        findListItem(
+          "필답형 평가 평균 점수"
+        ).textContent = `필답형 평가 평균 점수: ${writtenData.averageScore.toFixed(
+          2
+        )}점 (100점 만점 기준)`;
+        findListItem(
+          "구술형 평가 평균 점수"
+        ).textContent = `구술형 평가 평균 점수: ${oralData.averageScore.toFixed(
+          2
+        )}점 (25점 만점 기준)`;
+        findListItem(
+          "필답형 평가 합격률"
+        ).textContent = `필답형 평가 합격률: ${writtenData.passRate.toFixed(
+          2
+        )}% (64점 이상 기준)`;
 
-        // 구술 시험 데이터
-        const 구술문항번호 = extractData(s_irt, "문항 번호");
-        const 구술변별도 = extractData(s_irt, "변별도 (alpha)");
-        const 구술난이도 = extractData(s_irt, "난이도 (beta)");
+        // 난이도 분포 업데이트
+        const difficultyDistribution = writtenData.difficultyData.reduce(
+          (acc, curr) => {
+            if (curr.difficulty < -1) acc.low++;
+            else if (curr.difficulty > 1) acc.high++;
+            else acc.medium++;
+            return acc;
+          },
+          { low: 0, medium: 0, high: 0 }
+        );
 
-        // Create 필기 시험 난이도 차트
+        const difficultyList =
+          findListItem("필답형 평가 문항 난이도 분포").querySelector("ul");
+        difficultyList.innerHTML = `
+    <li>저난도(-3.0 ~ -1.0) ${difficultyDistribution.low}문항</li>
+    <li>중난도(-1.0 ~ 1.0) ${difficultyDistribution.medium}문항</li>
+    <li>고난도(1.0 ~ 3.0) ${difficultyDistribution.high}문항</li>
+  `;
+
+        // 고변별도 문항 업데이트
+        const highDiscriminationItems = writtenData.difficultyData
+          .filter((item) => item.discrimination > 1.0)
+          .map((item) => item.number)
+          .join(", ");
+        findListItem(
+          "해당 문항:"
+        ).textContent = `해당 문항: ${highDiscriminationItems}`;
+
+        // 평가영역별 문항 구성 업데이트
+        const areaList =
+          findListItem("평가영역별 필답형 문항 구성").querySelector("ul");
+        areaList.innerHTML = Object.entries(writtenData.areaCount)
+          .map(([area, count]) => `<li>${area} ${count}문항</li>`)
+          .join("");
+
+        // 차트 생성
         createChart(
           document.getElementById("difficultyChart").getContext("2d"),
           {
-            labels: 필기문항번호,
+            labels: writtenData.difficultyData.map((d) => d.number),
             datasets: [
               {
                 label: "필기시험 난이도",
-                data: 필기난이도,
+                data: writtenData.difficultyData.map((d) => d.difficulty),
                 backgroundColor: "rgba(52, 152, 219, 0.6)",
                 borderColor: "rgba(52, 152, 219, 1)",
                 borderWidth: 1,
@@ -308,15 +353,14 @@
           }
         );
 
-        // Create 필기 시험 변별도 차트
         createChart(
           document.getElementById("discriminationChart").getContext("2d"),
           {
-            labels: 필기문항번호,
+            labels: writtenData.difficultyData.map((d) => d.number),
             datasets: [
               {
                 label: "필기시험 변별도",
-                data: 필기변별도,
+                data: writtenData.difficultyData.map((d) => d.discrimination),
                 backgroundColor: "rgba(46, 204, 113, 0.6)",
                 borderColor: "rgba(46, 204, 113, 1)",
                 borderWidth: 1,
@@ -332,15 +376,14 @@
           }
         );
 
-        // Create 구술 시험 난이도 차트
         createChart(
           document.getElementById("oralDifficultyChart").getContext("2d"),
           {
-            labels: 구술문항번호,
+            labels: oralData.difficultyData.map((d) => d.number),
             datasets: [
               {
                 label: "구술시험 난이도",
-                data: 구술난이도,
+                data: oralData.difficultyData.map((d) => d.difficulty),
                 backgroundColor: "rgba(231, 76, 60, 0.6)",
                 borderColor: "rgba(231, 76, 60, 1)",
                 borderWidth: 1,
@@ -356,15 +399,14 @@
           }
         );
 
-        // Create 구술 시험 변별도 차트
         createChart(
           document.getElementById("oralDiscriminationChart").getContext("2d"),
           {
-            labels: 구술문항번호,
+            labels: oralData.difficultyData.map((d) => d.number),
             datasets: [
               {
                 label: "구술시험 변별도",
-                data: 구술변별도,
+                data: oralData.difficultyData.map((d) => d.discrimination),
                 backgroundColor: "rgba(241, 196, 15, 0.6)",
                 borderColor: "rgba(241, 196, 15, 1)",
                 borderWidth: 1,
@@ -379,9 +421,6 @@
             },
           }
         );
-
-        // Display the aggregated results
-        displaySummary();
       };
     </script>
   </body>
