@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어능력시험 문항 적합도 분석 요약 보고서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report-styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>한국어능력시험 문항 적합도 분석 요약 보고서</h1>
+
+        <div class="section">
+            <h2>1. 요약</h2>
+            <ul>
+                <li>시험일: 2024년 9월 10일</li>
+                <li>시험 유형: 사전평가</li>
+                <li>시험장: CBT평가센터</li>
+                <li>시행 회차: 100회차</li>
+                <li>전체 문항 수: 필기시험 50문항, 구술시험 5문항</li>
+            </ul>
+            <h3>주요 발견사항</h3>
+            <ul>
+                <li>필기시험 문항의 평균 변별도: 0.62 (적정 범위: 0.5 이상)</li>
+                <li>필기시험 문항의 평균 난이도: 0.04 (적정 범위: -2.0 ~ 2.0)</li>
+                <li>구술시험 문항의 평균 변별도: 0.89 (매우 높음)</li>
+                <li>구술시험 문항의 평균 난이도: 0.66 (중상 수준)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>2. 문항 적합도 분석</h2>
+            <h3>2.1 필기시험 문항 적합도</h3>
+            <div id="writtenItemFit" class="chart-container"></div>
+
+            <h3>2.2 구술시험 문항 적합도</h3>
+            <div id="oralItemFit" class="chart-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. 응시자 능력 분포</h2>
+            <div id="abilityDistribution" class="chart-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. 개선 권고사항</h2>
+            <h3>4.1 필기시험</h3>
+            <ul>
+                <li>변별도가 낮은 문항 (0.4 미만) 개선: 7, 13, 14, 25, 26, 29, 36, 48, 50번 문항</li>
+                <li>난이도가 극단적인 문항 조정: 28번 (-1.27), 46번 (0.97) 문항</li>
+            </ul>
+            <h3>4.2 구술시험</h3>
+            <ul>
+                <li>전반적으로 높은 변별도와 적절한 난이도를 보이나, 1번 문항의 변별도 향상 필요</li>
+                <li>2, 3번 문항의 난이도가 다소 높으므로, 중급 수준 응시자를 위한 보완 고려</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { df_irt, df_ability , s_irt } from "./data.js";
+        // 필기시험 문항 적합도 산점도
+        const writtenItemFitData = df_irt.map(d => ({
+            x: d["변별도 (alpha)"],
+            y: d["난이도 (beta)"],
+            item: d["문항 번호"]
+        }));
+
+        const writtenSvg = d3.select("#writtenItemFit")
+            .append("svg")
+            .attr("width", 600)
+            .attr("height", 400);
+
+        const xScale = d3.scaleLinear()
+            .domain([0, 1.5])
+            .range([50, 550]);
+
+        const yScale = d3.scaleLinear()
+            .domain([-2, 2])
+            .range([350, 50]);
+
+        writtenSvg.selectAll("circle")
+            .data(writtenItemFitData)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.x))
+            .attr("cy", d => yScale(d.y))
+            .attr("r", 5)
+            .attr("fill", "blue");
+
+        writtenSvg.append("g")
+            .attr("transform", "translate(0,350)")
+            .call(d3.axisBottom(xScale));
+
+        writtenSvg.append("g")
+            .attr("transform", "translate(50,0)")
+            .call(d3.axisLeft(yScale));
+
+        writtenSvg.append("text")
+            .attr("x", 300)
+            .attr("y", 390)
+            .attr("text-anchor", "middle")
+            .text("변별도");
+
+        writtenSvg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -200)
+            .attr("y", 15)
+            .attr("text-anchor", "middle")
+            .text("난이도");
+
+        // 구술시험 문항 적합도 산점도
+        const oralItemFitData = s_irt.map(d => ({
+            x: d["변별도 (alpha)"],
+            y: d["난이도 (beta)"],
+            item: d["문항 번호"]
+        }));
+
+        const oralSvg = d3.select("#oralItemFit")
+            .append("svg")
+            .attr("width", 600)
+            .attr("height", 400);
+
+        oralSvg.selectAll("circle")
+            .data(oralItemFitData)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.x))
+            .attr("cy", d => yScale(d.y))
+            .attr("r", 5)
+            .attr("fill", "red");
+
+        oralSvg.append("g")
+            .attr("transform", "translate(0,350)")
+            .call(d3.axisBottom(xScale));
+
+        oralSvg.append("g")
+            .attr("transform", "translate(50,0)")
+            .call(d3.axisLeft(yScale));
+
+        oralSvg.append("text")
+            .attr("x", 300)
+            .attr("y", 390)
+            .attr("text-anchor", "middle")
+            .text("변별도");
+
+        oralSvg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -200)
+            .attr("y", 15)
+            .attr("text-anchor", "middle")
+            .text("난이도");
+
+        // 응시자 능력 분포 히스토그램
+        const abilityData = df_ability.map(d => d["능력 추정치 (theta)"]);
+
+        const abilitySvg = d3.select("#abilityDistribution")
+            .append("svg")
+            .attr("width", 600)
+            .attr("height", 400);
+
+        const histogram = d3.histogram()
+            .domain([-3, 3])
+            .thresholds(20);
+
+        const bins = histogram(abilityData);
+
+        const yScaleHist = d3.scaleLinear()
+            .domain([0, d3.max(bins, d => d.length)])
+            .range([350, 50]);
+
+        abilitySvg.selectAll("rect")
+            .data(bins)
+            .enter()
+            .append("rect")
+            .attr("x", d => xScale(d.x0))
+            .attr("y", d => yScaleHist(d.length))
+            .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
+            .attr("height", d => 350 - yScaleHist(d.length))
+            .attr("fill", "green");
+
+        abilitySvg.append("g")
+            .attr("transform", "translate(0,350)")
+            .call(d3.axisBottom(xScale));
+
+        abilitySvg.append("g")
+            .attr("transform", "translate(50,0)")
+            .call(d3.axisLeft(yScaleHist));
+
+        abilitySvg.append("text")
+            .attr("x", 300)
+            .attr("y", 390)
+            .attr("text-anchor", "middle")
+            .text("능력 추정치");
+
+        abilitySvg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -200)
+            .attr("y", 15)
+            .attr("text-anchor", "middle")
+            .text("응시자 수");
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어능력시험 문항 적합도 상세 분석 보고서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report-styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>한국어능력시험 문항 적합도 상세 분석 보고서</h1>
+
+        <div class="section">
+            <h2>1. 연구 개요</h2>
+            <h3>1.1 연구 목적</h3>
+            <p>본 연구는 한국어능력시험의 문항 적합도를 분석하여 시험의 신뢰도와 타당도를 평가하고, 향후 문항 개선 방향을 제시하는 것을 목적으로 합니다.</p>
+            
+            <h3>1.2 연구 방법</h3>
+            <p>문항반응이론(IRT)을 적용하여 각 문항의 변별도와 난이도를 추정하고, 이를 바탕으로 문항 적합도를 평가했습니다.</p>
+            
+            <h3>1.3 데이터 설명</h3>
+            <ul>
+                <li>시험 정보: 2024년 9월 10일 시행, 사전평가, CBT평가센터, 100회차</li>
+                <li>필기시험: 50문항 (객관식 48문항, 단답형 2문항)</li>
+                <li>구술시험: 5문항</li>
+                <li>응시자 수: 30명</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>2. IRT 모델 및 적합도 검정 방법</h2>
+            <p>2모수 로지스틱 모델을 사용하여 각 문항의 변별도(α)와 난이도(β)를 추정했습니다. 문항 적합도는 변별도와 난이도의 분포를 통해 평가되었습니다.</p>
+        </div>
+
+        <div class="section">
+            <h2>3. 문항 적합도 상세 분석</h2>
+            <h3>3.1 필기시험 문항 분석</h3>
+            <div id="writtenItemAnalysis" class="chart-container"></div>
+            <p>변별도 평균: 0.62, 표준편차: 0.26</p>
+            <p>난이도 평균: 0.04, 표준편차: 0.47</p>
+
+            <h3>3.2 구술시험 문항 분석</h3>
+            <div id="oralItemAnalysis" class="chart-container"></div>
+            <p>변별도 평균: 0.89, 표준편차: 0.16</p>
+            <p>난이도 평균: 0.66, 표준편차: 0.33</p>
+
+            <h3>3.3 적합도와 문항 특성의 관계 분석</h3>
+            <p>필기시험에서 변별도와 난이도 사이의 상관계수: <span id="writtenCorrelation"></span></p>
+            <p>구술시험에서 변별도와 난이도 사이의 상관계수: <span id="oralCorrelation"></span></p>
+        </div>
+
+        <div class="section">
+            <h2>4. 잔차 분석 결과</h2>
+            <h3>4.1 능력 수준별 잔차 분포</h3>
+            <div id="residualDistribution" class="chart-container"></div>
+            <p>잔차 분석을 통해 문항이 특정 능력 수준에서 적절히 기능하는지 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="section">
+            <h2>5. 응시자 능력 분포 분석</h2>
+            <div id="abilityDistribution" class="chart-container"></div>
+            <p>평균 능력 추정치: <span id="meanAbility"></span></p>
+            <p>능력 추정치 표준편차: <span id="stdAbility"></span></p>
+        </div>
+
+        <div class="section">
+            <h2>6. 결론 및 제언</h2>
+            <ul>
+                <li>필기시험 문항 중 변별도가 0.4 미만인 문항들(7, 13, 14, 25, 26, 29, 36, 48, 50번)에 대한 재검토가 필요합니다.</li>
+                <li>구술시험 문항은 전반적으로 높은 변별도를 보이나, 난이도가 다소 높은 편입니다. 중급 수준의 응시자를 위한 문항 난이도 조정을 고려해볼 수 있습니다.</li>
+                <li>응시자 능력 분포가 정규 분포에 가까운지 확인하고, 필요시 문항 난이도 조정을 통해 더 넓은 범위의 능력을 측정할 수 있도록 개선이 필요합니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 필기시험 문항 분석
+        const writtenCtx = document.getElementById('writtenItemAnalysis').getContext('2d');
+        new Chart(writtenCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '필기시험 문항',
+                    data: df_irt.map(item => ({x: item['변별도 (alpha)'], y: item['난이도 (beta)']})),
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '변별도 (α)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '난이도 (β)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 구술시험 문항 분석
+        const oralCtx = document.getElementById('oralItemAnalysis').getContext('2d');
+        new Chart(oralCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '구술시험 문항',
+                    data: s_irt.map(item => ({x: item['변별도 (alpha)'], y: item['난이도 (beta)']})),
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '변별도 (α)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '난이도 (β)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 상관계수 계산
+        function calculateCorrelation(data) {
+            const n = data.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+            for (let i = 0; i < n; i++) {
+                sumX += data[i].x;
+                sumY += data[i].y;
+                sumXY += data[i].x * data[i].y;
+                sumX2 += data[i].x * data[i].x;
+                sumY2 += data[i].y * data[i].y;
+            }
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+            return numerator / denominator;
+        }
+
+        const writtenCorrelation = calculateCorrelation(df_irt.map(item => ({x: item['변별도 (alpha)'], y: item['난이도 (beta)']})));
+        const oralCorrelation = calculateCorrelation(s_irt.map(item => ({x: item['변별도 (alpha)'], y: item['난이도 (beta)']})));
+
+        document.getElementById('writtenCorrelation').textContent = writtenCorrelation.toFixed(4);
+        document.getElementById('oralCorrelation').textContent = oralCorrelation.toFixed(4);
+
+        // 응시자 능력 분포
+        const abilityCtx = document.getElementById('abilityDistribution').getContext('2d');
+        const abilityData = df_ability.map(item => item['능력 추정치 (theta)']);
+        new Chart(abilityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['[-3,-2)', '[-2,-1)', '[-1,0)', '[0,1)', '[1,2)', '[2,3]'],
+                datasets: [{
+                    label: '응시자 수',
+                    data: [
+                        abilityData.filter(x => x >= -3 && x < -2).length,
+                        abilityData.filter(x => x >= -2 && x < -1).length,
+                        abilityData.filter(x => x >= -1 && x < 0).length,
+                        abilityData.filter(x => x >= 0 && x < 1).length,
+                        abilityData.filter(x => x >= 1 && x < 2).length,
+                        abilityData.filter(x => x >= 2 && x <= 3).length
+                    ],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '응시자 수'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '능력 추정치 (θ)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 능력 추정치 평균 및 표준편차 계산
+        const meanAbility = abilityData.reduce((a, b) => a + b, 0) / abilityData.length;
+        const stdAbility = Math.sqrt(abilityData.map(x => Math.pow(x - meanAbility, 2)).reduce((a, b) => a + b, 0) / abilityData.length);
+
+        document.getElementById('meanAbility').textContent = meanAbility.toFixed(4);
+        document.getElementById('stdAbility').textContent = stdAbility.toFixed(4);
+    </script>
+</body>
+</html>

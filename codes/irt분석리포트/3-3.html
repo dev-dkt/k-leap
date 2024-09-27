@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어능력시험 문항 정보 분석 및 개선 가이드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="report-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* 기본 스타일 추가 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 40px;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>한국어능력시험 문항 정보 분석 및 개선 가이드</h1>
+
+        <div class="section">
+            <h2>1. 문항 정보 함수 개요</h2>
+            <h3>1.1 정보 함수의 의미와 중요성</h3>
+            <p>문항 정보 함수는 특정 능력 수준에서 해당 문항이 제공하는 정보의 양을 나타냅니다. 높은 정보량은 문항의 정확성과 효율성을 의미합니다.</p>
+
+            <h3>1.2 정보량과 문항 특성의 관계</h3>
+            <ul>
+                <li>변별도가 높을수록 최대 정보량이 증가합니다.</li>
+                <li>난이도는 최대 정보를 제공하는 능력 수준과 일치합니다.</li>
+                <li>정보 함수의 폭은 문항이 효과적으로 측정하는 능력 범위를 나타냅니다.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>2. 현행 문항 정보량 분석</h2>
+            <h3>2.1 문항별 최대 정보량 및 해당 능력 수준</h3>
+            <div class="chart-container">
+                <canvas id="itemInfoScatter"></canvas>
+            </div>
+
+            <h3>2.2 평가영역별, 문항유형별 평균 정보량 비교</h3>
+            <div class="chart-container">
+                <canvas id="avgInfoByCategory"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. 고정보량 문항 특성 분석</h2>
+            <h3>3.1 상위 10개 문항의 공통점</h3>
+            <table id="topQuestionsTable">
+                <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>문항 번호</th>
+                        <th>최대 정보량</th>
+                        <th>변별도</th>
+                        <th>난이도</th>
+                        <th>평가영역</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 상위 문항 데이터 삽입 -->
+                </tbody>
+            </table>
+
+            <h3>3.2 모범 사례 분석</h3>
+            <ul>
+                <li>변별도가 1.0 이상으로 매우 높습니다.</li>
+                <li>난이도가 -0.3에서 0.3 사이에 분포하여 중간 수준의 능력을 정확히 측정합니다.</li>
+                <li>문법과 문화 영역의 문항이 상대적으로 높은 정보량을 제공합니다.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>4. 저정보량 문항 개선 방안</h2>
+            <h3>4.1 하위 10% 문항의 특성 분석</h3>
+            <table id="bottomQuestionsTable">
+                <thead>
+                    <tr>
+                        <th>문항 번호</th>
+                        <th>최대 정보량</th>
+                        <th>변별도</th>
+                        <th>난이도</th>
+                        <th>평가영역</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 하위 문항 데이터 삽입 -->
+                </tbody>
+            </table>
+
+            <h3>4.2 구체적인 개선 전략 및 예시</h3>
+            <ul>
+                <li>변별도 향상: 지문 명확화, 오답 매력도 증가</li>
+                <li>난이도 조정: 문제 난이도를 중간 수준으로 조정</li>
+                <li>문항 유형 변경: 객관식에서 단답형으로 변경 고려</li>
+                <li>지문 컨텍스트 개선: 실생활과 연관된 상황 제시</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>5. 능력 수준별 문항 개발 가이드</h2>
+            <h3>5.1 목표 능력 수준별 적정 난이도 및 변별도 범위</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>능력 수준</th>
+                        <th>적정 난이도 범위</th>
+                        <th>목표 변별도</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>하 (-2 ~ -1)</td><td>-2.5 ~ -0.5</td><td>0.8 이상</td></tr>
+                    <tr><td>중하 (-1 ~ 0)</td><td>-1.5 ~ 0.5</td><td>1.0 이상</td></tr>
+                    <tr><td>중상 (0 ~ 1)</td><td>-0.5 ~ 1.5</td><td>1.0 이상</td></tr>
+                    <tr><td>상 (1 ~ 2)</td><td>0.5 ~ 2.5</td><td>0.8 이상</td></tr>
+                </tbody>
+            </table>
+
+            <h3>5.2 정보 불균형 해소를 위한 문항 개발 전략</h3>
+            <ul>
+                <li>고난도 문항 (난이도 > 1.5) 비율을 10% 이상으로 증가</li>
+                <li>저난도 문항 (난이도 < -1.5) 비율을 10% 이상으로 유지</li>
+                <li>각 능력 수준 구간에서 최소 5문항 이상 배치</li>
+                <li>구술시험 문항의 변별도를 평균 0.8 이상으로 개선</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { df_questions, df_responses, s_responses, df_irt, s_irt, df_ability, s_ability } from './data.js';
+
+        // 정보량 계산 함수: I(beta) = alpha^2 / 4
+        function calculateItemInfo(alpha) {
+            return Math.pow(alpha, 2) / 4;
+        }
+
+        // 문항별 정보량 계산 및 병합
+        const mergedData = df_questions.map(question => {
+            const irt = df_irt.find(item => item["문항 번호"] === question.문제번호);
+            if (irt) {
+                const info = calculateItemInfo(irt["변별도 (alpha)"]);
+                return {
+                    문제번호: question.문제번호,
+                    평가영역: question.평가영역,
+                    변별도: irt["변별도 (alpha)"],
+                    난이도: irt["난이도 (beta)"],
+                    정보량: info
+                };
+            } else {
+                return null;
+            }
+        }).filter(item => item !== null);
+
+        // 상위 10개 문항
+        const topQuestions = [...mergedData].sort((a, b) => b.정보량 - a.정보량).slice(0, 10);
+
+        // 하위 10% 문항 (5개)
+        const bottomQuestions = [...mergedData].sort((a, b) => a.정보량 - b.정보량).slice(0, 5);
+
+        // 평가영역별 평균 정보량 계산
+        const categoryInfo = {};
+        mergedData.forEach(item => {
+            if (categoryInfo[item.평가영역]) {
+                categoryInfo[item.평가영역].sum += item.정보량;
+                categoryInfo[item.평가영역].count += 1;
+            } else {
+                categoryInfo[item.평가영역] = { sum: item.정보량, count: 1 };
+            }
+        });
+
+        const avgInfoByCategory = Object.keys(categoryInfo).map(category => ({
+            category: category,
+            avg_info: +(categoryInfo[category].sum / categoryInfo[category].count).toFixed(3)
+        }));
+
+        // 상위 10개 문항 테이블 채우기
+        const topTableBody = document.querySelector('#topQuestionsTable tbody');
+        topQuestions.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.문제번호}</td>
+                <td>${item.정보량.toFixed(4)}</td>
+                <td>${item.변별도.toFixed(4)}</td>
+                <td>${item.난이도.toFixed(4)}</td>
+                <td>${item.평가영역}</td>
+            `;
+            topTableBody.appendChild(row);
+        });
+
+        // 하위 5개 문항 테이블 채우기
+        const bottomTableBody = document.querySelector('#bottomQuestionsTable tbody');
+        bottomQuestions.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.문제번호}</td>
+                <td>${item.정보량.toFixed(4)}</td>
+                <td>${item.변별도.toFixed(4)}</td>
+                <td>${item.난이도.toFixed(4)}</td>
+                <td>${item.평가영역}</td>
+            `;
+            bottomTableBody.appendChild(row);
+        });
+
+        // 필기문항 Scatter Chart 데이터 준비
+        const scatterData = mergedData.map(item => ({
+            x: item.난이도,
+            y: item.정보량,
+            r: item.변별도 * 5, // 반지름을 변별도에 비례하게 설정
+            label: `문항 ${item.문제번호}`
+        }));
+
+        // 문항별 최대 정보량 및 해당 능력 수준 차트
+        const itemInfoScatterChart = new Chart(
+            document.getElementById('itemInfoScatter'),
+            {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '필기문항',
+                        data: scatterData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.raw.label}: I(beta)=${context.raw.y.toFixed(4)}, theta(beta)=${context.raw.x.toFixed(4)}`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '문항별 최대 정보량 및 해당 능력 수준'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '능력 수준 (θ)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '최대 정보량 (I(beta))'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        // 평가영역별 평균 정보량 차트
+        const avgInfoByCategoryChart = new Chart(
+            document.getElementById('avgInfoByCategory'),
+            {
+                type: 'bar',
+                data: {
+                    labels: avgInfoByCategory.map(item => item.category),
+                    datasets: [{
+                        label: '평균 정보량',
+                        data: avgInfoByCategory.map(item => item.avg_info),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '평가영역별 평균 정보량'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '평균 정보량 (I(beta))'
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    </script>
+</body>
+</html>
