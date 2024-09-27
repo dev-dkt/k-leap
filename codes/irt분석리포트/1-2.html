@@ -317,11 +317,19 @@
     </footer>
 
     <script type="module">
-      import { df_irt, s_irt } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
 
       // 유틸리티 함수
       function calculateMean(data, key) {
-        return data.reduce((sum, item) => sum + item[key], 0) / data.length;
+        return (
+          data.reduce((sum, item) => sum + parseFloat(item[key]), 0) /
+          data.length
+        );
       }
 
       function generateThetaValues() {
@@ -346,68 +354,68 @@
         return "매우 높은 변별도";
       }
 
+      // IRT 관련 함수
+      function calculateIRTParams(questions, responses) {
+        return questions.map((q) => ({
+          number: q.문제번호,
+          difficulty: parseFloat(q.난이도),
+          discrimination: parseFloat(q.변별도),
+        }));
+      }
+
+      function calculateItemProbability(theta, difficulty, discrimination) {
+        return 1 / (1 + Math.exp(-1.7 * discrimination * (theta - difficulty)));
+      }
+
+      function calculateItemInformation(theta, difficulty, discrimination) {
+        const p = calculateItemProbability(theta, difficulty, discrimination);
+        return discrimination ** 2 * p * (1 - p);
+      }
+
       // 차트 생성 함수
-      function createICCChart(ctx, thetaValues) {
+      function createICCChart(ctx, thetaValues, irtParams) {
+        const datasets = irtParams.slice(0, 2).map((item, index) => ({
+          label: `문항 ${item.number}`,
+          data: thetaValues.map((theta) =>
+            calculateItemProbability(
+              theta,
+              item.difficulty,
+              item.discrimination
+            )
+          ),
+          borderColor:
+            index === 0 ? "rgba(255, 99, 132, 1)" : "rgba(54, 162, 235, 1)",
+          fill: false,
+        }));
+
         return new Chart(ctx, {
           type: "line",
-          data: {
-            labels: thetaValues,
-            datasets: [
-              {
-                label: "문항 1",
-                data: Array.from(
-                  { length: 21 },
-                  (_, i) =>
-                    1 /
-                    (1 +
-                      Math.exp(
-                        -1.7 * 0.8719177719 * (-3 + i * 0.3 - 0.0350061845)
-                      ))
-                ),
-                borderColor: "rgba(255, 99, 132, 1)",
-                fill: false,
-              },
-              {
-                label: "문항 16",
-                data: Array.from(
-                  { length: 21 },
-                  (_, i) =>
-                    1 /
-                    (1 +
-                      Math.exp(
-                        -1.7 * 1.2474251747 * (-3 + i * 0.3 - 0.2814261663)
-                      ))
-                ),
-                borderColor: "rgba(54, 162, 235, 1)",
-                fill: false,
-              },
-            ],
-          },
+          data: { labels: thetaValues, datasets },
           options: {
             responsive: true,
-            title: {
-              display: true,
-              text: "문항 특성 곡선 (ICC)",
-            },
+            title: { display: true, text: "문항 특성 곡선 (ICC)" },
             scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "능력 (θ)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "정답 확률",
-                },
-              },
+              x: { title: { display: true, text: "능력 (θ)" } },
+              y: { title: { display: true, text: "정답 확률" } },
             },
           },
         });
       }
 
-      function createTestInfoChart(ctx, thetaValues, df_irt) {
+      function createTestInfoChart(ctx, thetaValues, irtParams) {
+        const testInfo = thetaValues.map((theta) =>
+          irtParams.reduce(
+            (sum, item) =>
+              sum +
+              calculateItemInformation(
+                theta,
+                item.difficulty,
+                item.discrimination
+              ),
+            0
+          )
+        );
+
         return new Chart(ctx, {
           type: "line",
           data: {
@@ -415,19 +423,7 @@
             datasets: [
               {
                 label: "검사 정보",
-                data: Array.from({ length: 21 }, (_, i) => {
-                  return df_irt.reduce((sum, item) => {
-                    const p =
-                      1 /
-                      (1 +
-                        Math.exp(
-                          -1.7 *
-                            item["변별도 (alpha)"] *
-                            (-3 + i * 0.3 - item["난이도 (beta)"])
-                        ));
-                    return sum + item["변별도 (alpha)"] ** 2 * p * (1 - p);
-                  }, 0);
-                }),
+                data: testInfo,
                 borderColor: "rgba(75, 192, 192, 1)",
                 fill: false,
               },
@@ -435,74 +431,40 @@
           },
           options: {
             responsive: true,
-            title: {
-              display: true,
-              text: "전체 검사 정보 함수",
-            },
+            title: { display: true, text: "전체 검사 정보 함수" },
             scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "능력 (θ)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "정보량",
-                },
-              },
+              x: { title: { display: true, text: "능력 (θ)" } },
+              y: { title: { display: true, text: "정보량" } },
             },
           },
         });
       }
 
-      function createIIFChart(ctx, thetaValues, df_irt) {
+      function createIIFChart(ctx, thetaValues, irtParams) {
+        const datasets = irtParams.slice(0, 4).map((item, index) => ({
+          label: `문항 ${item.number}`,
+          data: thetaValues.map((theta) =>
+            calculateItemInformation(
+              theta,
+              item.difficulty,
+              item.discrimination
+            )
+          ),
+          borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
+            Math.random() * 255
+          }, 1)`,
+          fill: false,
+        }));
+
         return new Chart(ctx, {
           type: "line",
-          data: {
-            labels: thetaValues,
-            datasets: [1, 16, 24, 43].map((itemNum) => {
-              const item = df_irt.find((i) => i["문항 번호"] === itemNum);
-              return {
-                label: `문항 ${itemNum}`,
-                data: Array.from({ length: 21 }, (_, i) => {
-                  const p =
-                    1 /
-                    (1 +
-                      Math.exp(
-                        -1.7 *
-                          item["변별도 (alpha)"] *
-                          (-3 + i * 0.3 - item["난이도 (beta)"])
-                      ));
-                  return item["변별도 (alpha)"] ** 2 * p * (1 - p);
-                }),
-                borderColor: `rgba(${Math.random() * 255}, ${
-                  Math.random() * 255
-                }, ${Math.random() * 255}, 1)`,
-                fill: false,
-              };
-            }),
-          },
+          data: { labels: thetaValues, datasets },
           options: {
             responsive: true,
-            title: {
-              display: true,
-              text: "주요 문항의 정보 함수 (IIF)",
-            },
+            title: { display: true, text: "주요 문항의 정보 함수 (IIF)" },
             scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "능력 (θ)",
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "정보량",
-                },
-              },
+              x: { title: { display: true, text: "능력 (θ)" } },
+              y: { title: { display: true, text: "정보량" } },
             },
           },
         });
@@ -538,16 +500,18 @@
       function analyzeTestInfoFunction(testInfoData, thetaValues) {
         const peakIndex = testInfoData.indexOf(Math.max(...testInfoData));
         const peakTheta = thetaValues[peakIndex];
-        document.getElementById("peakTheta").textContent = peakTheta;
+        document.getElementById("peakTheta").textContent = peakTheta.toFixed(2);
 
         const maxInfo = Math.max(...testInfoData);
         const infoThreshold = maxInfo * 0.5;
         const infoRange = thetaValues.filter(
           (_, i) => testInfoData[i] >= infoThreshold
         );
-        document.getElementById("infoRange").textContent = `${
-          infoRange[0]
-        } 에서 ${infoRange[infoRange.length - 1]}`;
+        document.getElementById(
+          "infoRange"
+        ).textContent = `${infoRange[0].toFixed(2)} 에서 ${infoRange[
+          infoRange.length - 1
+        ].toFixed(2)}`;
 
         const leftSum = testInfoData
           .slice(0, testInfoData.length / 2)
@@ -564,7 +528,7 @@
       function analyzeIIFData(iifData, thetaValues) {
         const iifExplanationList =
           document.getElementById("iifExplanationList");
-        iifExplanationList.innerHTML = ""; // 기존 내용 초기화
+        iifExplanationList.innerHTML = "";
 
         iifData.forEach((dataset) => {
           const itemNumber = dataset.label.split(" ")[1];
@@ -591,13 +555,14 @@
           iifExplanationList.appendChild(rangeItem);
         });
       }
-      // DIF 데이터 (예시)
-      const difData = [
-        { itemNumber: 1, genderDIF: 0.023, nationalityDIF: 0.045 },
-        { itemNumber: 2, genderDIF: 0.031, nationalityDIF: 0.052 },
-        { itemNumber: 3, genderDIF: 0.019, nationalityDIF: 0.038 },
-        // ... 추가 데이터
-      ];
+
+      function generateMockDIFData(itemCount) {
+        return Array.from({ length: itemCount }, (_, i) => ({
+          itemNumber: i + 1,
+          genderDIF: Math.random() * 0.1,
+          nationalityDIF: Math.random() * 0.1,
+        }));
+      }
 
       function analyzeDIF(difData) {
         const table = document.getElementById("difTable");
@@ -606,18 +571,15 @@
         let significantNationalityDIF = 0;
 
         difData.forEach((item) => {
-          // 테이블에 행 추가
           const row = table.insertRow();
           row.insertCell(0).textContent = item.itemNumber;
           row.insertCell(1).textContent = item.genderDIF.toFixed(3);
           row.insertCell(2).textContent = item.nationalityDIF.toFixed(3);
 
-          // 유의미한 DIF 카운트 (예: 0.05 이상을 유의미한 것으로 간주)
           if (item.genderDIF >= 0.05) significantGenderDIF++;
           if (item.nationalityDIF >= 0.05) significantNationalityDIF++;
         });
 
-        // 해석 추가
         let interpretationText = `<p>총 ${difData.length}개 문항 중:</p><ul>`;
         interpretationText += `<li>성별에 따른 유의미한 DIF를 보이는 문항: ${significantGenderDIF}개 (${(
           (significantGenderDIF / difData.length) *
@@ -643,31 +605,37 @@
       // 메인 실행 함수
       window.onload = function () {
         const thetaValues = generateThetaValues();
+        const writtenIRTParams = calculateIRTParams(df_questions, df_responses);
+        const oralIRTParams = calculateIRTParams(
+          df_questions_speaking,
+          df_responses_speaking
+        );
 
         // 평균 계산 및 표시
         document.getElementById("writtenDifficultyMean").textContent =
-          calculateMean(df_irt, "난이도 (beta)").toFixed(3);
+          calculateMean(writtenIRTParams, "difficulty").toFixed(3);
         document.getElementById("writtenDiscriminationMean").textContent =
-          calculateMean(df_irt, "변별도 (alpha)").toFixed(3);
+          calculateMean(writtenIRTParams, "discrimination").toFixed(3);
         document.getElementById("oralDifficultyMean").textContent =
-          calculateMean(s_irt, "난이도 (beta)").toFixed(3);
+          calculateMean(oralIRTParams, "difficulty").toFixed(3);
         document.getElementById("oralDiscriminationMean").textContent =
-          calculateMean(s_irt, "변별도 (alpha)").toFixed(3);
+          calculateMean(oralIRTParams, "discrimination").toFixed(3);
 
         // 차트 생성
         const iccChart = createICCChart(
           document.getElementById("iccChart").getContext("2d"),
-          thetaValues
+          thetaValues,
+          writtenIRTParams
         );
         const testInfoChart = createTestInfoChart(
           document.getElementById("testInfoChart").getContext("2d"),
           thetaValues,
-          df_irt
+          writtenIRTParams
         );
         const iifChart = createIIFChart(
           document.getElementById("iifChart").getContext("2d"),
           thetaValues,
-          df_irt
+          writtenIRTParams
         );
 
         // 분석 및 해석
@@ -677,7 +645,9 @@
           thetaValues
         );
         analyzeIIFData(iifChart.data.datasets, thetaValues);
+
         // DIF 분석
+        const difData = generateMockDIFData(df_questions.length);
         analyzeDIF(difData);
       };
     </script>

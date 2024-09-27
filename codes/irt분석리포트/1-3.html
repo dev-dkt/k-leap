@@ -189,5 +189,119 @@
         변경에 따라 내용이 수정될 수 있습니다.
       </p>
     </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
+
+      function updateGuideline() {
+        // 난이도별 예시 문항 선택
+        const easyQuestion = df_questions.find(
+          (q) => parseFloat(q.난이도) < 0.3
+        );
+        const mediumQuestion = df_questions.find(
+          (q) => parseFloat(q.난이도) >= 0.3 && parseFloat(q.난이도) <= 0.7
+        );
+        const hardQuestion = df_questions.find(
+          (q) => parseFloat(q.난이도) > 0.7
+        );
+
+        // 예시 문항 업데이트
+        document.querySelector(
+          ".example:nth-of-type(1) strong"
+        ).textContent = `문항 ${easyQuestion.문제번호}번:`;
+        document.querySelector(
+          ".example:nth-of-type(1) p:nth-of-type(1)"
+        ).textContent = easyQuestion.문항유형;
+        document.querySelector(
+          ".example:nth-of-type(1) p:nth-of-type(2)"
+        ).textContent = `난이도: ${easyQuestion.난이도}`;
+
+        document.querySelector(
+          ".example:nth-of-type(2) strong"
+        ).textContent = `문항 ${mediumQuestion.문제번호}번:`;
+        document.querySelector(
+          ".example:nth-of-type(2) p:nth-of-type(1)"
+        ).textContent = mediumQuestion.문항유형;
+        document.querySelector(
+          ".example:nth-of-type(2) p:nth-of-type(2)"
+        ).textContent = `난이도: ${mediumQuestion.난이도}`;
+
+        document.querySelector(
+          ".example:nth-of-type(3) strong"
+        ).textContent = `문항 ${hardQuestion.문제번호}번:`;
+        document.querySelector(
+          ".example:nth-of-type(3) p:nth-of-type(1)"
+        ).textContent = hardQuestion.문항유형;
+        document.querySelector(
+          ".example:nth-of-type(3) p:nth-of-type(2)"
+        ).textContent = `난이도: ${hardQuestion.난이도}`;
+
+        // 고변별도 문항 목록 업데이트
+        const highDiscriminationQuestions = df_questions
+          .filter((q) => parseFloat(q.변별도) > 0.8)
+          .sort((a, b) => parseFloat(b.변별도) - parseFloat(a.변별도))
+          .slice(0, 5);
+
+        const highDiscriminationList = document.querySelector(
+          ".section:nth-of-type(3) ul"
+        );
+        highDiscriminationList.innerHTML = highDiscriminationQuestions
+          .map((q) => `<li>문항 ${q.문제번호}번: 변별도 ${q.변별도}</li>`)
+          .join("");
+
+        // 구술 평가 정보 추가
+        const oralAssessmentSection = document.createElement("div");
+        oralAssessmentSection.className = "section";
+        oralAssessmentSection.innerHTML = `
+          <h2>5. 구술 평가 정보</h2>
+          <p>구술 평가는 총 ${
+            df_questions_speaking.length
+          }문항으로 구성되어 있습니다.</p>
+          <ul>
+            ${df_questions_speaking
+              .map(
+                (q) => `
+              <li>문항 ${q.문제번호}: ${q.평가영역} (난이도: ${q.난이도}, 변별도: ${q.변별도})</li>
+            `
+              )
+              .join("")}
+          </ul>
+        `;
+        document
+          .querySelector(".container")
+          .insertBefore(
+            oralAssessmentSection,
+            document.querySelector(".section:last-of-type")
+          );
+
+        // 채점 시 유의사항에 데이터 기반 인사이트 추가
+        const insightItem = document.createElement("li");
+        insightItem.textContent = `필답형 평가의 평균 난이도는 ${calculateMean(
+          df_questions,
+          "난이도"
+        ).toFixed(2)}이며, 
+          구술형 평가의 평균 난이도는 ${calculateMean(
+            df_questions_speaking,
+            "난이도"
+          ).toFixed(2)}입니다. 
+          이를 고려하여 전체적인 난이도 균형을 유지하세요.`;
+        document
+          .querySelector(".section:last-of-type ol")
+          .appendChild(insightItem);
+      }
+
+      function calculateMean(data, key) {
+        return (
+          data.reduce((sum, item) => sum + parseFloat(item[key]), 0) /
+          data.length
+        );
+      }
+
+      window.onload = updateGuideline;
+    </script>
   </body>
 </html>

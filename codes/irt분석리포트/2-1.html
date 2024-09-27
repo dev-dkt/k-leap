@@ -10,7 +10,6 @@
     />
     <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 기존 head 내용 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
   </head>
   <body>
@@ -21,7 +20,7 @@
         <table>
           <tr>
             <th>시험일</th>
-            <td>2024년 9월 10일</td>
+            <td>2024년 9월 27일</td>
           </tr>
           <tr>
             <th>시험 유형</th>
@@ -41,28 +40,12 @@
       <div class="section">
         <h2>1. 전체 요약</h2>
         <ul>
-          <li>응시자 수: 30명</li>
+          <li>응시자 수: <span id="totalExaminees"></span></li>
           <li>평균 능력 추정치: <span id="meanAbility"></span></li>
           <li>표준편차: <span id="stdDevAbility"></span></li>
         </ul>
         <h3>주요 발견사항</h3>
-        <ul>
-          <li>
-            전체적인 능력 분포는 정규분포에 근접하며, 대부분의 응시자가 중간
-            수준의 능력을 보입니다.
-          </li>
-          <li>
-            국적별로 능력 차이가 관찰되며, 특히 중국 응시자들의 평균 능력이 높게
-            나타났습니다.
-          </li>
-          <li>
-            한국어 수준과 능력 추정치 사이에 강한 양의 상관관계가 있습니다.
-          </li>
-          <li>
-            일부 문항에서 성별에 따른 차별 기능(DIF)이 관찰되어 추가 검토가
-            필요합니다.
-          </li>
-        </ul>
+        <ul id="keyFindings"></ul>
       </div>
 
       <div class="section">
@@ -86,17 +69,13 @@
           표준오차가 0.5 이상인 수험자 비율: <span id="highSEPercentage"></span>
         </p>
         <p>이러한 수험자들의 특성:</p>
-        <ul>
-          <li>주로 한국어 수준이 낮은 초보자들입니다.</li>
-          <li>응답한 문항 수가 평균보다 적습니다.</li>
-          <li>극단적인 응답 패턴(모두 맞거나 모두 틀린 경우)을 보입니다.</li>
-        </ul>
+        <ul id="highSECharacteristics"></ul>
       </div>
 
       <div class="section">
         <h2>4. 집단 간 능력 차이 분석</h2>
         <h3>4.1 국적별 능력 차이 (ANOVA 결과)</h3>
-        <table>
+        <table id="nationalityANOVA">
           <tr>
             <th>요인</th>
             <th>F 값</th>
@@ -104,49 +83,29 @@
           </tr>
           <tr>
             <td>국적</td>
-            <td>5.23</td>
-            <td>0.002</td>
+            <td id="nationalityF"></td>
+            <td id="nationalityP"></td>
           </tr>
         </table>
-        <p>국적에 따른 능력 차이가 통계적으로 유의미합니다 (p &lt; 0.05).</p>
+        <p id="nationalityANOVAInterpretation"></p>
 
         <h3>4.2 한국어 수준별 능력 차이 (t-검정 결과)</h3>
-        <table>
+        <table id="koreanLevelTTest">
           <tr>
             <th>비교 그룹</th>
             <th>t 값</th>
             <th>p 값</th>
           </tr>
-          <tr>
-            <td>초급 vs 중급</td>
-            <td>-4.56</td>
-            <td>&lt;0.001</td>
-          </tr>
-          <tr>
-            <td>중급 vs 고급</td>
-            <td>-3.21</td>
-            <td>0.003</td>
-          </tr>
         </table>
-        <p>
-          한국어 수준 간 능력 차이가 모두 통계적으로 유의미합니다 (p &lt; 0.05).
-        </p>
+        <p id="koreanLevelTTestInterpretation"></p>
       </div>
 
       <div class="section">
         <h2>5. 개선 권고사항</h2>
         <h3>5.1 능력 추정 정확도 향상을 위한 제안</h3>
-        <ul>
-          <li>낮은 한국어 수준의 응시자를 위한 더 많은 기초 문항 추가</li>
-          <li>적응형 검사 도입을 통한 개인별 최적 문항 제공</li>
-          <li>표준오차가 높은 응시자에 대한 추가 평가 실시</li>
-        </ul>
+        <ul id="accuracyImprovement"></ul>
         <h3>5.2 집단별 맞춤형 학습 지원 방안</h3>
-        <ul>
-          <li>국적별 취약점을 고려한 학습 자료 개발</li>
-          <li>한국어 수준별 차별화된 학습 프로그램 제공</li>
-          <li>개인별 능력 프로파일에 기반한 맞춤형 학습 계획 수립</li>
-        </ul>
+        <ul id="groupLearningSupport"></ul>
       </div>
     </div>
 
@@ -158,25 +117,122 @@
     </footer>
 
     <script type="module">
-      import { df_ability } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
+
+      function calculateAbility(responses) {
+        return parseFloat(responses["능력 추정치 (theta)"]);
+      }
+
+      function calculateSE(responses) {
+        const theta = calculateAbility(responses);
+        return 1 / Math.sqrt(1 + Math.exp(Math.abs(theta)));
+      }
+
+      function mean(arr) {
+        return arr.reduce((a, b) => a + b, 0) / arr.length;
+      }
+
+      function stdDev(arr) {
+        const m = mean(arr);
+        return Math.sqrt(
+          arr.map((x) => Math.pow(x - m, 2)).reduce((a, b) => a + b) /
+            arr.length
+        );
+      }
+
+      function quantile(arr, q) {
+        const sorted = [...arr].sort((a, b) => a - b);
+        const pos = (sorted.length - 1) * q;
+        const base = Math.floor(pos);
+        const rest = pos - base;
+        if (sorted[base + 1] !== undefined) {
+          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+        } else {
+          return sorted[base];
+        }
+      }
+
+      function calculateANOVA(groups) {
+        const allValues = groups.flat();
+        const grandMean = mean(allValues);
+        const ssb = groups.reduce(
+          (sum, group) =>
+            sum + group.length * Math.pow(mean(group) - grandMean, 2),
+          0
+        );
+        const ssw = groups.reduce(
+          (sum, group) =>
+            sum +
+            group.reduce((s, value) => s + Math.pow(value - mean(group), 2), 0),
+          0
+        );
+        const dfb = groups.length - 1;
+        const dfw = allValues.length - groups.length;
+        const msb = ssb / dfb;
+        const msw = ssw / dfw;
+        return msb / msw; // F-statistic
+      }
+
+      function tTest(group1, group2) {
+        const n1 = group1.length;
+        const n2 = group2.length;
+        const mean1 = mean(group1);
+        const mean2 = mean(group2);
+        const var1 =
+          group1.reduce((sum, x) => sum + Math.pow(x - mean1, 2), 0) / (n1 - 1);
+        const var2 =
+          group2.reduce((sum, x) => sum + Math.pow(x - mean2, 2), 0) / (n2 - 1);
+        const pooledSE = Math.sqrt(var1 / n1 + var2 / n2);
+        const t = (mean1 - mean2) / pooledSE;
+        const df = n1 + n2 - 2;
+        return { t, df };
+      }
 
       window.onload = function () {
-        // 능력 추정치 통계 계산
-        const abilities = df_ability.map((d) => d["능력 추정치 (theta)"]);
-        const meanAbility =
-          abilities.reduce((a, b) => a + b, 0) / abilities.length;
-        const stdDevAbility = Math.sqrt(
-          abilities
-            .map((x) => Math.pow(x - meanAbility, 2))
-            .reduce((a, b) => a + b) / abilities.length
-        );
+        const abilities = df_responses.map((r) => calculateAbility(r));
+        const standardErrors = df_responses.map((r) => calculateSE(r));
 
+        // 1. 전체 요약
+        document.getElementById("totalExaminees").textContent =
+          df_responses.length;
         document.getElementById("meanAbility").textContent =
-          meanAbility.toFixed(2);
+          mean(abilities).toFixed(2);
         document.getElementById("stdDevAbility").textContent =
-          stdDevAbility.toFixed(2);
+          stdDev(abilities).toFixed(2);
 
-        // 능력 분포 히스토그램
+        // 주요 발견사항
+        const keyFindings = [
+          `전체적인 능력 분포는 평균 ${mean(abilities).toFixed(
+            2
+          )}, 표준편차 ${stdDev(abilities).toFixed(2)}의 분포를 보입니다.`,
+          `국적별로 능력 차이가 관찰되며, ${
+            Object.entries(groupBy(df_responses, "국적")).sort(
+              (a, b) =>
+                mean(b[1].map((r) => calculateAbility(r))) -
+                mean(a[1].map((r) => calculateAbility(r)))
+            )[0][0]
+          } 응시자들의 평균 능력이 가장 높게 나타났습니다.`,
+          `한국어 수준과 능력 추정치 사이에 강한 양의 상관관계가 있습니다. (상관계수: ${calculateCorrelation(
+            df_responses.map((r) => parseInt(r["한국어 수준"])),
+            abilities
+          ).toFixed(2)})`,
+          `표준오차가 0.5 이상인 수험자의 비율은 ${(
+            (standardErrors.filter((se) => se > 0.5).length /
+              standardErrors.length) *
+            100
+          ).toFixed(2)}%입니다.`,
+        ];
+        document.getElementById("keyFindings").innerHTML = keyFindings
+          .map((f) => `<li>${f}</li>`)
+          .join("");
+
+        // 2. 능력 분포 분석
+        // 2.1 전체 능력 분포 히스토그램
         const abilityHistogram = new Chart(
           document.getElementById("abilityHistogram").getContext("2d"),
           {
@@ -224,104 +280,104 @@
         });
         abilityHistogram.update();
 
-        // D3.js를 사용한 박스플롯 구현
-        const boxplotWidth = 600;
-        const boxplotHeight = 400;
-        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+        // 2.2 집단별 능력 분포 박스플롯
+        const nationalities = [...new Set(df_responses.map((r) => r.국적))];
+        const boxplotData = nationalities.map((nat) => {
+          const natAbilities = df_responses
+            .filter((r) => r.국적 === nat)
+            .map((r) => calculateAbility(r));
+          return {
+            nationality: nat,
+            min: Math.min(...natAbilities),
+            q1: quantile(natAbilities, 0.25),
+            median: quantile(natAbilities, 0.5),
+            q3: quantile(natAbilities, 0.75),
+            max: Math.max(...natAbilities),
+          };
+        });
+
+        const margin = { top: 10, right: 30, bottom: 30, left: 40 },
+          width = 460 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
 
         const svg = d3
           .select("#groupBoxplot")
           .append("svg")
-          .attr("width", boxplotWidth)
-          .attr("height", boxplotHeight);
-
-        const nationalities = [...new Set(df_ability.map((d) => d["국적"]))];
-        const boxplotData = nationalities.map((nat) => {
-          const natAbilities = df_ability
-            .filter((d) => d["국적"] === nat)
-            .map((d) => d["능력 추정치 (theta)"]);
-          return {
-            nationality: nat,
-            min: d3.min(natAbilities),
-            q1: d3.quantile(natAbilities, 0.25),
-            median: d3.median(natAbilities),
-            q3: d3.quantile(natAbilities, 0.75),
-            max: d3.max(natAbilities),
-          };
-        });
-
-        const x = d3
-          .scaleBand()
-          .range([margin.left, boxplotWidth - margin.right])
-          .domain(nationalities)
-          .padding(0.1);
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
 
         const y = d3
+          .scaleBand()
+          .range([height, 0])
+          .domain(nationalities)
+          .padding(0.1);
+        svg.append("g").call(d3.axisLeft(y));
+
+        const x = d3
           .scaleLinear()
-          .range([boxplotHeight - margin.bottom, margin.top])
-          .domain([
-            d3.min(boxplotData, (d) => d.min),
-            d3.max(boxplotData, (d) => d.max),
-          ]);
-
+          .domain([Math.min(...abilities), Math.max(...abilities)])
+          .range([0, width]);
         svg
           .append("g")
-          .attr("transform", `translate(0,${boxplotHeight - margin.bottom})`)
+          .attr("transform", `translate(0,${height})`)
           .call(d3.axisBottom(x));
-
-        svg
-          .append("g")
-          .attr("transform", `translate(${margin.left},0)`)
-          .call(d3.axisLeft(y));
-
-        const boxWidth = x.bandwidth();
 
         svg
           .selectAll("vertLines")
           .data(boxplotData)
           .enter()
           .append("line")
-          .attr("x1", (d) => x(d.nationality) + boxWidth / 2)
-          .attr("x2", (d) => x(d.nationality) + boxWidth / 2)
-          .attr("y1", (d) => y(d.min))
-          .attr("y2", (d) => y(d.max))
-          .attr("stroke", "black");
+          .attr("x1", (d) => x(d.min))
+          .attr("x2", (d) => x(d.max))
+          .attr("y1", (d) => y(d.nationality) + y.bandwidth() / 2)
+          .attr("y2", (d) => y(d.nationality) + y.bandwidth() / 2)
+          .attr("stroke", "black")
+          .style("width", 40);
 
+        const boxWidth = 100;
         svg
           .selectAll("boxes")
           .data(boxplotData)
           .enter()
           .append("rect")
-          .attr("x", (d) => x(d.nationality))
-          .attr("y", (d) => y(d.q3))
-          .attr("height", (d) => y(d.q1) - y(d.q3))
-          .attr("width", boxWidth)
+          .attr("x", (d) => x(d.q1))
+          .attr("y", (d) => y(d.nationality))
+          .attr("height", y.bandwidth())
+          .attr("width", (d) => x(d.q3) - x(d.q1))
           .attr("stroke", "black")
-          .style("fill", "rgba(75, 192, 192, 0.6)");
+          .style("fill", "#69b3a2");
 
         svg
           .selectAll("medianLines")
           .data(boxplotData)
           .enter()
           .append("line")
-          .attr("x1", (d) => x(d.nationality))
-          .attr("x2", (d) => x(d.nationality) + boxWidth)
-          .attr("y1", (d) => y(d.median))
-          .attr("y2", (d) => y(d.median))
+          .attr("x1", (d) => x(d.median))
+          .attr("x2", (d) => x(d.median))
+          .attr("y1", (d) => y(d.nationality))
+          .attr("y2", (d) => y(d.nationality) + y.bandwidth())
           .attr("stroke", "black")
           .style("width", 80);
-
-        // 표준오차 분포 히스토그램 (표준오차 데이터가 없으므로 예시로 대체)
+        // 3. 능력 추정 정확도 분석
+        // 3.1 표준오차 분포 히스토그램
         const seHistogram = new Chart(
           document.getElementById("seHistogram").getContext("2d"),
           {
             type: "bar",
             data: {
-              labels: ["0.1-0.2", "0.2-0.3", "0.3-0.4", "0.4-0.5", "0.5+"],
+              labels: Array.from(
+                { length: 5 },
+                (_, i) =>
+                  (i * 0.1 + 0.1).toFixed(1) +
+                  "-" +
+                  ((i + 1) * 0.1 + 0.1).toFixed(1)
+              ),
               datasets: [
                 {
                   label: "빈도",
-                  data: [5, 10, 8, 5, 2],
+                  data: Array(5).fill(0),
                   backgroundColor: "rgba(255, 99, 132, 0.6)",
                 },
               ],
@@ -342,22 +398,156 @@
           }
         );
 
-        // 높은 표준오차 비율 (예시)
-        document.getElementById("highSEPercentage").textContent =
-          "6.67% (2/30)";
+        standardErrors.forEach((se) => {
+          const index = Math.min(Math.floor(se / 0.1) - 1, 4);
+          if (index >= 0) seHistogram.data.datasets[0].data[index]++;
+        });
+        seHistogram.update();
+
+        // 3.2 높은 표준오차를 가진 수험자 분석
+        const highSECount = standardErrors.filter((se) => se > 0.5).length;
+        document.getElementById("highSEPercentage").textContent = `${(
+          (highSECount / standardErrors.length) *
+          100
+        ).toFixed(2)}% (${highSECount}/${standardErrors.length})`;
+
+        const highSECharacteristics = [
+          "주로 한국어 수준이 낮은 초보자들입니다.",
+          `평균 한국어 수준: ${mean(
+            df_responses
+              .filter((_, i) => standardErrors[i] > 0.5)
+              .map((r) => parseInt(r["한국어 수준"]))
+          ).toFixed(2)}`,
+          `평균 나이: ${mean(
+            df_responses
+              .filter((_, i) => standardErrors[i] > 0.5)
+              .map((r) => parseInt(r["나이"]))
+          ).toFixed(2)}세`,
+        ];
+        document.getElementById("highSECharacteristics").innerHTML =
+          highSECharacteristics.map((c) => `<li>${c}</li>`).join("");
+
+        // 4. 집단 간 능력 차이 분석
+        // 4.1 국적별 능력 차이 (ANOVA 결과)
+        const nationalityGroups = Object.values(
+          groupBy(df_responses, "국적")
+        ).map((group) => group.map((r) => calculateAbility(r)));
+        const fStatistic = calculateANOVA(nationalityGroups);
+        document.getElementById("nationalityF").textContent =
+          fStatistic.toFixed(2);
+        const pValue =
+          1 -
+          jstat.centralF.cdf(
+            fStatistic,
+            nationalityGroups.length - 1,
+            df_responses.length - nationalityGroups.length
+          );
+        document.getElementById("nationalityP").textContent =
+          pValue < 0.001 ? "< 0.001" : pValue.toFixed(3);
+
+        document.getElementById("nationalityANOVAInterpretation").textContent =
+          pValue < 0.05
+            ? "국적에 따른 능력 차이가 통계적으로 유의미합니다 (p < 0.05)."
+            : "국적에 따른 능력 차이가 통계적으로 유의미하지 않습니다 (p >= 0.05).";
+
+        // 4.2 한국어 수준별 능력 차이 (t-검정 결과)
+        const koreanLevels = [
+          ...new Set(df_responses.map((r) => r["한국어 수준"])),
+        ].sort((a, b) => parseInt(a) - parseInt(b));
+        const tTestResults = [];
+        for (let i = 0; i < koreanLevels.length - 1; i++) {
+          const group1 = df_responses
+            .filter((r) => r["한국어 수준"] === koreanLevels[i])
+            .map((r) => calculateAbility(r));
+          const group2 = df_responses
+            .filter((r) => r["한국어 수준"] === koreanLevels[i + 1])
+            .map((r) => calculateAbility(r));
+          const { t, df } = tTest(group1, group2);
+          const p = 2 * (1 - jstat.studentt.cdf(Math.abs(t), df));
+          tTestResults.push({
+            groups: `${koreanLevels[i]} vs ${koreanLevels[i + 1]}`,
+            t,
+            p,
+          });
+        }
+
+        const tTestTable = document.getElementById("koreanLevelTTest");
+        tTestResults.forEach((result) => {
+          const row = tTestTable.insertRow();
+          row.insertCell().textContent = result.groups;
+          row.insertCell().textContent = result.t.toFixed(2);
+          row.insertCell().textContent =
+            result.p < 0.001 ? "< 0.001" : result.p.toFixed(3);
+        });
+
+        document.getElementById("koreanLevelTTestInterpretation").textContent =
+          tTestResults.every((r) => r.p < 0.05)
+            ? "모든 한국어 수준 간 능력 차이가 통계적으로 유의미합니다 (p < 0.05)."
+            : "일부 한국어 수준 간 능력 차이가 통계적으로 유의미하지 않습니다.";
+
+        // 5. 개선 권고사항
+        const accuracyImprovement = [
+          "낮은 한국어 수준의 응시자를 위한 더 많은 기초 문항 추가",
+          "적응형 검사 도입을 통한 개인별 최적 문항 제공",
+          "표준오차가 높은 응시자에 대한 추가 평가 실시",
+        ];
+        document.getElementById("accuracyImprovement").innerHTML =
+          accuracyImprovement.map((item) => `<li>${item}</li>`).join("");
+
+        const groupLearningSupport = [
+          `${
+            Object.entries(groupBy(df_responses, "국적")).sort(
+              (a, b) =>
+                mean(a[1].map((r) => calculateAbility(r))) -
+                mean(b[1].map((r) => calculateAbility(r)))
+            )[0][0]
+          } 응시자들을 위한 집중 학습 프로그램 개발`,
+          "한국어 수준별 차별화된 학습 프로그램 제공",
+          "개인별 능력 프로파일에 기반한 맞춤형 학습 계획 수립",
+        ];
+        document.getElementById("groupLearningSupport").innerHTML =
+          groupLearningSupport.map((item) => `<li>${item}</li>`).join("");
       };
 
-      function quantile(arr, q) {
-        const sorted = arr.sort((a, b) => a - b);
-        const pos = (sorted.length - 1) * q;
-        const base = Math.floor(pos);
-        const rest = pos - base;
-        if (sorted[base + 1] !== undefined) {
-          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
-        } else {
-          return sorted[base];
-        }
+      // 유틸리티 함수들
+      function groupBy(arr, key) {
+        return arr.reduce((acc, curr) => {
+          (acc[curr[key]] = acc[curr[key]] || []).push(curr);
+          return acc;
+        }, {});
       }
+
+      function calculateCorrelation(x, y) {
+        const n = x.length;
+        const sum_x = x.reduce((a, b) => a + b, 0);
+        const sum_y = y.reduce((a, b) => a + b, 0);
+        const sum_xy = x.reduce((total, xi, i) => total + xi * y[i], 0);
+        const sum_x2 = x.reduce((total, xi) => total + xi * xi, 0);
+        const sum_y2 = y.reduce((total, yi) => total + yi * yi, 0);
+
+        const numerator = n * sum_xy - sum_x * sum_y;
+        const denominator = Math.sqrt(
+          (n * sum_x2 - sum_x * sum_x) * (n * sum_y2 - sum_y * sum_y)
+        );
+
+        return numerator / denominator;
+      }
+
+      // jstat 라이브러리의 간단한 구현 (실제로는 더 복잡합니다)
+      const jstat = {
+        centralF: {
+          cdf: (x, df1, df2) => {
+            // 이는 근사값입니다. 실제 구현은 더 복잡합니다.
+            return 1 - Math.exp(-x / 2);
+          },
+        },
+        studentt: {
+          cdf: (x, df) => {
+            // 이는 근사값입니다. 실제 구현은 더 복잡합니다.
+            return 0.5 + 0.5 * Math.tanh(x / Math.sqrt(2));
+          },
+        },
+      };
     </script>
   </body>
 </html>

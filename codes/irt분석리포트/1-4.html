@@ -146,39 +146,92 @@
     </footer>
 
     <script type="module">
-      import { df_irt, s_irt } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
 
-      window.onload = function () {
-        // 난이도 분포 차트
-        const difficultyCtx = document
-          .getElementById("difficultyChart")
-          .getContext("2d");
-        new Chart(difficultyCtx, {
+      function updateReport() {
+        // 난이도 분포 차트 데이터 생성
+        const difficultyData = [
+          df_questions.filter((q) => parseFloat(q.난이도) < -1.5).length,
+          df_questions.filter(
+            (q) => parseFloat(q.난이도) >= -1.5 && parseFloat(q.난이도) < -0.5
+          ).length,
+          df_questions.filter(
+            (q) => parseFloat(q.난이도) >= -0.5 && parseFloat(q.난이도) < 0.5
+          ).length,
+          df_questions.filter(
+            (q) => parseFloat(q.난이도) >= 0.5 && parseFloat(q.난이도) < 1.5
+          ).length,
+          df_questions.filter((q) => parseFloat(q.난이도) >= 1.5).length,
+        ];
+
+        // 변별도 분포 차트 데이터 생성
+        const discriminationData = [
+          df_questions.filter((q) => parseFloat(q.변별도) < 0.2).length,
+          df_questions.filter(
+            (q) => parseFloat(q.변별도) >= 0.2 && parseFloat(q.변별도) < 0.4
+          ).length,
+          df_questions.filter(
+            (q) => parseFloat(q.변별도) >= 0.4 && parseFloat(q.변별도) < 0.8
+          ).length,
+          df_questions.filter(
+            (q) => parseFloat(q.변별도) >= 0.8 && parseFloat(q.변별도) < 1.0
+          ).length,
+          df_questions.filter((q) => parseFloat(q.변별도) >= 1.0).length,
+        ];
+
+        // 차트 업데이트
+        updateChart("difficultyChart", difficultyData, "문항 난이도 분포");
+        updateChart(
+          "discriminationChart",
+          discriminationData,
+          "문항 변별도 분포"
+        );
+
+        // 평가영역별 문항 구성 업데이트
+        const areaComposition = df_questions.reduce((acc, q) => {
+          acc[q.평가영역] = (acc[q.평가영역] || 0) + 1;
+          return acc;
+        }, {});
+
+        const areaList = document.querySelector(".section:nth-of-type(1) ul");
+        areaList.innerHTML = Object.entries(areaComposition)
+          .map(([area, count]) => `<li>${area}: ${count}문항</li>`)
+          .join("");
+
+        // 개선 필요 문항 목록 생성
+        const lowDiscriminationItems = df_questions.filter(
+          (q) => parseFloat(q.변별도) < 0.3
+        );
+        const extremeDifficultyItems = df_questions.filter(
+          (q) => Math.abs(parseFloat(q.난이도)) > 2
+        );
+        const highDiscriminationItems = df_questions.filter(
+          (q) => parseFloat(q.변별도) > 1.0
+        );
+
+        updateItemList("lowDiscriminationItems", lowDiscriminationItems);
+        updateItemList("extremeDifficultyItems", extremeDifficultyItems);
+        updateItemList("highDiscriminationItems", highDiscriminationItems);
+
+        // 문항 유형별 개선 전략에 데이터 기반 인사이트 추가
+        addDataInsights();
+      }
+
+      function updateChart(chartId, data, title) {
+        const ctx = document.getElementById(chartId).getContext("2d");
+        new Chart(ctx, {
           type: "bar",
           data: {
-            labels: ["매우 쉬움", "쉬움", "보통", "어려움", "매우 어려움"],
+            labels: ["매우 낮음", "낮음", "중간", "높음", "매우 높음"],
             datasets: [
               {
                 label: "문항 수",
-                data: [
-                  df_irt.filter((item) => item["난이도 (beta)"] < -1.5).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["난이도 (beta)"] >= -1.5 &&
-                      item["난이도 (beta)"] < -0.5
-                  ).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["난이도 (beta)"] >= -0.5 &&
-                      item["난이도 (beta)"] < 0.5
-                  ).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["난이도 (beta)"] >= 0.5 &&
-                      item["난이도 (beta)"] < 1.5
-                  ).length,
-                  df_irt.filter((item) => item["난이도 (beta)"] >= 1.5).length,
-                ],
+                data: data,
                 backgroundColor: "rgba(54, 162, 235, 0.6)",
                 borderColor: "rgba(54, 162, 235, 1)",
                 borderWidth: 1,
@@ -199,109 +252,58 @@
             plugins: {
               title: {
                 display: true,
-                text: "문항 난이도 분포",
+                text: title,
               },
             },
           },
         });
+      }
 
-        // 변별도 분포 차트
-        const discriminationCtx = document
-          .getElementById("discriminationChart")
-          .getContext("2d");
-        new Chart(discriminationCtx, {
-          type: "bar",
-          data: {
-            labels: ["매우 낮음", "낮음", "적정", "높음", "매우 높음"],
-            datasets: [
-              {
-                label: "문항 수",
-                data: [
-                  df_irt.filter((item) => item["변별도 (alpha)"] < 0.2).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["변별도 (alpha)"] >= 0.2 &&
-                      item["변별도 (alpha)"] < 0.4
-                  ).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["변별도 (alpha)"] >= 0.4 &&
-                      item["변별도 (alpha)"] < 0.8
-                  ).length,
-                  df_irt.filter(
-                    (item) =>
-                      item["변별도 (alpha)"] >= 0.8 &&
-                      item["변별도 (alpha)"] < 1.0
-                  ).length,
-                  df_irt.filter((item) => item["변별도 (alpha)"] >= 1.0).length,
-                ],
-                backgroundColor: "rgba(255, 99, 132, 0.6)",
-                borderColor: "rgba(255, 99, 132, 1)",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "문항 수",
-                },
-              },
-            },
-            plugins: {
-              title: {
-                display: true,
-                text: "문항 변별도 분포",
-              },
-            },
-          },
-        });
+      function updateItemList(listId, items) {
+        const list = document.getElementById(listId);
+        list.innerHTML = items
+          .map(
+            (item) =>
+              `<li>문항 ${item.문제번호}: ${
+                listId.includes("Difficulty") ? "난이도" : "변별도"
+              } ${parseFloat(
+                listId.includes("Difficulty") ? item.난이도 : item.변별도
+              ).toFixed(3)}</li>`
+          )
+          .join("");
+      }
 
-        // 개선 필요 문항 목록 생성
-        const lowDiscriminationItems = df_irt.filter(
-          (item) => item["변별도 (alpha)"] < 0.3
+      function addDataInsights() {
+        const insightsSection = document.querySelector(
+          ".section:nth-of-type(3)"
         );
-        const extremeDifficultyItems = df_irt.filter(
-          (item) => Math.abs(item["난이도 (beta)"]) > 2
+        const insightsParagraph = document.createElement("p");
+        insightsParagraph.innerHTML = `
+          <strong>데이터 기반 인사이트:</strong> 
+          평균 난이도는 ${calculateMean(df_questions, "난이도").toFixed(
+            2
+          )}이며, 
+          평균 변별도는 ${calculateMean(df_questions, "변별도").toFixed(
+            2
+          )}입니다. 
+          특히 주의가 필요한 ${
+            lowDiscriminationItems.length
+          }개의 저변별도 문항과 
+          ${
+            extremeDifficultyItems.length
+          }개의 극단적 난이도 문항이 식별되었습니다.
+        `;
+        insightsSection.appendChild(insightsParagraph);
+      }
+
+      function calculateMean(data, key) {
+        return (
+          data.reduce((sum, item) => sum + parseFloat(item[key]), 0) /
+          data.length
         );
-        const highDiscriminationItems = df_irt.filter(
-          (item) => item["변별도 (alpha)"] > 1.0
-        );
+      }
 
-        document.getElementById("lowDiscriminationItems").innerHTML =
-          lowDiscriminationItems
-            .map(
-              (item) =>
-                `<li>문항 ${item["문항 번호"]}: 변별도 ${item[
-                  "변별도 (alpha)"
-                ].toFixed(3)}</li>`
-            )
-            .join("");
-
-        document.getElementById("extremeDifficultyItems").innerHTML =
-          extremeDifficultyItems
-            .map(
-              (item) =>
-                `<li>문항 ${item["문항 번호"]}: 난이도 ${item[
-                  "난이도 (beta)"
-                ].toFixed(3)}</li>`
-            )
-            .join("");
-
-        document.getElementById("highDiscriminationItems").innerHTML =
-          highDiscriminationItems
-            .map(
-              (item) =>
-                `<li>문항 ${item["문항 번호"]}: 변별도 ${item[
-                  "변별도 (alpha)"
-                ].toFixed(3)}</li>`
-            )
-            .join("");
-      };
+      window.onload = updateReport;
     </script>
   </body>
 </html>

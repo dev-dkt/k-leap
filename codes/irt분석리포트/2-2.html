@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.5/jstat.min.js"></script>
-    <!-- Make sure this is correctly linked -->
   </head>
   <body>
     <div class="container">
@@ -178,7 +177,12 @@
     </footer>
 
     <script type="module">
-      import { df_ability, df_responses } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
 
       // Explicitly declare jstat in the global scope
       const jstat = window.jStat; // Reference jstat globally

@@ -138,34 +138,45 @@
       import {
         df_questions,
         df_responses,
-        s_responses,
-        df_irt,
-        df_ability,
-      } from "./data.js";
-
-      // 학생 데이터 (예시)
-      const studentData = df_responses[0]; // 첫 번째 학생의 데이터를 사용
-      const studentOralData = s_responses.find(
-        (item) => item.이름 === studentData.이름
-      );
-      const studentAbility = df_ability.find(
-        (item) => item.이름 === studentData.이름
-      );
+        df_questions_speaking,
+        df_responses_speaking,
+      } from "./data2.js";
 
       window.onload = function () {
+        // 첫 번째 학생의 데이터를 사용
+        const studentData = df_responses[0];
+        const studentOralData = df_responses_speaking.find(
+          (item) => item.외국인등록번호 === studentData.외국인등록번호
+        );
+
         // 개인 정보 표시
         document.getElementById("studentName").textContent = studentData.이름;
         document.getElementById("writtenScore").textContent = studentData.점수;
         document.getElementById("oralScore").textContent = studentOralData.점수;
 
-        const totalScore = studentData.점수 + studentOralData.점수;
-        document.getElementById("totalScore").textContent = totalScore;
+        const totalScore =
+          parseFloat(studentData.점수) + parseFloat(studentOralData.점수);
+        document.getElementById("totalScore").textContent =
+          totalScore.toFixed(2);
 
         const passFail = totalScore >= 60 ? "통과" : "미통과";
         document.getElementById("passFail").textContent = passFail;
 
-        // 백분위는 실제 데이터에 없으므로 임의로 계산
-        const percentile = Math.round((totalScore / 125) * 100);
+        // 백분위 계산 (간단한 예시)
+        const allScores = df_responses.map(
+          (r) =>
+            parseFloat(r.점수) +
+            parseFloat(
+              df_responses_speaking.find(
+                (or) => or.외국인등록번호 === r.외국인등록번호
+              ).점수
+            )
+        );
+        const percentile = (
+          (allScores.filter((score) => score <= totalScore).length /
+            allScores.length) *
+          100
+        ).toFixed(2);
         document.getElementById("percentile").textContent = `${percentile}%`;
 
         // 영역별 점수 차트
@@ -183,7 +194,7 @@
                   calculateCategoryScore(studentData, "쓰기"),
                   calculateCategoryScore(studentData, "읽기"),
                   calculateCategoryScore(studentData, "문화"),
-                  (studentOralData.점수 / 25) * 100, // 구술 점수를 100점 만점으로 환산
+                  (parseFloat(studentOralData.점수) / 25) * 100, // 구술 점수를 100점 만점으로 환산
                 ],
                 backgroundColor: "rgba(54, 162, 235, 0.2)",
                 borderColor: "rgb(54, 162, 235)",
@@ -290,7 +301,7 @@
         // 학습 전략
         const learningStrategyDiv = document.getElementById("learningStrategy");
         const strategy = getLearningStrategy(
-          studentAbility["능력 추정치 (theta)"]
+          parseFloat(studentData["능력 추정치 (theta)"])
         );
         learningStrategyDiv.innerHTML = `<p>${strategy}</p>`;
       };
@@ -311,16 +322,14 @@
 
       function calculateDifficultyAccuracy(studentData, difficulty) {
         const difficultyQuestions = df_questions.filter((q) => {
-          const beta = df_irt.find((item) => item["문항 번호"] === q.문제번호)[
-            "난이도 (beta)"
-          ];
+          const beta = parseFloat(q.난이도);
           if (difficulty === "easy") return beta < -0.5;
           if (difficulty === "medium") return beta >= -0.5 && beta <= 0.5;
           if (difficulty === "hard") return beta > 0.5;
         });
         const difficultyResponses = studentData.OX리스트.split("").filter(
           (_, index) =>
-            difficultyQuestions.some((q) => q.문제번호 === index + 1)
+            difficultyQuestions.some((q) => parseInt(q.문제번호) === index + 1)
         );
         const correctAnswers = difficultyResponses.filter(
           (r) => r === "O"
@@ -333,7 +342,8 @@
           (q) => q.평가영역 === category
         );
         const categoryResponses = studentData.OX리스트.split("").filter(
-          (_, index) => categoryQuestions.some((q) => q.문제번호 === index + 1)
+          (_, index) =>
+            categoryQuestions.some((q) => parseInt(q.문제번호) === index + 1)
         );
         const correctAnswers = categoryResponses.filter(
           (r) => r === "O"
@@ -347,7 +357,9 @@
           .filter((item) => item.answer === "X");
 
         return wrongAnswers.slice(0, 5).map((item) => {
-          const question = df_questions.find((q) => q.문제번호 === item.index);
+          const question = df_questions.find(
+            (q) => parseInt(q.문제번호) === item.index
+          );
           return {
             questionNumber: item.index,
             category: question.평가영역,
@@ -357,7 +369,6 @@
       }
 
       function getQuestionDescription(question) {
-        // 실제로는 더 상세한 설명이 필요합니다. 여기서는 간단한 예시만 제공합니다.
         return `${question.평가영역}에 관한 문제로, ${question.평가항목}을(를) 평가합니다. 이 유형의 문제를 더 연습하세요.`;
       }
 
