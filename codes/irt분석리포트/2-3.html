@@ -48,12 +48,12 @@
             <td id="examinee-name"></td>
           </tr>
           <tr>
-            <th>수험 번호</th>
+            <th>외국인등록번호</th>
             <td id="examinee-id"></td>
           </tr>
           <tr>
             <th>시험 일자</th>
-            <td>2024년 9월 10일</td>
+            <td>2024년 9월 28일</td>
           </tr>
         </table>
       </div>
@@ -89,27 +89,49 @@
         따라 내용이 수정될 수 있습니다.
       </p>
     </footer>
-
     <script type="module">
-      import { df_ability, df_responses } from "./data.js";
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
 
-      // 무작위로 한 수험생 선택 (실제로는 특정 수험생 데이터를 사용해야 함)
-      const examinee =
-        df_responses[Math.floor(Math.random() * df_responses.length)];
-      const ability = df_ability.find((a) => a.이름 === examinee.이름);
+      // 무작위로 한 수험생 선택
+      const examinees = df_responses.filter((e) =>
+        df_responses_speaking.some((s) => s.외국인등록번호 === e.외국인등록번호)
+      );
+      const examinee = examinees[Math.floor(Math.random() * examinees.length)];
+      const speaking_examinee = df_responses_speaking.find(
+        (e) => e.외국인등록번호 === examinee.외국인등록번호
+      );
 
       // 개인 정보 표시
       document.getElementById("examinee-name").textContent = examinee.이름;
       document.getElementById("examinee-id").textContent =
-        examinee["외국인 등록번호"];
+        examinee.외국인등록번호;
 
       // 종합 능력 평가
-      const individualAbility = ability["능력 추정치 (theta)"];
+      const writingAbility = parseFloat(examinee["능력 추정치 (theta)"]);
+      const speakingAbility = parseFloat(
+        speaking_examinee["능력 추정치 (theta)"]
+      );
+      const individualAbility = (writingAbility + speakingAbility) / 2;
       document.getElementById("total-ability").textContent =
         individualAbility.toFixed(2);
 
       // 백분위 점수 계산
-      const allAbilities = df_ability.map((a) => a["능력 추정치 (theta)"]);
+      const allAbilities = examinees.map((e) => {
+        const speaking = df_responses_speaking.find(
+          (s) => s.외국인등록번호 === e.외국인등록번호
+        );
+        return (
+          (parseFloat(e["능력 추정치 (theta)"]) +
+            parseFloat(speaking["능력 추정치 (theta)"])) /
+          2
+        );
+      });
       const percentile = (
         (allAbilities.filter((a) => a < individualAbility).length /
           allAbilities.length) *
@@ -138,10 +160,10 @@
             {
               label: "능력 점수",
               data: [
-                Math.random() * 2 - 1,
-                Math.random() * 2 - 1,
-                Math.random() * 2 - 1,
-                Math.random() * 2 - 1,
+                speakingAbility,
+                writingAbility,
+                writingAbility,
+                writingAbility,
               ],
               fill: true,
               backgroundColor: "rgba(54, 162, 235, 0.2)",
@@ -295,12 +317,29 @@
         .text("능력 추정치 분포");
 
       // 향후 학습 제안
-      const suggestions = [
-        "말하기: 일상 대화 연습을 통해 유창성을 향상시키세요.",
-        "듣기: 한국 드라마나 뉴스를 활용하여 청해 능력을 키우세요.",
-        "읽기: 다양한 장르의 한국어 텍스트를 읽어 어휘력을 넓히세요.",
-        "쓰기: 일기 쓰기를 통해 문장 구성 능력을 향상시키세요.",
-      ];
+      const suggestions = [];
+      if (speakingAbility < writingAbility) {
+        suggestions.push(
+          "말하기: 일상 대화 연습을 통해 유창성을 향상시키세요."
+        );
+        suggestions.push("말하기: 한국어 원어민과의 대화 기회를 늘려보세요.");
+      }
+      if (writingAbility < speakingAbility) {
+        suggestions.push(
+          "듣기: 한국 드라마나 뉴스를 활용하여 청해 능력을 키우세요."
+        );
+        suggestions.push(
+          "읽기: 다양한 장르의 한국어 텍스트를 읽어 어휘력을 넓히세요."
+        );
+        suggestions.push(
+          "쓰기: 일기 쓰기를 통해 문장 구성 능력을 향상시키세요."
+        );
+      }
+      if (suggestions.length === 0) {
+        suggestions.push(
+          "전반적으로 균형 잡힌 능력을 보여주고 있습니다. 모든 영역에서 지속적인 학습을 통해 더 높은 수준을 목표로 하세요."
+        );
+      }
       const suggestionsList = document.getElementById("learning-suggestions");
       suggestions.forEach((suggestion) => {
         const li = document.createElement("li");

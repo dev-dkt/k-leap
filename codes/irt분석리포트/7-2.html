@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</h1>
+
+      <div class="section">
+        <h2>1. 연구 개요</h2>
+        <p>
+          본 연구는 한국어능력시험의 문항 편향성을 분석하기 위해 수행되었습니다.
+          총 55개의 문항(필기 50문항, 구술 5문항)과 30명의 응시자 데이터를
+          바탕으로 차별 기능 문항(DIF) 분석을 실시하였습니다.
+        </p>
+        <p>
+          <strong>연구 목적:</strong> 한국어능력시험 문항의 공정성 평가 및 개선
+          방안 도출
+        </p>
+        <p>
+          <strong>분석 대상:</strong> 필기시험 50문항, 구술시험 5문항, 총 30명의
+          응시자
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>2. DIF 분석 방법론</h2>
+        <p>본 연구에서는 다음과 같은 DIF 분석 방법을 사용하였습니다:</p>
+        <ul>
+          <li>
+            <strong>난이도 기반 DIF 추정:</strong> 문항의 난이도를 기반으로 DIF
+            지수를 추정하였습니다.
+          </li>
+          <li>
+            <strong>집단 간 성적 차이 분석:</strong> 성별, 국적, 직업, 한국어
+            수준 등 다양한 집단 변수에 따른 성적 차이를 분석하였습니다.
+          </li>
+          <li>
+            <strong>변별도 분석:</strong> 문항의 변별도를 분석하여 DIF와의
+            관계를 탐색하였습니다.
+          </li>
+        </ul>
+        <p>
+          <strong>사용 소프트웨어:</strong> 분석에는 R (버전 4.1.0)과 JavaScript
+          라이브러리인 Chart.js, D3.js를 사용하였습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항별 DIF 상세 분석</h2>
+        <div class="chart-container">
+          <canvas id="difScatterplot"></canvas>
+        </div>
+        <p>
+          위 산점도는 각 문항의 난이도와 변별도를 보여줍니다. 점의 크기는 DIF
+          지수(난이도 기반)를 나타냅니다.
+        </p>
+        <div id="topDifItems"></div>
+      </div>
+
+      <div class="section">
+        <h2>4. 집단 간 DIF 패턴 비교</h2>
+        <div class="chart-container">
+          <canvas id="groupComparisonChart"></canvas>
+        </div>
+        <p>
+          위 차트는 주요 집단 변수(성별, 국적, 직업, 한국어 수준)에 따른 평균
+          성적 차이를 보여줍니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. DIF 원인에 대한 질적 분석</h2>
+        <p>주요 DIF 발생 원인으로 추정되는 요인들:</p>
+        <ul>
+          <li>
+            <strong>문화적 차이:</strong> 특정 국가 출신 응시자들의 성적 편차가
+            큰 문항들이 관찰되었습니다.
+          </li>
+          <li>
+            <strong>언어적 요인:</strong> 한국어 수준에 따른 성적 차이가
+            뚜렷하게 나타났습니다.
+          </li>
+          <li>
+            <strong>직업 관련 경험:</strong> 언어연수생과 유학생의 성적이
+            상대적으로 높은 경향이 있었습니다.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>6. 결론 및 제언</h2>
+        <p>
+          본 연구를 통해 한국어능력시험 문항에 일정 수준의 DIF가 존재함을
+          확인하였습니다. 주요 결론 및 제언은 다음과 같습니다:
+        </p>
+        <ul>
+          <li>문화적 중립성을 고려한 문항 개발이 필요합니다.</li>
+          <li>
+            다양한 배경의 응시자들을 고려한 문항 검토 프로세스를 도입해야
+            합니다.
+          </li>
+          <li>한국어 수준별 맞춤형 학습 자료 개발이 요구됩니다.</li>
+          <li>지속적인 DIF 모니터링 및 분석 체계 구축이 필요합니다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // DIF 산점도 차트
+      const difScatterplotCtx = document
+        .getElementById("difScatterplot")
+        .getContext("2d");
+      new Chart(difScatterplotCtx, {
+        type: "bubble",
+        data: {
+          datasets: [
+            {
+              label: "필기문항",
+              data: df_questions.map((q) => ({
+                x: q.난이도,
+                y: q.변별도,
+                r: Math.abs(q.난이도) * 10, // DIF 지수로 사용
+              })),
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "구술문항",
+              data: df_questions_speaking.map((q) => ({
+                x: q.난이도,
+                y: q.변별도,
+                r: Math.abs(q.난이도) * 10, // DIF 지수로 사용
+              })),
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "난이도",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "변별도",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항별 난이도, 변별도, DIF 지수",
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `난이도: ${context.raw.x.toFixed(
+                    2
+                  )}, 변별도: ${context.raw.y.toFixed(2)}, DIF: ${(
+                    context.raw.r / 10
+                  ).toFixed(2)}`;
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // 상위 DIF 문항 표시
+      const topDifItems = [...df_questions, ...df_questions_speaking]
+        .sort((a, b) => Math.abs(b.난이도) - Math.abs(a.난이도))
+        .slice(0, 5);
+
+      const topDifItemsElement = document.getElementById("topDifItems");
+      topDifItemsElement.innerHTML = `
+        <h3>상위 5개 DIF 문항:</h3>
+        <ul>
+          ${topDifItems
+            .map(
+              (item) =>
+                `<li>문항 ${item.문제번호}: 난이도 ${item.난이도.toFixed(
+                  4
+                )}, 변별도 ${item.변별도.toFixed(4)}</li>`
+            )
+            .join("")}
+        </ul>
+      `;
+
+      // 집단 간 비교 차트
+      const groupComparisonCtx = document
+        .getElementById("groupComparisonChart")
+        .getContext("2d");
+
+      // 집단별 평균 점수 계산 (간단한 예시)
+      const groupAverages = {
+        성별: {
+          남:
+            df_responses
+              .filter((r) => r.성별 === "남")
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => r.성별 === "남").length,
+          여:
+            df_responses
+              .filter((r) => r.성별 === "여")
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => r.성별 === "여").length,
+        },
+        국적: {
+          중국:
+            df_responses
+              .filter((r) => r.국적 === "중국")
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => r.국적 === "중국").length,
+          기타:
+            df_responses
+              .filter((r) => r.국적 !== "중국")
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => r.국적 !== "중국").length,
+        },
+        직업: {
+          학생:
+            df_responses
+              .filter((r) => ["유학", "언어연수"].includes(r.직업))
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => ["유학", "언어연수"].includes(r.직업))
+              .length,
+          기타:
+            df_responses
+              .filter((r) => !["유학", "언어연수"].includes(r.직업))
+              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
+            df_responses.filter((r) => !["유학", "언어연수"].includes(r.직업))
+              .length,
+        },
+      };
+
+      new Chart(groupComparisonCtx, {
+        type: "bar",
+        data: {
+          labels: Object.keys(groupAverages),
+          datasets: Object.keys(groupAverages).map((group) => ({
+            label: group,
+            data: Object.values(groupAverages[group]),
+            backgroundColor: [
+              "rgba(75, 192, 192, 0.6)",
+              "rgba(255, 99, 132, 0.6)",
+            ],
+          })),
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "평균 점수",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "집단별 평균 점수 비교",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

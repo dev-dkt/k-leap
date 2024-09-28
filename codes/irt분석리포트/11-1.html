@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 척도 점수 변환 종합 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 척도 점수 변환 종합 보고서</h1>
+
+      <div class="section">
+        <h2>1. 요약</h2>
+        <h3>각 척도별 주요 통계량</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>통계량</th>
+              <th>필기시험</th>
+              <th>구술시험</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>평균</td>
+              <td>29.84</td>
+              <td>10.2</td>
+            </tr>
+            <tr>
+              <td>표준편차</td>
+              <td>18.43</td>
+              <td>6.89</td>
+            </tr>
+            <tr>
+              <td>중앙값</td>
+              <td>26</td>
+              <td>10</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>핵심 발견사항</h3>
+        <ul>
+          <li>
+            필기시험과 구술시험 모두 점수 분포가 다소 왼쪽으로 치우친 경향을
+            보임
+          </li>
+          <li>
+            구술시험의 점수 범위가 필기시험에 비해 좁아 변별력이 상대적으로 낮음
+          </li>
+          <li>필기시험에서 한국어 수준별로 뚜렷한 점수 차이가 관찰됨</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 척도 변환 방법론</h2>
+        <p>본 보고서에서는 다음과 같은 척도 변환 방법을 사용하였습니다:</p>
+        <ul>
+          <li>선형 변환: 원점수를 0-100 범위로 변환</li>
+          <li>백분위 점수: 각 점수의 상대적 위치를 백분율로 표시</li>
+          <li>T 점수: 평균 50, 표준편차 10인 표준화 점수</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>3. 점수 분포 분석</h2>
+        <div class="chart-container">
+          <canvas id="scoreDistributionChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4. 집단별 성취도 비교</h2>
+        <div class="chart-container">
+          <canvas id="achievementComparisonChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>5. 척도 활용 제안</h2>
+        <ul>
+          <li>선발 목적: T 점수를 활용하여 지원자간 상대적 위치 파악</li>
+          <li>분류 목적: 백분위 점수를 활용하여 수준별 그룹 구성</li>
+          <li>성과 평가: 선형 변환 점수를 활용하여 절대적 성취도 평가</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>6. 개선 권고사항</h2>
+        <ul>
+          <li>구술시험의 변별력 향상을 위해 문항 난이도 조정 필요</li>
+          <li>필기시험과 구술시험 간의 균형을 위해 가중치 조정 고려</li>
+          <li>한국어 수준별 맞춤형 문항 개발을 통한 정확한 능력 측정 필요</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 점수 분포 차트
+      const scoreCtx = document
+        .getElementById("scoreDistributionChart")
+        .getContext("2d");
+      new Chart(scoreCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            "0-10",
+            "11-20",
+            "21-30",
+            "31-40",
+            "41-50",
+            "51-60",
+            "61-70",
+            "71-80",
+            "81-90",
+            "91-100",
+          ],
+          datasets: [
+            {
+              label: "필기시험",
+              data: [3, 4, 6, 5, 4, 3, 2, 1, 1, 1],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "구술시험",
+              data: [5, 8, 7, 4, 3, 2, 1, 0, 0, 0],
+              backgroundColor: "rgba(255, 159, 64, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "빈도",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "점수 구간",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "필기시험 및 구술시험 점수 분포",
+            },
+          },
+        },
+      });
+
+      // 집단별 성취도 비교 차트
+      const achievementCtx = document
+        .getElementById("achievementComparisonChart")
+        .getContext("2d");
+      new Chart(achievementCtx, {
+        type: "bar",
+        data: {
+          labels: ["초급", "중급", "고급"],
+          datasets: [
+            {
+              label: "필기시험",
+              data: [20, 40, 60],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "구술시험",
+              data: [8, 12, 18],
+              backgroundColor: "rgba(255, 159, 64, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "평균 점수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "한국어 수준",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "한국어 수준별 평균 점수 비교",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
