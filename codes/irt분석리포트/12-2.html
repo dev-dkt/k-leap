@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 문항별 응답 시간 분석 및 개선 가이드</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 문항별 응답 시간 분석 및 개선 가이드</h1>
+
+      <div class="section">
+        <h2>1. 응답 시간 개요</h2>
+        <p>
+          문항별 응답 시간 분석은 시험의 효율성과 문항의 적절성을 평가하는 데
+          중요한 역할을 합니다. 이 보고서에서는 한국어능력시험의 문항별 응답
+          시간을 분석하고, 이를 바탕으로 개선 방안을 제시합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>2. 문항별 평균 응답 시간</h2>
+        <div class="chart-container">
+          <div id="itemResponseTimeBar"></div>
+        </div>
+        <p>
+          위 그래프는 각 문항의 평균 응답 시간을 보여줍니다. 응답 시간이 긴
+          문항들은 난이도가 높거나 문제 제시 방식에 개선이 필요할 수 있습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 평가영역별 응답 시간 비교</h2>
+        <div class="chart-container">
+          <div id="responseTimeByArea"></div>
+        </div>
+        <p>
+          평가영역별 평균 응답 시간을 비교함으로써, 각 영역의 상대적 난이도와
+          시간 소요를 파악할 수 있습니다. 이를 통해 시험 구성의 균형을 개선할 수
+          있습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 난이도와 응답 시간의 관계</h2>
+        <div class="chart-container">
+          <div id="difficultyVsTime"></div>
+        </div>
+        <p>
+          문항 난이도와 응답 시간 사이의 관계를 분석함으로써, 예상과 다른 패턴을
+          보이는 문항들을 식별할 수 있습니다. 이러한 문항들은 재검토가 필요할 수
+          있습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. 개선 권고사항</h2>
+        <h3>응답 시간이 긴 문항 개선:</h3>
+        <ul id="longResponseItems"></ul>
+        <h3>난이도 대비 응답 시간이 불균형한 문항:</h3>
+        <ul id="imbalancedItems"></ul>
+        <p>위 문항들에 대해 다음과 같은 개선 방안을 고려해볼 수 있습니다:</p>
+        <ul>
+          <li>문제 지문 간소화 및 명확성 개선</li>
+          <li>선택지 수 조정 또는 선택지 표현 개선</li>
+          <li>문제 유형 재검토 및 적절성 평가</li>
+          <li>문항 난이도 조정</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 응답 시간 데이터 생성 (실제 데이터가 없으므로 임의로 생성)
+      const responseTimeData = df_questions.map((q) => ({
+        ...q,
+        avgResponseTime: Math.random() * 120 + 30, // 30초에서 150초 사이의 랜덤 값
+      }));
+
+      // 1. 문항별 평균 응답 시간 차트
+      const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+      const width = 800 - margin.left - margin.right;
+      const height = 400 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#itemResponseTimeBar")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3
+        .scaleBand()
+        .range([0, width])
+        .domain(responseTimeData.map((d) => d.문제번호))
+        .padding(0.1);
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(responseTimeData, (d) => d.avgResponseTime)])
+        .range([height, 0]);
+
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
+
+      svg.append("g").call(d3.axisLeft(y));
+
+      svg
+        .selectAll("mybar")
+        .data(responseTimeData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.문제번호))
+        .attr("y", (d) => y(d.avgResponseTime))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => height - y(d.avgResponseTime))
+        .attr("fill", "#69b3a2");
+
+      svg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.top + 20)
+        .text("문항 번호");
+
+      svg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .text("평균 응답 시간 (초)");
+
+      // 2. 평가영역별 응답 시간 비교
+      const areaData = d3.rollup(
+        responseTimeData,
+        (v) => d3.mean(v, (d) => d.avgResponseTime),
+        (d) => d.평가영역
+      );
+
+      const areaSvg = d3
+        .select("#responseTimeByArea")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const areaX = d3
+        .scaleBand()
+        .range([0, width])
+        .domain(Array.from(areaData.keys()))
+        .padding(0.1);
+
+      const areaY = d3
+        .scaleLinear()
+        .domain([0, d3.max(areaData.values())])
+        .range([height, 0]);
+
+      areaSvg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(areaX));
+
+      areaSvg.append("g").call(d3.axisLeft(areaY));
+
+      areaSvg
+        .selectAll("mybar")
+        .data(areaData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => areaX(d[0]))
+        .attr("y", (d) => areaY(d[1]))
+        .attr("width", areaX.bandwidth())
+        .attr("height", (d) => height - areaY(d[1]))
+        .attr("fill", "#4CAF50");
+
+      areaSvg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.top + 20)
+        .text("평가영역");
+
+      areaSvg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .text("평균 응답 시간 (초)");
+
+      // 3. 난이도와 응답 시간의 관계
+      const diffSvg = d3
+        .select("#difficultyVsTime")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const diffX = d3
+        .scaleLinear()
+        .domain([
+          d3.min(responseTimeData, (d) => d.난이도),
+          d3.max(responseTimeData, (d) => d.난이도),
+        ])
+        .range([0, width]);
+
+      const diffY = d3
+        .scaleLinear()
+        .domain([0, d3.max(responseTimeData, (d) => d.avgResponseTime)])
+        .range([height, 0]);
+
+      diffSvg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(diffX));
+
+      diffSvg.append("g").call(d3.axisLeft(diffY));
+
+      diffSvg
+        .selectAll("dot")
+        .data(responseTimeData)
+        .enter()
+        .append("circle")
+        .attr("cx", (d) => diffX(d.난이도))
+        .attr("cy", (d) => diffY(d.avgResponseTime))
+        .attr("r", 5)
+        .style("fill", "#FF5722");
+
+      diffSvg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.top + 20)
+        .text("문항 난이도");
+
+      diffSvg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .text("평균 응답 시간 (초)");
+
+      // 4. 개선 권고사항
+      const longResponseItems = responseTimeData
+        .sort((a, b) => b.avgResponseTime - a.avgResponseTime)
+        .slice(0, 5);
+
+      const longResponseList = document.getElementById("longResponseItems");
+      longResponseItems.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `문항 ${
+          item.문제번호
+        }: 평균 응답 시간 ${item.avgResponseTime.toFixed(2)}초`;
+        longResponseList.appendChild(li);
+      });
+
+      const imbalancedItems = responseTimeData
+        .sort(
+          (a, b) => b.avgResponseTime / b.난이도 - a.avgResponseTime / a.난이도
+        )
+        .slice(0, 5);
+
+      const imbalancedList = document.getElementById("imbalancedItems");
+      imbalancedItems.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = `문항 ${item.문제번호}: 난이도 ${item.난이도.toFixed(
+          2
+        )}, 평균 응답 시간 ${item.avgResponseTime.toFixed(2)}초`;
+        imbalancedList.appendChild(li);
+      });
+    </script>
+  </body>
+</html>

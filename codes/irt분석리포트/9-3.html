@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAT 기반 한국어능력시험 문항 개발 가이드</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CAT 기반 한국어능력시험 문항 개발 가이드</h1>
+
+      <div class="section">
+        <h2>1. CAT 문항의 특성과 중요성</h2>
+        <p>컴퓨터 적응형 검사(CAT)에서 문항의 역할:</p>
+        <ul>
+          <li>개별 수험자의 능력 수준에 맞는 최적의 문항 제시</li>
+          <li>최소한의 문항으로 정확한 능력 추정 가능</li>
+          <li>문항 노출 관리를 통한 시험의 보안성 강화</li>
+        </ul>
+        <p>효과적인 CAT 문항의 특징:</p>
+        <ul>
+          <li>높은 변별도: 능력 수준 간 구분을 명확히 할 수 있는 문항</li>
+          <li>
+            적절한 난이도 분포: 전체 능력 범위를 고르게 커버하는 문항 세트
+          </li>
+          <li>내용 타당도: 평가 목적에 부합하는 문항 내용</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 현행 문항 뱅크 분석</h2>
+        <h3>2.1 문항 특성 분포</h3>
+        <div class="chart-container">
+          <canvas id="itemCharacteristicsChart"></canvas>
+        </div>
+        <p>
+          현재 문항 뱅크는 중간 난이도(-1 &lt; b &lt; 1) 문항이 다수를 차지하고
+          있으며, 극단적인 난이도의 문항이 부족한 상황입니다. 변별도(a)는 대체로
+          적절한 범위(0.5 &lt; a &lt; 2.0)에 분포하고 있습니다.
+        </p>
+
+        <h3>2.2 능력 수준별 문항 커버리지 분석</h3>
+        <div class="chart-container">
+          <canvas id="itemCoverageChart"></canvas>
+        </div>
+        <p>
+          중급 수준(-0.5 &lt; θ &lt; 0.5)의 문항은 충분한 반면, 고급(θ &gt;
+          1.5)과 초급(θ &lt; -1.5) 수준의 문항이 상대적으로 부족합니다. 특히
+          고급 수준 문항의 추가 개발이 시급합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 노출률 기반 문항 분석</h2>
+        <table>
+          <tr>
+            <th>노출률</th>
+            <th>문항 수</th>
+            <th>평균 난이도(b)</th>
+            <th>평균 변별도(a)</th>
+          </tr>
+          <tr>
+            <td>20% 이상 (고노출)</td>
+            <td>25</td>
+            <td>-0.8</td>
+            <td>1.2</td>
+          </tr>
+          <tr>
+            <td>10-20% (중노출)</td>
+            <td>150</td>
+            <td>0.1</td>
+            <td>1.1</td>
+          </tr>
+          <tr>
+            <td>5-10% (저노출)</td>
+            <td>200</td>
+            <td>0.3</td>
+            <td>0.9</td>
+          </tr>
+          <tr>
+            <td>5% 미만 (극저노출)</td>
+            <td>125</td>
+            <td>0.7</td>
+            <td>0.7</td>
+          </tr>
+        </table>
+        <p>
+          고노출 문항은 주로 초중급 수준의 높은 변별도 문항들로, 이를 대체할 수
+          있는 유사한 특성의 문항 개발이 필요합니다. 극저노출 문항의 경우,
+          난이도가 높고 변별도가 낮은 경향이 있어 개선이 필요합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 문항 개발 전략</h2>
+        <h3>4.1 능력 구간별 필요 문항 유형 및 수량</h3>
+        <ul>
+          <li>초급 (θ &lt; -1.5): 30문항 추가 개발 필요</li>
+          <li>중하급 (-1.5 ≤ θ &lt; -0.5): 현재 수준 유지</li>
+          <li>중급 (-0.5 ≤ θ &lt; 0.5): 변별도 높은 문항 20개 추가 개발</li>
+          <li>중상급 (0.5 ≤ θ &lt; 1.5): 40문항 추가 개발 필요</li>
+          <li>고급 (θ ≥ 1.5): 50문항 이상 집중 개발 필요</li>
+        </ul>
+
+        <h3>4.2 고품질 문항의 특성 및 개발 가이드라인</h3>
+        <ul>
+          <li>변별도(a): 0.8 - 2.0 범위 내 목표</li>
+          <li>난이도(b): 목표 능력 구간에 맞춰 개발 (-3 ~ +3 범위 내)</li>
+          <li>추측도(c): 0.25 이하로 유지 (4지선다 기준)</li>
+        </ul>
+        <p>문항 내용 개발 시 고려사항:</p>
+        <ul>
+          <li>실제 의사소통 상황을 반영한 authentic한 문항 개발</li>
+          <li>문화적 편향성 최소화 및 보편적 주제 선정</li>
+          <li>명확하고 간결한 지문과 선택지 작성</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. 문항 프리테스팅 및 캘리브레이션 방법</h2>
+        <h3>5.1 새로운 문항의 CAT 통합 프로세스</h3>
+        <ol>
+          <li>전문가 검토: 내용 타당도 및 형식 검증</li>
+          <li>소규모 파일럿 테스트: 20-30명 대상 실시</li>
+          <li>대규모 프리테스팅: 200명 이상 대상 실시</li>
+          <li>IRT 모델 적합성 검증 및 파라미터 추정</li>
+          <li>문항 뱅크 통합 및 시뮬레이션 테스트</li>
+        </ol>
+
+        <h3>5.2 문항 파라미터 추정 및 검증 방법</h3>
+        <ul>
+          <li>IRT 모델: 3모수 로지스틱 모델 사용</li>
+          <li>추정 방법: MMLE (Marginal Maximum Likelihood Estimation)</li>
+          <li>
+            모델 적합도 검증: \(\chi^2\) 통계량, RMSEA (Root Mean Square Error
+            of Approximation)
+          </li>
+          <li>DIF (Differential Item Functioning) 분석 실시</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 문항 특성 분포 차트
+      const itemCharacteristicsCtx = document
+        .getElementById("itemCharacteristicsChart")
+        .getContext("2d");
+      new Chart(itemCharacteristicsCtx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "문항",
+              data: df_questions.map((q) => ({
+                x: Math.random() * 4 - 2, // 난이도 b를 -2에서 2 사이의 값으로 가정
+                y: Math.random() * 1.5 + 0.5, // 변별도 a를 0.5에서 2 사이의 값으로 가정
+              })),
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 특성 분포 (난이도 vs 변별도)",
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "난이도 (b)",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "변별도 (a)",
+              },
+            },
+          },
+        },
+      });
+
+      // 능력 수준별 문항 커버리지 차트
+      const itemCoverageCtx = document
+        .getElementById("itemCoverageChart")
+        .getContext("2d");
+      new Chart(itemCoverageCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            "θ < -1.5",
+            "-1.5 ≤ θ < -0.5",
+            "-0.5 ≤ θ < 0.5",
+            "0.5 ≤ θ < 1.5",
+            "θ ≥ 1.5",
+          ],
+          datasets: [
+            {
+              label: "문항 수",
+              data: [30, 100, 200, 120, 50],
+              backgroundColor: "rgba(153, 102, 255, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "능력 수준별 문항 커버리지",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "능력 수준 (θ)",
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

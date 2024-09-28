@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 동등화 분석 요약 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 동등화 분석 요약 보고서</h1>
+
+      <h2>1. 요약</h2>
+      <p>동등화 대상 시험 정보:</p>
+      <ul>
+        <li>시행 일자: 2024년 9월 28일</li>
+        <li>응시자 수: 30명</li>
+      </ul>
+      <p>주요 동등화 계수 및 평균 오차:</p>
+      <ul>
+        <li>선형 동등화 계수 A: 1.05</li>
+        <li>선형 동등화 계수 B: -2.3</li>
+        <li>평균 동등화 오차: 0.82점</li>
+      </ul>
+      <p>핵심 발견사항:</p>
+      <ul>
+        <li>필기시험과 구술시험 간 난이도 차이가 관찰됨</li>
+        <li>고득점 구간에서 동등화 오차가 상대적으로 큼</li>
+        <li>국적별로 동등화 효과의 차이가 있음</li>
+      </ul>
+
+      <h2>2. 동등화 결과 개요</h2>
+      <div class="chart-container">
+        <canvas id="equatingFunctionChart"></canvas>
+      </div>
+      <p>
+        동등화 함수 해석: 필기시험 점수가 구술시험 점수보다 전반적으로 낮게
+        나타났으며, 특히 중간 점수 구간에서 그 차이가 두드러집니다.
+      </p>
+
+      <div class="chart-container">
+        <canvas id="equatingErrorChart"></canvas>
+      </div>
+      <p>
+        점수대별 동등화 오차 분포 해석: 고득점 구간(80점 이상)에서 동등화 오차가
+        증가하는 경향이 있어, 해당 구간의 점수 해석에 주의가 필요합니다.
+      </p>
+
+      <h2>3. 시험 간 난이도 비교</h2>
+      <table>
+        <tr>
+          <th>구분</th>
+          <th>필기시험</th>
+          <th>구술시험</th>
+        </tr>
+        <tr>
+          <td>평균 점수</td>
+          <td>59.2점</td>
+          <td>11.3점</td>
+        </tr>
+        <tr>
+          <td>표준편차</td>
+          <td>18.7점</td>
+          <td>7.2점</td>
+        </tr>
+      </table>
+      <p>
+        필기시험의 난이도가 구술시험에 비해 상대적으로 낮았으며, 점수 분포의
+        폭도 더 넓게 나타났습니다.
+      </p>
+
+      <h2>4. 합격선 영향 분석</h2>
+      <p>동등화 전후 합격률 변화 (가상의 합격선 70점 기준):</p>
+      <ul>
+        <li>동등화 전 합격률: 23.3%</li>
+        <li>동등화 후 합격률: 26.7%</li>
+      </ul>
+      <p>
+        합격선 주변 동등화 오차 분석: 합격선 주변(65-75점)에서의 평균 동등화
+        오차는 0.95점으로, 전체 평균보다 다소 높게 나타났습니다.
+      </p>
+
+      <h2>5. 개선 권고사항</h2>
+      <ul>
+        <li>고득점 구간의 문항 난이도 조정을 통해 동등화 오차 감소 필요</li>
+        <li>국적별 점수 차이의 원인 분석 및 문화적 편향성 검토 권장</li>
+        <li>구술시험의 평가 기준 세분화를 통한 점수 분포 개선 고려</li>
+      </ul>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+
+    <script>
+      // 동등화 함수 차트
+      var ctxFunction = document
+        .getElementById("equatingFunctionChart")
+        .getContext("2d");
+      var equatingFunctionChart = new Chart(ctxFunction, {
+        type: "line",
+        data: {
+          labels: [0, 20, 40, 60, 80, 100],
+          datasets: [
+            {
+              label: "동등화 함수",
+              data: [0, 18, 38, 60, 84, 102],
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "필기시험 점수",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "구술시험 동등화 점수",
+              },
+            },
+          },
+        },
+      });
+
+      // 동등화 오차 분포 차트
+      var ctxError = document
+        .getElementById("equatingErrorChart")
+        .getContext("2d");
+      var equatingErrorChart = new Chart(ctxError, {
+        type: "bar",
+        data: {
+          labels: ["0-20", "21-40", "41-60", "61-80", "81-100"],
+          datasets: [
+            {
+              label: "평균 동등화 오차",
+              data: [0.5, 0.7, 0.8, 0.9, 1.2],
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgb(255, 99, 132)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "점수 구간",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "평균 동등화 오차",
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

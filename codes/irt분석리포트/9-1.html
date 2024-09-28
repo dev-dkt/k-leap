@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 CAT 성능 분석 및 최적화 전략</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 CAT 성능 분석 및 최적화 전략</h1>
+
+      <div class="section">
+        <h2>1. 요약</h2>
+        <p><strong>CAT 시행 개요:</strong></p>
+        <ul>
+          <li>기간: 2024년 1월 1일 - 2024년 6월 30일</li>
+          <li>응시자 수: 1,000명</li>
+          <li>문항 뱅크 크기: 500문항</li>
+        </ul>
+        <p><strong>핵심 성능 지표:</strong></p>
+        <ul>
+          <li>평균 검사 길이: 25문항</li>
+          <li>평균 표준오차: 0.28</li>
+          <li>고노출 문항 비율: 15%</li>
+        </ul>
+        <p><strong>주요 발견사항:</strong></p>
+        <ul>
+          <li>
+            중급 수준(θ = -0.5 ~ 0.5) 응시자의 검사 길이가 상대적으로 길게
+            나타남
+          </li>
+          <li>고급 수준(θ > 1.5) 문항의 부족으로 인한 측정 정확도 저하 발견</li>
+          <li>일부 초급 문항(θ < -1.5)의 과도한 노출로 인한 보안 우려 존재</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 문항 노출률 분석</h2>
+        <div class="chart-container">
+          <canvas id="exposureRateChart"></canvas>
+        </div>
+        <p>고노출 문항 목록 (노출률 > 20%):</p>
+        <ul>
+          <li>문항 ID: 125, 노출률: 28%, 난이도: -2.1</li>
+          <li>문항 ID: 237, 노출률: 25%, 난이도: -1.8</li>
+          <li>문항 ID: 342, 노출률: 23%, 난이도: -1.5</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>3. 검사 길이 분석</h2>
+        <div class="chart-container">
+          <canvas id="testLengthChart"></canvas>
+        </div>
+        <p>능력 수준별 평균 검사 길이:</p>
+        <table>
+          <tr>
+            <th>능력 수준 (θ)</th>
+            <th>평균 검사 길이</th>
+          </tr>
+          <tr>
+            <td>-2.0 이하</td>
+            <td>20</td>
+          </tr>
+          <tr>
+            <td>-2.0 ~ -1.0</td>
+            <td>23</td>
+          </tr>
+          <tr>
+            <td>-1.0 ~ 0.0</td>
+            <td>27</td>
+          </tr>
+          <tr>
+            <td>0.0 ~ 1.0</td>
+            <td>28</td>
+          </tr>
+          <tr>
+            <td>1.0 ~ 2.0</td>
+            <td>25</td>
+          </tr>
+          <tr>
+            <td>2.0 이상</td>
+            <td>22</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>4. 능력 추정 정확도 분석</h2>
+        <div class="chart-container">
+          <canvas id="estimationAccuracyChart"></canvas>
+        </div>
+        <p>
+          능력-표준오차 산점도를 통해 대부분의 응시자의 능력 추정이 적절한
+          정확도 (SE < 0.3)로 이루어지고 있음을 확인할 수 있습니다. 그러나 고급
+          수준 (θ > 1.5)에서 표준오차가 다소 증가하는 경향이 관찰됩니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. CAT 최적화 전략</h2>
+        <h3>5.1 문항 뱅크 보강 계획</h3>
+        <ul>
+          <li>고급 수준(θ > 1.5) 문항 50개 추가 개발</li>
+          <li>
+            중급 수준(-0.5 < θ < 0.5) 문항의 변별도 향상을 위한 20개 문항 개선
+          </li>
+          <li>초급 문항(θ < -1.5) 30개 추가로 노출 분산</li>
+        </ul>
+
+        <h3>5.2 알고리즘 조정 제안</h3>
+        <ul>
+          <li>문항 선택 알고리즘에 노출 제어 가중치 증가 (현재 0.2 → 0.3)</li>
+          <li>
+            중급 수준 응시자의 검사 종료 기준 완화 (SE < 0.25 → SE < 0.28)
+          </li>
+          <li>컨텐츠 밸런싱 도입으로 평가 영역 간 균형 개선</li>
+        </ul>
+
+        <h3>5.3 예상 개선 효과</h3>
+        <ul>
+          <li>평균 검사 길이: 25문항 → 23문항 (8% 감소)</li>
+          <li>고노출 문항 비율: 15% → 10% (33% 감소)</li>
+          <li>능력 추정 정확도: 평균 SE 0.28 → 0.26 (7% 향상)</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 문항 노출률 차트
+      const exposureRateCtx = document
+        .getElementById("exposureRateChart")
+        .getContext("2d");
+      new Chart(exposureRateCtx, {
+        type: "bar",
+        data: {
+          labels: ["0-5%", "5-10%", "10-15%", "15-20%", "20% 이상"],
+          datasets: [
+            {
+              label: "문항 수",
+              data: [200, 150, 100, 35, 15],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 노출률 분포",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "노출률",
+              },
+            },
+          },
+        },
+      });
+
+      // 검사 길이 차트
+      const testLengthCtx = document
+        .getElementById("testLengthChart")
+        .getContext("2d");
+      new Chart(testLengthCtx, {
+        type: "bar",
+        data: {
+          labels: ["15-20", "21-25", "26-30", "31-35", "36 이상"],
+          datasets: [
+            {
+              label: "응시자 수",
+              data: [150, 400, 300, 100, 50],
+              backgroundColor: "rgba(153, 102, 255, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "검사 길이 분포",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "응시자 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+          },
+        },
+      });
+
+      // 능력 추정 정확도 차트
+      const estimationAccuracyCtx = document
+        .getElementById("estimationAccuracyChart")
+        .getContext("2d");
+      new Chart(estimationAccuracyCtx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "능력 추정치",
+              data: Array.from({ length: 1000 }, () => ({
+                x: Math.random() * 4 - 2,
+                y: Math.random() * 0.2 + 0.2,
+              })),
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "능력 추정 정확도",
+            },
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: "표준오차 (SE)",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "능력 추정치 (θ)",
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

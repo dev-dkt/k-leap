@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 문항 보안 현황 및 관리 전략</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 문항 보안 현황 및 관리 전략</h1>
+
+      <div class="section">
+        <h2>1. 문항 노출 위험 분석</h2>
+        <div class="chart-container">
+          <canvas id="exposure-risk-chart"></canvas>
+        </div>
+        <p>
+          위 그래프는 문항의 노출 간격 분포를 보여줍니다. 노출 간격이 90일
+          미만인 문항은 고위험군으로 분류되며, 즉각적인 조치가 필요합니다.
+        </p>
+        <h3>시험 회차별 문항 중복 사용 현황</h3>
+        <table>
+          <tr>
+            <th>회차</th>
+            <th>총 문항 수</th>
+            <th>중복 문항 수</th>
+            <th>중복률</th>
+          </tr>
+          <tr>
+            <td>78회</td>
+            <td>50</td>
+            <td>5</td>
+            <td>10%</td>
+          </tr>
+          <tr>
+            <td>79회</td>
+            <td>50</td>
+            <td>7</td>
+            <td>14%</td>
+          </tr>
+          <tr>
+            <td>80회</td>
+            <td>50</td>
+            <td>3</td>
+            <td>6%</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>2. 고위험 문항 상세 분석</h2>
+        <h3>노출 위험이 높은 상위 10% 문항 목록</h3>
+        <table>
+          <tr>
+            <th>문항 ID</th>
+            <th>평가 영역</th>
+            <th>최근 노출 간격 (일)</th>
+            <th>총 사용 횟수</th>
+          </tr>
+          <tr>
+            <td>35360</td>
+            <td>어휘</td>
+            <td>45</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>41583</td>
+            <td>문법</td>
+            <td>60</td>
+            <td>7</td>
+          </tr>
+          <tr>
+            <td>18652</td>
+            <td>어휘</td>
+            <td>75</td>
+            <td>6</td>
+          </tr>
+        </table>
+        <h3>위험 요인 및 즉각적 조치 필요 사항</h3>
+        <ul>
+          <li>빈번한 재사용: 최소 6개월 이상의 노출 간격 확보 필요</li>
+          <li>특정 영역 편중: 어휘, 문법 영역의 문항 풀 확대 시급</li>
+          <li>대체 문항 부족: 유사 난이도의 대체 문항 긴급 개발 필요</li>
+        </ul>
+        <h3>노출 위험 히트맵</h3>
+        <div class="chart-container">
+          <div id="exposure-risk-heatmap"></div>
+        </div>
+        <p>
+          위 히트맵은 평가 영역과 난이도에 따른 문항의 노출 위험을 보여줍니다.
+          색상이 진할수록 노출 위험이 높음을 의미합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항 보안 등급 체계 제안</h2>
+        <div class="chart-container">
+          <canvas id="security-grade-chart"></canvas>
+        </div>
+        <h3>등급별 관리 전략 및 사용 지침</h3>
+        <table>
+          <tr>
+            <th>보안 등급</th>
+            <th>노출 간격</th>
+            <th>관리 전략</th>
+          </tr>
+          <tr>
+            <td>A (최고 보안)</td>
+            <td>12개월 이상</td>
+            <td>연 1회 이하 사용, 엄격한 접근 제한</td>
+          </tr>
+          <tr>
+            <td>B (고보안)</td>
+            <td>6-12개월</td>
+            <td>연 2회 이하 사용, 제한적 접근 허용</td>
+          </tr>
+          <tr>
+            <td>C (중보안)</td>
+            <td>3-6개월</td>
+            <td>분기별 1회 이하 사용, 일반 접근 가능</td>
+          </tr>
+          <tr>
+            <td>D (저보안)</td>
+            <td>3개월 미만</td>
+            <td>사용 제한, 개선 또는 폐기 검토</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>4. 문항 순환 전략</h2>
+        <h3>최적 노출 간격 설정 및 근거</h3>
+        <p>
+          문항의 최적 노출 간격은 6개월로 설정합니다. 이는 시험의 주기성(연
+          4회)과 문항 기억의 반감기를 고려한 결과입니다. 6개월 간격은 문항의
+          보안을 유지하면서도 효율적인 문항 활용을 가능하게 합니다.
+        </p>
+        <h3>문항 그룹화 및 순환 사용 방안</h3>
+        <div class="chart-container">
+          <canvas id="item-rotation-chart"></canvas>
+        </div>
+        <p>
+          문항을 A, B, C, D 네 그룹으로 나누어 순환 사용합니다. 각 시험에서는 두
+          개의 그룹에서 문항을 선택하여 구성하며, 연속된 두 시험에서 같은 그룹의
+          문항이 사용되지 않도록 합니다.
+        </p>
+        <h3>문항 순환 모델 도식화</h3>
+        <div class="chart-container">
+          <canvas id="item-rotation-model"></canvas>
+        </div>
+        <p>
+          위 도식은 4개 그룹의 문항이 어떻게 순환되는지를 보여줍니다. 각
+          시험에서는 두 개의 그룹에서 문항을 선택하여 구성하며, 연속된 두
+          시험에서 같은 그룹의 문항이 사용되지 않도록 합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. 보안 모니터링 시스템 제안</h2>
+        <h3>실시간 문항 사용 추적 방안</h3>
+        <ul>
+          <li>문항 ID 기반 사용 이력 데이터베이스 구축</li>
+          <li>시험 구성 시 자동 노출 간격 체크 시스템 도입</li>
+          <li>문항별 누적 사용 횟수 및 최근 사용일 실시간 업데이트</li>
+        </ul>
+        <h3>위험 징후 감지 및 경보 시스템 구축 제안</h3>
+        <ul>
+          <li>노출 간격 임계값 설정 (예: 4개월 미만 시 경고)</li>
+          <li>특정 영역 문항 과다 사용 시 알림 기능</li>
+          <li>문항 풀 고갈 예측 시스템 구현 (남은 미사용 문항 수 기반)</li>
+          <li>비정상적 응답 패턴 감지를 통한 문항 유출 가능성 모니터링</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 노출 위험 차트
+      const exposureRiskCtx = document
+        .getElementById("exposure-risk-chart")
+        .getContext("2d");
+      new Chart(exposureRiskCtx, {
+        type: "bar",
+        data: {
+          labels: [
+            "0-30일",
+            "31-60일",
+            "61-90일",
+            "91-120일",
+            "121-150일",
+            "151일 이상",
+          ],
+          datasets: [
+            {
+              label: "문항 수",
+              data: [5, 10, 15, 25, 30, 15],
+              backgroundColor: [
+                "rgba(255, 99, 132, 0.8)",
+                "rgba(255, 159, 64, 0.8)",
+                "rgba(255, 205, 86, 0.8)",
+                "rgba(75, 192, 192, 0.8)",
+                "rgba(54, 162, 235, 0.8)",
+                "rgba(153, 102, 255, 0.8)",
+              ],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "노출 간격",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 노출 간격 분포",
+            },
+          },
+        },
+      });
+
+      // 보안 등급 차트
+      const securityGradeCtx = document
+        .getElementById("security-grade-chart")
+        .getContext("2d");
+      new Chart(securityGradeCtx, {
+        type: "pie",
+        data: {
+          labels: ["A (최고 보안)", "B (고보안)", "C (중보안)", "D (저보안)"],
+          datasets: [
+            {
+              data: [10, 25, 40, 25],
+              backgroundColor: [
+                "rgba(255, 99, 132, 0.8)",
+                "rgba(54, 162, 235, 0.8)",
+                "rgba(255, 206, 86, 0.8)",
+                "rgba(75, 192, 192, 0.8)",
+              ],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 보안 등급 분포",
+            },
+          },
+        },
+      });
+
+      // 문항 순환 차트
+      const itemRotationCtx = document
+        .getElementById("item-rotation-chart")
+        .getContext("2d");
+      new Chart(itemRotationCtx, {
+        type: "bar",
+        data: {
+          labels: ["1회차", "2회차", "3회차", "4회차"],
+          datasets: [
+            {
+              label: "A그룹",
+              data: [25, 0, 25, 0],
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+            {
+              label: "B그룹",
+              data: [25, 25, 0, 0],
+              backgroundColor: "rgba(54, 162, 235, 0.6)",
+            },
+            {
+              label: "C그룹",
+              data: [0, 25, 25, 0],
+              backgroundColor: "rgba(255, 206, 86, 0.6)",
+            },
+            {
+              label: "D그룹",
+              data: [0, 0, 0, 50],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true,
+              title: {
+                display: true,
+                text: "시험 회차",
+              },
+            },
+            y: {
+              stacked: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 그룹 순환 사용 계획",
+            },
+          },
+        },
+      });
+
+      // 노출 위험 히트맵
+      // 노출 위험 히트맵 d3.js
+      const exposureRiskData = {
+        labels: ["쉬움", "중간", "어려움"],
+        datasets: [
+          {
+            label: "어휘",
+            data: [0.2, 0.5, 0.8],
+          },
+          {
+            label: "문법",
+            data: [0.3, 0.6, 0.7],
+          },
+          {
+            label: "읽기",
+            data: [0.1, 0.4, 0.6],
+          },
+          {
+            label: "쓰기",
+            data: [0.2, 0.3, 0.5],
+          },
+          {
+            label: "말하기",
+            data: [0.1, 0.2, 0.4],
+          },
+        ],
+      };
+
+      const margin = { top: 30, right: 30, bottom: 30, left: 50 },
+        width = 450 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#exposure-risk-heatmap")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3
+        .scaleBand()
+        .range([0, width])
+        .domain(exposureRiskData.labels)
+        .padding(0.05);
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+      const y = d3
+        .scaleBand()
+        .range([height, 0])
+        .domain(exposureRiskData.datasets.map((d) => d.label))
+        .padding(0.05);
+      svg.append("g").call(d3.axisLeft(y));
+
+      const color = d3
+        .scaleLinear()
+        .range(["#ffffff", "#ff0000"])
+        .domain([0, 1]);
+
+      svg
+        .selectAll()
+        .data(
+          exposureRiskData.datasets.flatMap((dataset, i) =>
+            dataset.data.map((value, j) => ({
+              label: dataset.label,
+              difficulty: exposureRiskData.labels[j],
+              value,
+            }))
+          )
+        )
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.difficulty))
+        .attr("y", (d) => y(d.label))
+        .attr("width", x.bandwidth())
+        .attr("height", y.bandwidth())
+        .style("fill", (d) => color(d.value));
+
+      svg
+        .selectAll("rect")
+        .append("title")
+        .text(
+          (d) =>
+            `평가 영역: ${d.label}\n난이도: ${d.difficulty}\n노출 위험도: ${d.value}`
+        );
+
+      // 문항 순환 모델 도식화
+      const itemRotationModelCtx = document
+        .getElementById("item-rotation-model")
+        .getContext("2d");
+      new Chart(itemRotationModelCtx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "A그룹",
+              data: [
+                { x: 0, y: 1 },
+                { x: 2, y: 1 },
+              ],
+              backgroundColor: "rgba(255, 99, 132, 0.8)",
+              pointRadius: 10,
+            },
+            {
+              label: "B그룹",
+              data: [
+                { x: 0, y: 0 },
+                { x: 1, y: 1 },
+              ],
+              backgroundColor: "rgba(54, 162, 235, 0.8)",
+              pointRadius: 10,
+            },
+            {
+              label: "C그룹",
+              data: [
+                { x: 1, y: 0 },
+                { x: 2, y: 0 },
+              ],
+              backgroundColor: "rgba(255, 206, 86, 0.8)",
+              pointRadius: 10,
+            },
+            {
+              label: "D그룹",
+              data: [
+                { x: 3, y: 0 },
+                { x: 3, y: 1 },
+              ],
+              backgroundColor: "rgba(75, 192, 192, 0.8)",
+              pointRadius: 10,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              type: "linear",
+              position: "bottom",
+              min: -0.5,
+              max: 3.5,
+              ticks: {
+                callback: (value) =>
+                  ["1회차", "2회차", "3회차", "4회차"][value],
+              },
+              title: {
+                display: true,
+                text: "시험 회차",
+              },
+            },
+            y: {
+              type: "linear",
+              min: -0.5,
+              max: 1.5,
+              ticks: {
+                display: false,
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              position: "top",
+            },
+            title: {
+              display: true,
+              text: "문항 그룹 순환 모델",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

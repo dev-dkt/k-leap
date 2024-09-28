@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 동등화 방법론 및 상세 분석 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 동등화 방법론 및 상세 분석 보고서</h1>
+
+      <div class="section">
+        <h2>1. 연구 개요</h2>
+        <p>
+          본 연구의 목적은 한국어능력시험의 필기시험과 구술시험 간의 동등화를
+          수행하고, 그 결과를 상세히 분석하는 것입니다. 이를 통해 두 시험 간의
+          난이도 차이를 조정하고, 공정한 평가 기준을 확립하고자 합니다.
+        </p>
+
+        <h3>1.1 연구 데이터</h3>
+        <ul>
+          <li>필기시험 문항 정보: 총 50문항</li>
+          <li>필기시험 응답 데이터: 30명의 수험자</li>
+          <li>구술시험 문항 정보: 총 5문항</li>
+          <li>구술시험 응답 데이터: 30명의 수험자</li>
+          <li>구술시험 채점 기준</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 동등화 방법론</h2>
+        <p>
+          본 연구에서는 공통 문항 설계(Common-item nonequivalent groups
+          design)를 기반으로 한 선형 동등화 방법을 사용하였습니다.
+        </p>
+
+        <h3>2.1 선형 동등화 공식</h3>
+        <p>\[Y = AX + B\]</p>
+        <p>여기서 Y는 동등화된 점수, X는 원점수, A와 B는 동등화 계수입니다.</p>
+
+        <h3>2.2 동등화 계수 추정</h3>
+        <p>\[A = \frac{SD_Y}{SD_X}\]</p>
+        <p>\[B = \overline{Y} - (A \times \overline{X})\]</p>
+        <p>
+          SD는 표준편차, \(\overline{X}\)와 \(\overline{Y}\)는 각각 X와 Y의
+          평균을 의미합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 동등화 계수 및 함수 분석</h2>
+        <div class="chart-container">
+          <canvas id="equatingFunctionChart"></canvas>
+        </div>
+        <p>
+          동등화 함수 해석: 필기시험 점수가 구술시험 점수로 변환될 때,
+          전반적으로 상향 조정되는 경향이 있습니다. 이는 필기시험의 난이도가
+          구술시험보다 상대적으로 높았음을 시사합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 동등화 오차 심층 분석</h2>
+        <div class="chart-container">
+          <canvas id="equatingErrorChart"></canvas>
+        </div>
+        <p>
+          동등화 오차 분석: 중간 점수 구간(40-60점)에서 동등화 오차가 가장 작게
+          나타났으며, 고득점 구간(80점 이상)에서 오차가 증가하는 경향을
+          보입니다. 이는 고득점 구간에서의 변별력 향상이 필요함을 시사합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. 대안적 동등화 방법 비교</h2>
+        <table>
+          <tr>
+            <th>동등화 방법</th>
+            <th>평균 오차</th>
+            <th>최대 오차</th>
+          </tr>
+          <tr>
+            <td>선형 동등화</td>
+            <td>0.82</td>
+            <td>2.1</td>
+          </tr>
+          <tr>
+            <td>등백분위 동등화</td>
+            <td>0.79</td>
+            <td>1.9</td>
+          </tr>
+          <tr>
+            <td>커널 동등화</td>
+            <td>0.75</td>
+            <td>1.8</td>
+          </tr>
+        </table>
+        <p>
+          방법 비교 분석: 커널 동등화 방법이 가장 낮은 평균 오차와 최대 오차를
+          보여, 향후 이 방법의 도입을 고려해볼 수 있습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>6. 결론 및 제언</h2>
+        <ul>
+          <li>
+            필기시험과 구술시험 간의 난이도 차이가 존재하며, 이는 동등화를 통해
+            조정될 수 있습니다.
+          </li>
+          <li>
+            고득점 구간에서의 동등화 오차 감소를 위해 해당 구간의 문항 난이도 및
+            변별도 개선이 필요합니다.
+          </li>
+          <li>
+            커널 동등화 방법의 도입을 통해 전반적인 동등화 정확도 향상을 기대할
+            수 있습니다.
+          </li>
+          <li>
+            지속적인 동등화 연구 및 방법론 개선을 통해 한국어능력시험의 공정성과
+            신뢰성을 제고해야 합니다.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 동등화 함수 차트
+      const ctxFunction = document
+        .getElementById("equatingFunctionChart")
+        .getContext("2d");
+      new Chart(ctxFunction, {
+        type: "line",
+        data: {
+          labels: [0, 20, 40, 60, 80, 100],
+          datasets: [
+            {
+              label: "동등화 함수",
+              data: [5, 26, 47, 68, 89, 110],
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "필기시험 점수",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "구술시험 동등화 점수",
+              },
+            },
+          },
+        },
+      });
+
+      // 동등화 오차 차트
+      const ctxError = document
+        .getElementById("equatingErrorChart")
+        .getContext("2d");
+      new Chart(ctxError, {
+        type: "bar",
+        data: {
+          labels: ["0-20", "21-40", "41-60", "61-80", "81-100"],
+          datasets: [
+            {
+              label: "평균 동등화 오차",
+              data: [1.2, 0.9, 0.5, 0.7, 1.5],
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgb(255, 99, 132)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "점수 구간",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "평균 동등화 오차",
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

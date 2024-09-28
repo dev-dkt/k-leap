@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 CAT 알고리즘 성능 분석 및 개선 방안 연구</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 CAT 알고리즘 성능 분석 및 개선 방안 연구</h1>
+
+      <div class="section">
+        <h2>1. 연구 개요</h2>
+        <p>
+          <strong>연구 목적:</strong> 현행 한국어능력시험 CAT 알고리즘의 성능을
+          분석하고, 측정 정확도와 효율성을 개선하기 위한 방안을 제시하고자 함.
+        </p>
+        <p><strong>CAT 알고리즘 개요:</strong></p>
+        <ul>
+          <li>문항 선택 방법: Maximum Fisher Information</li>
+          <li>능력 추정 방법: Expected A Posteriori (EAP)</li>
+          <li>종료 규칙: SE < 0.3 또는 최대 35문항</li>
+        </ul>
+        <p><strong>데이터 개요:</strong></p>
+        <ul>
+          <li>분석 기간: 2024년 1월 1일 - 2024년 6월 30일</li>
+          <li>총 응시자 수: 1,000명</li>
+          <li>문항 뱅크 크기: 500문항</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 문항 노출 제어 분석</h2>
+        <p>현행 노출 제어 방식: 가중치 적용 (α = 0.2)</p>
+        <div class="chart-container">
+          <canvas id="exposureControlChart"></canvas>
+        </div>
+        <p>
+          현행 노출 제어 방식의 효과성 평가: α = 0.2의 가중치 적용으로 일부
+          고노출 문항이 감소했으나, 여전히 15%의 문항이 20% 이상의 노출률을
+          보이고 있어 추가적인 개선이 필요함.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 검사 길이와 측정 정확도 관계 분석</h2>
+        <div class="chart-container">
+          <canvas id="lengthAccuracyChart"></canvas>
+        </div>
+        <p>
+          검사 길이 결정 요인 분석: 응시자의 능력 수준과 문항 정보함수의 분포가
+          주요 결정 요인으로 작용함. 특히, 중급 수준(-0.5 < θ < 0.5)에서 검사
+          길이가 길어지는 경향이 관찰됨.
+        </p>
+        <h3>문항 정보함수와 검사 길이의 관계</h3>
+        <div class="chart-container">
+          <canvas id="itemInfoChart"></canvas>
+        </div>
+        <p>
+          중급 수준의 문항 정보함수가 상대적으로 낮아 해당 능력 구간에서 더 많은
+          문항이 필요한 것으로 분석됨.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 능력 추정 방법 비교 연구</h2>
+        <table>
+          <tr>
+            <th>추정 방법</th>
+            <th>평균 편향</th>
+            <th>RMSE</th>
+            <th>평균 SE</th>
+          </tr>
+          <tr>
+            <td>MLE</td>
+            <td>0.05</td>
+            <td>0.32</td>
+            <td>0.30</td>
+          </tr>
+          <tr>
+            <td>EAP (현행)</td>
+            <td>0.02</td>
+            <td>0.28</td>
+            <td>0.26</td>
+          </tr>
+          <tr>
+            <td>MAP</td>
+            <td>0.03</td>
+            <td>0.29</td>
+            <td>0.27</td>
+          </tr>
+        </table>
+        <p>
+          EAP 방법이 전반적으로 가장 우수한 성능을 보이나, 극단적인 능력
+          수준에서는 약간의 편향이 관찰됨.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. CAT 알고리즘 개선 제안</h2>
+        <h3>5.1 문항 선택 전략 최적화 방안</h3>
+        <ul>
+          <li>a-stratification 방법 도입으로 문항 노출 균형화</li>
+          <li>컨텐츠 밸런싱을 통한 평가 영역 간 균형 개선</li>
+          <li>Shadow test approach 적용으로 전체 검사 구성 최적화</li>
+        </ul>
+
+        <h3>5.2 새로운 종료 규칙 제안</h3>
+        <p>현행: SE < 0.3 또는 최대 35문항</p>
+        <p>제안: min(SE < 0.3, 문항 정보량 누적 > 10) 또는 최대 30문항</p>
+
+        <h3>5.3 시뮬레이션 결과</h3>
+        <div class="chart-container">
+          <canvas id="simulationChart"></canvas>
+        </div>
+        <p>
+          제안된 개선 방안 적용 시, 평균 검사 길이는 25문항에서 22문항으로
+          감소하고, 측정 정확도(평균 SE)는 0.26에서 0.25로 소폭 향상될 것으로
+          예측됨.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>6. 결론 및 제언</h2>
+        <ul>
+          <li>문항 노출 제어를 위한 a-stratification 방법 도입 권장</li>
+          <li>중급 수준 문항의 정보량 증대를 위한 문항 개발 필요</li>
+          <li>제안된 새로운 종료 규칙의 실제 적용 및 효과 검증 필요</li>
+          <li>장기적으로 다차원 CAT 도입을 위한 연구 진행 제안</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 문항 노출 제어 차트
+      const exposureControlCtx = document
+        .getElementById("exposureControlChart")
+        .getContext("2d");
+      new Chart(exposureControlCtx, {
+        type: "bar",
+        data: {
+          labels: ["0-5%", "5-10%", "10-15%", "15-20%", "20% 이상"],
+          datasets: [
+            {
+              label: "현행 방식",
+              data: [200, 150, 100, 35, 15],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "개선 방식",
+              data: [220, 170, 80, 25, 5],
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "노출 제어 방식에 따른 문항 노출률 분포",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "노출률",
+              },
+            },
+          },
+        },
+      });
+
+      // 검사 길이와 측정 정확도 관계 차트
+      const lengthAccuracyCtx = document
+        .getElementById("lengthAccuracyChart")
+        .getContext("2d");
+      new Chart(lengthAccuracyCtx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "측정 정확도",
+              data: Array.from({ length: 1000 }, () => ({
+                x: Math.floor(Math.random() * 21) + 15,
+                y: Math.random() * 0.2 + 0.2,
+              })),
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "검사 길이와 측정 정확도 관계",
+            },
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: "표준오차 (SE)",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "검사 길이 (문항 수)",
+              },
+            },
+          },
+        },
+      });
+
+      // 문항 정보함수 차트
+      const itemInfoCtx = document
+        .getElementById("itemInfoChart")
+        .getContext("2d");
+      new Chart(itemInfoCtx, {
+        type: "line",
+        data: {
+          labels: [-3, -2, -1, 0, 1, 2, 3],
+          datasets: [
+            {
+              label: "평균 정보량",
+              data: [0.5, 0.8, 1.2, 1.0, 1.3, 0.9, 0.6],
+              borderColor: "rgba(75, 192, 192, 1)",
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "능력 수준별 평균 문항 정보량",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "정보량",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "능력 수준 (θ)",
+              },
+            },
+          },
+        },
+      });
+
+      // 시뮬레이션 결과 차트
+      const simulationCtx = document
+        .getElementById("simulationChart")
+        .getContext("2d");
+      new Chart(simulationCtx, {
+        type: "bar",
+        data: {
+          labels: ["평균 검사 길이", "측정 정확도 (1-SE)"],
+          datasets: [
+            {
+              label: "현행 방식",
+              data: [25, 0.74],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "개선 방식",
+              data: [22, 0.75],
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "CAT 알고리즘 개선 효과 시뮬레이션",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "값",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "평가 지표",
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

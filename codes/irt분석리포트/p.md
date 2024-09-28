@@ -1,7 +1,7 @@
 주어진 "한국어능력시험 결과 기반 교육 프로그램 개선 가이드" 코드를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 정보 및 시각화 데이타를 적용해주세요.
 
-"추정된 능력 점수의 분포 특성"문서의 "한국어능력시험 결과 기반 교육 프로그램 개선 가이드"를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 html코드를 생성해주세요.
-생성할 html전체 구조는 아래 html을 참조해주세요.
+"문항 뱅크 통계"문서의 "한국어능력시험 문항 보안 현황 및 관리 전략"를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 html코드를 생성해주세요.
+필요한 데이타는 목적에 맞게 생성하고,생성할 html전체 구조는 아래 html을 참조해주세요.
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -14,8 +14,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script> <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
   </head>
   <body>
     <div class="container">

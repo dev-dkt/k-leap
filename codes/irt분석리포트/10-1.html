@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 문항 반응 시간 분석 및 개선 전략</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 문항 반응 시간 분석 및 개선 전략</h1>
+
+      <div class="section">
+        <h2>1. 요약</h2>
+        <p>전체 평균 반응 시간: 45초</p>
+        <p>문항 유형별 평균 반응 시간:</p>
+        <ul>
+          <li>객관식: 35초</li>
+          <li>주관식: 60초</li>
+          <li>말하기: 90초</li>
+        </ul>
+        <h3>주요 발견사항:</h3>
+        <ul>
+          <li>문항 난이도와 반응 시간 사이에 양의 상관관계가 있음</li>
+          <li>평가영역 중 '쓰기' 영역의 문항이 가장 긴 반응 시간을 보임</li>
+          <li>한국어 수준이 낮은 수험자일수록 반응 시간의 변동성이 큼</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 문항별 반응 시간 분석</h2>
+        <h3>평균 반응 시간 상위 10개 문항</h3>
+        <div class="chart-container">
+          <div id="top10-response-time"></div>
+        </div>
+        <h3>반응 시간 분포</h3>
+        <div class="chart-container">
+          <div id="response-time-distribution"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항 특성과 반응 시간의 관계</h2>
+        <div class="chart-container">
+          <div id="difficulty-response-time-scatter"></div>
+        </div>
+        <h3>평가영역별 평균 반응 시간 비교</h3>
+        <div class="chart-container">
+          <div id="avg-response-time-by-area"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4. 비정상 응답 패턴 분석</h2>
+        <p>극단적 반응 시간 케이스: 전체 응답의 2.5%</p>
+        <h3>수험자 특성과의 연관성</h3>
+        <ul>
+          <li>초급 수준 (1-2급) 수험자에서 더 빈번히 발생</li>
+          <li>20대 이하 연령층에서 상대적으로 많이 발생</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. 개선 권고사항</h2>
+        <h3>우선 개선 필요 문항</h3>
+        <ul>
+          <li>문항 35360: 평균 반응 시간 과다 (120초)</li>
+          <li>문항 41583: 반응 시간 변동성 과다 (CV > 0.7)</li>
+          <li>문항 18652: 비정상 응답 비율 높음 (10% 이상)</li>
+        </ul>
+        <h3>반응 시간 기반 시험 구성 최적화 제안</h3>
+        <ul>
+          <li>각 섹션별 목표 총 반응 시간 설정 및 문항 수 조정</li>
+          <li>난이도 상승에 따른 반응 시간 증가를 고려한 문항 배치</li>
+          <li>극단적 반응 시간을 보이는 문항의 재검토 및 수정</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 가상의 반응 시간 데이터 생성
+      function generateResponseTimes(questions, responses) {
+        const responseTimes = [];
+        responses.forEach((response) => {
+          const times = response.선택답안.split(",").map((ans, index) => {
+            const question = questions[index];
+            const baseTime = question.문항유형 === "객관식" ? 30 : 60;
+            const randomFactor = Math.random() * 30 - 15;
+            return baseTime + randomFactor + question.난이도 * 10;
+          });
+          responseTimes.push(times);
+        });
+        return responseTimes;
+      }
+
+      const responseTimes = generateResponseTimes(df_questions, df_responses);
+
+      // 차트 생성 함수들
+      function createTop10ResponseTimeChart() {
+        const container = document.getElementById("top10-response-time");
+        container.innerHTML = "<canvas></canvas>";
+        const ctx = container.querySelector("canvas").getContext("2d");
+        const avgTimes = df_questions
+          .map((q, i) => ({
+            id: q.문항코드,
+            time:
+              responseTimes.reduce((sum, times) => sum + times[i], 0) /
+              responseTimes.length,
+          }))
+          .sort((a, b) => b.time - a.time)
+          .slice(0, 10);
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: avgTimes.map((item) => item.id),
+            datasets: [
+              {
+                label: "평균 반응 시간 (초)",
+                data: avgTimes.map((item) => item.time),
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "반응 시간 (초)",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "문항 코드",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function createResponseTimeDistribution() {
+        const allTimes = responseTimes.flat();
+        const container = d3.select("#response-time-distribution");
+        container.selectAll("*").remove(); // Clear previous content
+        const svg = container
+          .append("svg")
+          .attr("width", 600)
+          .attr("height", 400);
+
+        const x = d3
+          .scaleLinear()
+          .domain([0, d3.max(allTimes)])
+          .range([0, 550]);
+
+        const histogram = d3
+          .histogram()
+          .domain(x.domain())
+          .thresholds(x.ticks(20));
+
+        const bins = histogram(allTimes);
+
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(bins, (d) => d.length)])
+          .range([350, 0]);
+
+        svg
+          .append("g")
+          .attr("transform", "translate(30,370)")
+          .call(d3.axisBottom(x));
+
+        svg
+          .append("g")
+          .attr("transform", "translate(30,20)")
+          .call(d3.axisLeft(y));
+
+        svg
+          .selectAll("rect")
+          .data(bins)
+          .enter()
+          .append("rect")
+          .attr("x", (d) => x(d.x0) + 30)
+          .attr("y", (d) => y(d.length) + 20)
+          .attr("width", (d) => x(d.x1) - x(d.x0) - 1)
+          .attr("height", (d) => 350 - y(d.length))
+          .style("fill", "#69b3a2");
+
+        svg
+          .append("text")
+          .attr("x", 300)
+          .attr("y", 390)
+          .style("text-anchor", "middle")
+          .text("반응 시간 (초)");
+
+        svg
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -200)
+          .attr("y", 15)
+          .style("text-anchor", "middle")
+          .text("빈도");
+      }
+
+      function createDifficultyResponseTimeScatter() {
+        const container = document.getElementById(
+          "difficulty-response-time-scatter"
+        );
+        container.innerHTML = "<canvas></canvas>";
+        const ctx = container.querySelector("canvas").getContext("2d");
+        const data = df_questions.map((q, i) => ({
+          x: q.난이도,
+          y:
+            responseTimes.reduce((sum, times) => sum + times[i], 0) /
+            responseTimes.length,
+        }));
+
+        new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "문항별 평균 반응 시간",
+                data: data,
+                backgroundColor: "rgba(255, 99, 132, 0.6)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "문항 난이도",
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "평균 반응 시간 (초)",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function createAvgResponseTimeByArea() {
+        const container = document.getElementById("avg-response-time-by-area");
+        container.innerHTML = "<canvas></canvas>";
+        const ctx = container.querySelector("canvas").getContext("2d");
+        const areaData = {};
+        df_questions.forEach((q, i) => {
+          if (!areaData[q.평가영역]) {
+            areaData[q.평가영역] = { sum: 0, count: 0 };
+          }
+          areaData[q.평가영역].sum +=
+            responseTimes.reduce((sum, times) => sum + times[i], 0) /
+            responseTimes.length;
+          areaData[q.평가영역].count++;
+        });
+
+        const avgData = Object.entries(areaData).map(([area, data]) => ({
+          area: area,
+          avg: data.sum / data.count,
+        }));
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: avgData.map((d) => d.area),
+            datasets: [
+              {
+                label: "평균 반응 시간 (초)",
+                data: avgData.map((d) => d.avg),
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "평균 반응 시간 (초)",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // 차트 생성 실행
+      createTop10ResponseTimeChart();
+      createResponseTimeDistribution();
+      createDifficultyResponseTimeScatter();
+      createAvgResponseTimeByArea();
+    </script>
+  </body>
+</html>

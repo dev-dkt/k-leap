@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 시간 관리 전략 가이드</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <style>
+      .chart-container {
+        width: 100%;
+        height: 400px;
+        margin-bottom: 20px;
+      }
+      .tooltip {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 시간 관리 전략 가이드</h1>
+
+      <div class="section">
+        <h2>1. 시험 시간 개요</h2>
+        <p>
+          한국어능력시험은 총 150분 동안 진행됩니다. 효과적인 시간 관리는 시험
+          성적 향상에 중요한 역할을 합니다. 이 가이드에서는 시험의 각 섹션별
+          권장 시간 배분과 효과적인 시간 관리 전략을 제시합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>2. 섹션별 시간 배분</h2>
+        <div class="chart-container">
+          <div id="sectionTimeAllocation"></div>
+        </div>
+        <p>
+          위 차트는 시험의 각 섹션별 권장 시간 배분을 보여줍니다. 이를 참고하여
+          전체 시험 시간을 효율적으로 사용하세요.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항 유형별 권장 소요 시간</h2>
+        <div class="chart-container">
+          <div id="questionTypeTime"></div>
+        </div>
+        <p>
+          각 문항 유형별 평균 소요 시간을 참고하여 시간을 배분하세요. 특정
+          유형에 시간을 과도하게 소비하지 않도록 주의하는 것이 중요합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 효과적인 시간 관리 전략</h2>
+        <h3>전체 시험 시간 배분 방법:</h3>
+        <ul>
+          <li>시험 시작 전 각 섹션에 할당할 시간을 미리 계획하세요.</li>
+          <li>
+            각 섹션이 끝날 때마다 남은 시간을 확인하고 필요하다면 계획을
+            조정하세요.
+          </li>
+          <li>마지막 10분은 답안 검토에 할애하세요.</li>
+        </ul>
+        <h3>문항 유형별 접근 전략:</h3>
+        <ul>
+          <li>
+            객관식 문항: 30초 이내에 답을 고르세요. 확신이 없다면 표시해두고
+            나중에 돌아오세요.
+          </li>
+          <li>
+            주관식 문항: 1분 이내로 답변을 작성하세요. 긴 답변이 필요한 경우
+            핵심 단어를 먼저 적고 나중에 보완하세요.
+          </li>
+          <li>
+            읽기 문항: 지문을 꼼꼼히 읽되, 2분 이상 소요되지 않도록 하세요.
+            필요한 정보를 빠르게 찾는 연습을 하세요.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. 시간 절약을 위한 팁</h2>
+        <ul>
+          <li>
+            문제를 읽기 전에 보기를 먼저 훑어보세요. 이는 필요한 정보에 집중하는
+            데 도움이 됩니다.
+          </li>
+          <li>
+            어려운 문제에 막혔을 때는 과감히 다음 문제로 넘어가세요. 시간이
+            남으면 다시 돌아올 수 있습니다.
+          </li>
+          <li>
+            주기적으로 시계를 확인하되, 너무 자주 확인하여 집중력을 흐트러뜨리지
+            않도록 주의하세요.
+          </li>
+          <li>
+            빠른 읽기 기술을 연습하세요. 핵심 단어와 문장에 집중하는 습관을
+            들이세요.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>6. 연습 문제 및 타이머 사용법</h2>
+        <p>
+          실전과 유사한 환경에서 연습하는 것이 중요합니다. 다음과 같은 방법으로
+          시간 관리 능력을 향상시킬 수 있습니다:
+        </p>
+        <ul>
+          <li>
+            공식 한국어능력시험 웹사이트에서 제공하는 모의고사를 활용하세요.
+          </li>
+          <li>연습 시 항상 타이머를 사용하여 시간 감각을 익히세요.</li>
+          <li>
+            섹션별로 시간을 측정하고, 실제 시험에서의 시간 배분 계획을 세우세요.
+          </li>
+          <li>
+            연습 후에는 시간 관리가 잘 된 부분과 개선이 필요한 부분을
+            분석하세요.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 섹션별 시간 배분 데이터 (예시)
+      const sectionTimeData = [
+        { section: "듣기", time: 40 },
+        { section: "읽기", time: 50 },
+        { section: "쓰기", time: 40 },
+        { section: "문법", time: 20 },
+      ];
+
+      // 섹션별 시간 배분 차트
+      const margin = { top: 20, right: 30, bottom: 40, left: 90 },
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#sectionTimeAllocation")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3
+        .scaleLinear()
+        .domain([0, d3.max(sectionTimeData, (d) => d.time)])
+        .range([0, width]);
+
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      const y = d3
+        .scaleBand()
+        .range([0, height])
+        .domain(sectionTimeData.map((d) => d.section))
+        .padding(0.1);
+
+      svg.append("g").call(d3.axisLeft(y));
+
+      svg
+        .selectAll("myRect")
+        .data(sectionTimeData)
+        .join("rect")
+        .attr("x", x(0))
+        .attr("y", (d) => y(d.section))
+        .attr("width", (d) => x(d.time))
+        .attr("height", y.bandwidth())
+        .attr("fill", "#69b3a2");
+
+      svg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.top + 20)
+        .text("권장 시간 (분)");
+
+      svg
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .text("시험 섹션");
+
+      // 문항 유형별 권장 소요 시간 데이터 (예시)
+      const questionTypeTimeData = [
+        { type: "객관식", time: 0.5 },
+        { type: "주관식", time: 1 },
+        { type: "읽기", time: 2 },
+        { type: "쓰기", time: 5 },
+      ];
+
+      // 문항 유형별 권장 소요 시간 차트
+      const svg2 = d3
+        .select("#questionTypeTime")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x2 = d3
+        .scaleLinear()
+        .domain([0, d3.max(questionTypeTimeData, (d) => d.time)])
+        .range([0, width]);
+
+      svg2
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x2))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      const y2 = d3
+        .scaleBand()
+        .range([0, height])
+        .domain(questionTypeTimeData.map((d) => d.type))
+        .padding(0.1);
+
+      svg2.append("g").call(d3.axisLeft(y2));
+
+      svg2
+        .selectAll("myRect")
+        .data(questionTypeTimeData)
+        .join("rect")
+        .attr("x", x2(0))
+        .attr("y", (d) => y2(d.type))
+        .attr("width", (d) => x2(d.time))
+        .attr("height", y2.bandwidth())
+        .attr("fill", "#4CAF50");
+
+      svg2
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.top + 20)
+        .text("권장 소요 시간 (분)");
+
+      svg2
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .text("문항 유형");
+    </script>
+  </body>
+</html>

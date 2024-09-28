@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 검사 수행 시간 분석 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 검사 수행 시간 분석 보고서</h1>
+
+      <div class="section">
+        <h2>1. 요약</h2>
+        <ul>
+          <li>평균 검사 시간: 120분</li>
+          <li>시간 초과 수험자 비율: 8.5%</li>
+        </ul>
+        <h3>주요 발견사항:</h3>
+        <ul>
+          <li>국적별로 검사 수행 시간에 유의미한 차이가 있음</li>
+          <li>한국어 수준이 높을수록 평균 검사 시간이 감소하는 경향</li>
+          <li>문법 영역의 문항에서 가장 긴 평균 응답 시간 관찰</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 총 검사 시간 분석</h2>
+        <div class="chart-container">
+          <div id="totalTimeHistogram"></div>
+        </div>
+        <p>
+          검사 시간 분포는 대체로 정규분포를 따르며, 평균 120분을 중심으로
+          분포되어 있습니다. 시간 초과 수험자(150분 초과)의 비율은 8.5%로
+          나타났습니다.
+        </p>
+        <div class="chart-container">
+          <div id="timeByNationalityBoxplot"></div>
+        </div>
+        <p>
+          국적별 검사 시간 비교 결과, 중국과 베트남 출신 수험자들의 평균 검사
+          시간이 가장 짧았으며, 우즈베키스탄과 몽골 출신 수험자들의 평균 검사
+          시간이 상대적으로 길었습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항별 응답 시간 분석</h2>
+        <div class="chart-container">
+          <div id="itemResponseTimeBar" class="chart-container"></div>
+        </div>
+        <p>
+          문항별 평균 응답 시간 분석 결과, 문법 영역의 문항들이 평균적으로 가장
+          긴 응답 시간을 보였습니다. 특히 문항 17, 22, 36번의 평균 응답 시간이
+          가장 길었으며, 이들 문항의 특성을 분석하여 개선이 필요합니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 시간 영향 요인 분석</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>요인</th>
+              <th>영향력</th>
+              <th>p-value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>한국어 수준</td>
+              <td>-0.35</td>
+              <td>&lt;0.001</td>
+            </tr>
+            <tr>
+              <td>연령</td>
+              <td>0.22</td>
+              <td>&lt;0.01</td>
+            </tr>
+            <tr>
+              <td>문항 난이도</td>
+              <td>0.48</td>
+              <td>&lt;0.001</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          다중 회귀 분석 결과, 한국어 수준이 높을수록 검사 시간이 감소하는
+          경향이 있으며, 연령이 높을수록 검사 시간이 증가하는 경향이 있습니다.
+          또한 문항 난이도가 높을수록 응답 시간이 증가하는 것으로 나타났습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. 개선 권고사항</h2>
+        <h3>시험 시간 조정 제안:</h3>
+        <ul>
+          <li>현행 150분의 시험 시간을 140분으로 단축 검토</li>
+          <li>섹션별 시간 할당을 통한 효율적인 시간 관리 유도</li>
+        </ul>
+        <h3>문항 개선 필요 항목:</h3>
+        <ul>
+          <li>문항 17, 22, 36: 지문 간소화 및 선택지 명확성 개선</li>
+          <li>문법 영역 전반: 문제 제시 방식의 효율성 검토</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // Total Time Histogram
+      const totalTimeData = [15, 35, 60, 75, 50, 30, 20];
+      const totalTimeLabels = [
+        "90-100",
+        "100-110",
+        "110-120",
+        "120-130",
+        "130-140",
+        "140-150",
+        "150+",
+      ];
+
+      const totalTimeMargin = { top: 20, right: 30, bottom: 40, left: 40 };
+      const totalTimeWidth = 600 - totalTimeMargin.left - totalTimeMargin.right;
+      const totalTimeHeight =
+        400 - totalTimeMargin.top - totalTimeMargin.bottom;
+
+      const totalTimeSvg = d3
+        .select("#totalTimeHistogram")
+        .append("svg")
+        .attr(
+          "width",
+          totalTimeWidth + totalTimeMargin.left + totalTimeMargin.right
+        )
+        .attr(
+          "height",
+          totalTimeHeight + totalTimeMargin.top + totalTimeMargin.bottom
+        )
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${totalTimeMargin.left},${totalTimeMargin.top})`
+        );
+
+      const x = d3
+        .scaleBand()
+        .range([0, totalTimeWidth])
+        .domain(totalTimeLabels)
+        .padding(0.1);
+
+      totalTimeSvg
+        .append("g")
+        .attr("transform", `translate(0,${totalTimeHeight})`)
+        .call(d3.axisBottom(x));
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(totalTimeData)])
+        .range([totalTimeHeight, 0]);
+
+      totalTimeSvg.append("g").call(d3.axisLeft(y));
+
+      totalTimeSvg
+        .selectAll("rect")
+        .data(totalTimeData)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => x(totalTimeLabels[i]))
+        .attr("y", (d) => y(d))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => totalTimeHeight - y(d))
+        .attr("fill", "rgba(75, 192, 192, 0.6)");
+
+      totalTimeSvg
+        .append("text")
+        .attr("x", totalTimeWidth / 2)
+        .attr("y", totalTimeHeight + totalTimeMargin.bottom)
+        .attr("text-anchor", "middle")
+        .text("검사 시간 (분)");
+
+      totalTimeSvg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - totalTimeMargin.left)
+        .attr("x", 0 - totalTimeHeight / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("수험자 수");
+
+      // Boxplot
+      const boxplotData = [
+        { group: "중국", min: 90, q1: 105, median: 115, q3: 125, max: 140 },
+        { group: "베트남", min: 95, q1: 110, median: 120, q3: 130, max: 145 },
+        { group: "필리핀", min: 100, q1: 115, median: 125, q3: 135, max: 150 },
+        {
+          group: "우즈베키스탄",
+          min: 105,
+          q1: 120,
+          median: 130,
+          q3: 140,
+          max: 155,
+        },
+        { group: "몽골", min: 110, q1: 125, median: 135, q3: 145, max: 160 },
+      ];
+
+      const boxplotMargin = { top: 20, right: 30, bottom: 40, left: 40 };
+      const boxplotWidth = 600 - boxplotMargin.left - boxplotMargin.right;
+      const boxplotHeight = 400 - boxplotMargin.top - boxplotMargin.bottom;
+
+      const boxplotSvg = d3
+        .select("#timeByNationalityBoxplot")
+        .append("svg")
+        .attr("width", boxplotWidth + boxplotMargin.left + boxplotMargin.right)
+        .attr(
+          "height",
+          boxplotHeight + boxplotMargin.top + boxplotMargin.bottom
+        )
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${boxplotMargin.left},${boxplotMargin.top})`
+        );
+
+      const xBoxplot = d3
+        .scaleBand()
+        .range([0, boxplotWidth])
+        .domain(boxplotData.map((d) => d.group))
+        .padding(0.4);
+
+      boxplotSvg
+        .append("g")
+        .attr("transform", `translate(0,${boxplotHeight})`)
+        .call(d3.axisBottom(xBoxplot));
+
+      const yBoxplot = d3
+        .scaleLinear()
+        .domain([80, 170])
+        .range([boxplotHeight, 0]);
+
+      boxplotSvg.append("g").call(d3.axisLeft(yBoxplot));
+
+      boxplotSvg
+        .selectAll("vertLines")
+        .data(boxplotData)
+        .enter()
+        .append("line")
+        .attr("x1", (d) => xBoxplot(d.group) + xBoxplot.bandwidth() / 2)
+        .attr("x2", (d) => xBoxplot(d.group) + xBoxplot.bandwidth() / 2)
+        .attr("y1", (d) => yBoxplot(d.min))
+        .attr("y2", (d) => yBoxplot(d.max))
+        .attr("stroke", "black")
+        .style("width", 40);
+
+      const boxWidth = 40;
+      boxplotSvg
+        .selectAll("boxes")
+        .data(boxplotData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => xBoxplot(d.group) - boxWidth / 2)
+        .attr("y", (d) => yBoxplot(d.q3))
+        .attr("height", (d) => yBoxplot(d.q1) - yBoxplot(d.q3))
+        .attr("width", boxWidth)
+        .attr("stroke", "black")
+        .style("fill", "rgba(255, 99, 132, 0.6)");
+
+      boxplotSvg
+        .selectAll("medianLines")
+        .data(boxplotData)
+        .enter()
+        .append("line")
+        .attr("x1", (d) => xBoxplot(d.group) - boxWidth / 2)
+        .attr("x2", (d) => xBoxplot(d.group) + boxWidth / 2)
+        .attr("y1", (d) => yBoxplot(d.median))
+        .attr("y2", (d) => yBoxplot(d.median))
+        .attr("stroke", "black")
+        .style("width", 80);
+
+      boxplotSvg
+        .append("text")
+        .attr("x", boxplotWidth / 2)
+        .attr("y", boxplotHeight + boxplotMargin.bottom)
+        .attr("text-anchor", "middle")
+        .text("국적");
+
+      boxplotSvg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - boxplotMargin.left)
+        .attr("x", 0 - boxplotHeight / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("검사 시간 (분)");
+
+      // Item Response Time Bar Chart
+      const itemTimeData = df_questions.map(
+        () => Math.floor(Math.random() * 120) + 60
+      );
+
+      const itemTimeMargin = { top: 20, right: 30, bottom: 40, left: 40 };
+      const itemTimeWidth = 600 - itemTimeMargin.left - itemTimeMargin.right;
+      const itemTimeHeight = 400 - itemTimeMargin.top - itemTimeMargin.bottom;
+
+      const itemTimeSvg = d3
+        .select("#itemResponseTimeBar")
+        .append("svg")
+        .attr(
+          "width",
+          itemTimeWidth + itemTimeMargin.left + itemTimeMargin.right
+        )
+        .attr(
+          "height",
+          itemTimeHeight + itemTimeMargin.top + itemTimeMargin.bottom
+        )
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${itemTimeMargin.left},${itemTimeMargin.top})`
+        );
+
+      const xItemTime = d3
+        .scaleBand()
+        .range([0, itemTimeWidth])
+        .domain(df_questions.map((q) => q.문제번호))
+        .padding(0.1);
+
+      itemTimeSvg
+        .append("g")
+        .attr("transform", `translate(0,${itemTimeHeight})`)
+        .call(d3.axisBottom(xItemTime))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
+
+      const yItemTime = d3
+        .scaleLinear()
+        .domain([0, d3.max(itemTimeData)])
+        .range([itemTimeHeight, 0]);
+
+      itemTimeSvg.append("g").call(d3.axisLeft(yItemTime));
+
+      itemTimeSvg
+        .selectAll("rect")
+        .data(itemTimeData)
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => xItemTime(df_questions[i].문제번호))
+        .attr("y", (d) => yItemTime(d))
+        .attr("width", xItemTime.bandwidth())
+        .attr("height", (d) => itemTimeHeight - yItemTime(d))
+        .attr("fill", "rgba(153, 102, 255, 0.6)");
+
+      itemTimeSvg
+        .append("text")
+        .attr("x", itemTimeWidth / 2)
+        .attr("y", itemTimeHeight + itemTimeMargin.bottom - 5)
+        .attr("text-anchor", "middle")
+        .text("문항 번호");
+
+      itemTimeSvg
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - itemTimeMargin.left)
+        .attr("x", 0 - itemTimeHeight / 2)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("평균 응답 시간 (초)");
+    </script>
+  </body>
+</html>

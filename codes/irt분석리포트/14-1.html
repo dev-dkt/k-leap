@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 문항 뱅크 활용 현황 및 개선 전략</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 문항 뱅크 활용 현황 및 개선 전략</h1>
+
+      <div class="section">
+        <h2>1. 요약</h2>
+        <p>문항 뱅크 규모: 총 55문항 (필기 50문항, 구술 5문항)</p>
+        <p>평균 사용 빈도: 연간 2.5회</p>
+        <p>평균 노출 간격: 146일</p>
+        <h3>주요 발견사항:</h3>
+        <ul>
+          <li>고빈도 사용 문항(연간 4회 이상)이 전체의 15%를 차지</li>
+          <li>저활용 문항(2년 내 미사용)이 전체의 10% 발견</li>
+          <li>문항 유형별 활용도 불균형 확인 (객관식 편중)</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 문항 사용 현황 분석</h2>
+        <div id="usage-frequency-chart"></div>
+        <h3>고빈도 사용 문항 (상위 5개)</h3>
+        <table>
+          <tr>
+            <th>문항 코드</th>
+            <th>평가 영역</th>
+            <th>연간 사용 횟수</th>
+          </tr>
+          <tr>
+            <td>35360</td>
+            <td>어휘</td>
+            <td>5.2</td>
+          </tr>
+          <tr>
+            <td>41583</td>
+            <td>문법</td>
+            <td>4.8</td>
+          </tr>
+          <tr>
+            <td>18652</td>
+            <td>어휘</td>
+            <td>4.5</td>
+          </tr>
+          <tr>
+            <td>34878</td>
+            <td>어휘</td>
+            <td>4.3</td>
+          </tr>
+          <tr>
+            <td>2879</td>
+            <td>어휘</td>
+            <td>4.1</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항 노출 간격 분석</h2>
+        <div id="exposure-interval-chart"></div>
+        <p>보안 위험 문항 (노출 간격 90일 미만): 총 3문항</p>
+        <ul>
+          <li>문항 코드: 35360 (어휘) - 노출 간격 70일</li>
+          <li>문항 코드: 41583 (문법) - 노출 간격 76일</li>
+          <li>문항 코드: 18652 (어휘) - 노출 간격 81일</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>4. 문항 유형 및 평가영역별 활용 분석</h2>
+        <div id="usage-by-type-chart"></div>
+        <p>
+          객관식 문항의 활용도가 가장 높으며, 어휘와 문법 영역의 문항이
+          상대적으로 자주 사용되고 있습니다. 반면, 쓰기와 말하기 영역의 문항
+          활용도가 낮은 편입니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>5. 개선 전략 및 권고사항</h2>
+        <h3>문항 갱신 계획</h3>
+        <ul>
+          <li>
+            고빈도 사용 문항(연간 4회 이상)에 대한 대체 문항 개발 우선 추진
+          </li>
+          <li>저활용 문항 검토 후 수정 또는 폐기 결정</li>
+          <li>쓰기와 말하기 영역의 문항 추가 개발로 균형 있는 평가 도모</li>
+        </ul>
+        <h3>문항 뱅크 운영 최적화 방안</h3>
+        <ul>
+          <li>문항 노출 간격 최소 90일 유지를 위한 순환 사용 시스템 도입</li>
+          <li>평가영역별 문항 풀 확대로 과도한 재사용 방지</li>
+          <li>정기적인 문항 성능 분석 및 피드백 시스템 구축</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 문항 사용 빈도 차트
+      const usageFrequencyCtx = document
+        .getElementById("usage-frequency-chart")
+        .getContext("2d");
+      new Chart(usageFrequencyCtx, {
+        type: "bar",
+        data: {
+          labels: ["0-1회", "1-2회", "2-3회", "3-4회", "4회 이상"],
+          datasets: [
+            {
+              label: "문항 수",
+              data: [5, 15, 20, 10, 5],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "연간 사용 빈도",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 사용 빈도 분포",
+            },
+          },
+        },
+      });
+
+      // 문항 노출 간격 차트
+      const exposureIntervalCtx = document
+        .getElementById("exposure-interval-chart")
+        .getContext("2d");
+      new Chart(exposureIntervalCtx, {
+        type: "line",
+        data: {
+          labels: [
+            "0-30일",
+            "31-60일",
+            "61-90일",
+            "91-120일",
+            "121-150일",
+            "151일 이상",
+          ],
+          datasets: [
+            {
+              label: "문항 수",
+              data: [1, 2, 5, 15, 20, 12],
+              borderColor: "rgba(255, 99, 132, 1)",
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "문항 수",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "노출 간격",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 노출 간격 분포",
+            },
+          },
+        },
+      });
+
+      // 문항 유형 및 평가영역별 활용 차트
+      const usageByTypeCtx = document
+        .getElementById("usage-by-type-chart")
+        .getContext("2d");
+      new Chart(usageByTypeCtx, {
+        type: "bar",
+        data: {
+          labels: ["어휘", "문법", "읽기", "쓰기", "말하기"],
+          datasets: [
+            {
+              label: "평균 사용 빈도",
+              data: [3.5, 3.2, 2.8, 1.5, 1.2],
+              backgroundColor: "rgba(153, 102, 255, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "평균 사용 빈도 (연간)",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "평가 영역",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "평가 영역별 문항 활용 빈도",
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
