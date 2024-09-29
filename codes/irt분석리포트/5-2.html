@@ -1,263 +1,380 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 신뢰도 및 측정 정확도 상세 분석 보고서</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="report-styles.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>한국어능력시험 신뢰도 및 측정 정확도 상세 분석 보고서</h1>
+      <h1>한국어능력시험 신뢰도 및 측정 정확도 상세 분석 보고서</h1>
 
-        <div class="section">
-            <h2>1. 연구 개요</h2>
-            <h3>1.1 연구 목적</h3>
-            <p>본 연구는 2024년 9월 10일에 CBT평가센터에서 실시된 100회차 한국어능력시험 사전평가의 신뢰도와 측정 정확도를 분석하여 시험의 질을 개선하는 것을 목적으로 합니다.</p>
-            
-            <h3>1.2 방법론</h3>
-            <p>문항반응이론(IRT)을 기반으로 한 신뢰도 분석과 조건부 표준오차(CSEM) 분석을 실시하였습니다.</p>
-            
-            <h3>1.3 데이터 설명</h3>
-            <p>총 <span id="totalQuestions"></span>문항으로 구성된 필기시험과 <span id="totalSpeakingQuestions"></span>문항으로 구성된 구술시험 데이터를 분석에 사용하였습니다. 응시자 수는 총 <span id="totalRespondents"></span>명입니다.</p>
-        </div>
+      <div class="section">
+        <h2>1. 연구 개요</h2>
+        <h3>1.1 연구 목적</h3>
+        <p>
+          본 연구는 2024년 9월 10일에 CBT평가센터에서 실시된 100회차
+          한국어능력시험 사전평가의 신뢰도와 측정 정확도를 분석하여 시험의 질을
+          개선하는 것을 목적으로 합니다.
+        </p>
 
-        <div class="section">
-            <h2>2. IRT 기반 신뢰도 분석</h2>
-            <h3>2.1 신뢰도 계수 계산 방법</h3>
-            <p>IRT 모델을 사용하여 문항 모수(변별도, 난이도)를 추정하고, 이를 바탕으로 검사 정보 함수를 계산하여 신뢰도를 산출하였습니다.</p>
-            
-            <h3>2.2 필기시험 신뢰도 분석 결과</h3>
-            <div class="chart-container">
-                <canvas id="reliabilityChart"></canvas>
-            </div>
-            <p>전체 필기시험의 신뢰도는 0.89로 우수한 수준을 보이고 있습니다. 평가영역별로는 문법(0.87)이 가장 높고, 쓰기(0.83)가 가장 낮은 신뢰도를 나타냈습니다.</p>
-            
-            <h3>2.3 구술시험 신뢰도 분석 결과</h3>
-            <p>구술시험의 신뢰도는 0.85로 양호한 수준입니다. 다만, 문항 수가 적어 개별 문항의 영향이 크게 나타나는 점에 유의해야 합니다.</p>
-            
-            <h3>2.4 문항 특성과 신뢰도의 관계 분석</h3>
-            <table id="discriminationTable">
-                <tr>
-                    <th>변별도 범위</th>
-                    <th>문항 수</th>
-                    <th>평균 신뢰도 기여도</th>
-                </tr>
-            </table>
-            <p>변별도가 높은 문항일수록 신뢰도에 대한 기여도가 높은 것으로 나타났습니다.</p>
-        </div>
+        <h3>1.2 방법론</h3>
+        <p>
+          문항반응이론(IRT)을 기반으로 한 신뢰도 분석과 조건부 표준오차(CSEM)
+          분석을 실시하였습니다.
+        </p>
 
-        <div class="section">
-            <h2>3. 조건부 표준오차(CSEM) 분석</h2>
-            <h3>3.1 CSEM 계산 방법 및 이론적 배경</h3>
-            <p>CSEM은 IRT 모델에서 추정된 능력 모수의 표준오차로, 특정 능력 수준에서의 측정 정확도를 나타냅니다. 정보 함수의 역제곱근으로 계산됩니다.</p>
-            
-            <h3>3.2 능력 수준별 CSEM 상세 분석</h3>
-            <div class="chart-container">
-                <canvas id="csemChart"></canvas>
-            </div>
-            <p>능력 수준 <span id="minCSEMRange"></span> 사이에서 CSEM이 가장 낮아 측정 정확도가 높은 것으로 나타났습니다. 반면, 극단적인 능력 수준(<span id="weakRanges"></span>)에서는 CSEM이 높아 측정의 정확도가 떨어지는 것으로 분석되었습니다.</p>
-        </div>
+        <h3>1.3 데이터 설명</h3>
+        <p>
+          총 <span id="totalQuestions"></span>문항으로 구성된 필기시험과
+          <span id="totalSpeakingQuestions"></span>문항으로 구성된 구술시험
+          데이터를 분석에 사용하였습니다. 응시자 수는 총
+          <span id="totalRespondents"></span>명입니다.
+        </p>
+      </div>
 
-        <div class="section">
-            <h2>4. 문항 반응 이론(IRT)과 고전 검사 이론(CTT) 비교</h2>
-            <h3>4.1 IRT 기반 신뢰도와 Cronbach's α 비교</h3>
-            <table id="reliabilityTable">
-                <tr>
-                    <th>평가 영역</th>
-                    <th>IRT 신뢰도</th>
-                    <th>Cronbach's α</th>
-                </tr>
-            </table>
-            <p>전반적으로 IRT 기반 신뢰도가 Cronbach's α보다 약간 높게 나타났습니다. 이는 IRT가 문항의 특성을 더 정확히 반영하기 때문으로 해석됩니다.</p>
-            
-            <h3>4.2 방법론 간 차이점 및 장단점</h3>
-            <ul>
-                <li>IRT는 문항의 특성과 응시자의 능력을 동시에 고려하여 더 정확한 측정이 가능합니다.</li>
-                <li>CTT는 계산이 간단하고 직관적이지만, 표본 의존성이 높다는 단점이 있습니다.</li>
-                <li>IRT는 문항 특성에 따른 정보 함수를 제공하여 시험 개선에 더 유용한 정보를 제공합니다.</li>
-            </ul>
-        </div>
+      <div class="section">
+        <h2>2. IRT 기반 신뢰도 분석</h2>
+        <h3>2.1 신뢰도 계수 계산 방법</h3>
+        <p>
+          IRT 모델을 사용하여 문항 모수(변별도, 난이도)를 추정하고, 이를
+          바탕으로 검사 정보 함수를 계산하여 신뢰도를 산출하였습니다.
+        </p>
 
-        <div class="section">
-            <h2>5. 결론 및 제언</h2>
-            <h3>5.1 주요 발견사항</h3>
-            <ul>
-                <li>전체 시험의 신뢰도는 우수한 수준이나, 영역별로 편차가 있습니다.</li>
-                <li>중간 능력 수준에서의 측정 정확도는 높지만, 극단적인 능력 수준에서는 개선이 필요합니다.</li>
-                <li>IRT 기반 분석이 시험의 특성을 더 정확히 반영하는 것으로 나타났습니다.</li>
-            </ul>
-            
-            <h3>5.2 개선 제안</h3>
-            <ul>
-                <li>쓰기 영역의 문항 수를 늘리고 변별도를 높여 신뢰도를 개선해야 합니다.</li>
-                <li>극단적인 능력 수준을 측정하는 문항을 추가하여 전체적인 측정 정확도를 높일 필요가 있습니다.</li>
-                <li>변별도가 낮은 문항(하위 20%)을 재검토하고 수정 또는 교체해야 합니다.</li>
-                <li>장기적으로 컴퓨터 적응 검사(CAT) 도입을 고려하여 개인별 측정 정확도를 극대화할 수 있습니다.</li>
-            </ul>
+        <h3>2.2 필기시험 신뢰도 분석 결과</h3>
+        <div class="chart-container">
+          <canvas id="reliabilityChart"></canvas>
         </div>
+        <p>
+          전체 필기시험의 신뢰도는 0.89로 우수한 수준을 보이고 있습니다.
+          평가영역별로는 문법(0.87)이 가장 높고, 쓰기(0.83)가 가장 낮은 신뢰도를
+          나타냈습니다.
+        </p>
+
+        <h3>2.3 구술시험 신뢰도 분석 결과</h3>
+        <p>
+          구술시험의 신뢰도는 0.85로 양호한 수준입니다. 다만, 문항 수가 적어
+          개별 문항의 영향이 크게 나타나는 점에 유의해야 합니다.
+        </p>
+
+        <h3>2.4 문항 특성과 신뢰도의 관계 분석</h3>
+        <table id="discriminationTable">
+          <tr>
+            <th>변별도 범위</th>
+            <th>문항 수</th>
+            <th>평균 신뢰도 기여도</th>
+          </tr>
+        </table>
+        <p>
+          변별도가 높은 문항일수록 신뢰도에 대한 기여도가 높은 것으로
+          나타났습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>3. 조건부 표준오차(CSEM) 분석</h2>
+        <h3>3.1 CSEM 계산 방법 및 이론적 배경</h3>
+        <p>
+          CSEM은 IRT 모델에서 추정된 능력 모수의 표준오차로, 특정 능력
+          수준에서의 측정 정확도를 나타냅니다. 정보 함수의 역제곱근으로
+          계산됩니다.
+        </p>
+
+        <h3>3.2 능력 수준별 CSEM 상세 분석</h3>
+        <div class="chart-container">
+          <canvas id="csemChart"></canvas>
+        </div>
+        <p>
+          능력 수준 <span id="minCSEMRange"></span> 사이에서 CSEM이 가장 낮아
+          측정 정확도가 높은 것으로 나타났습니다. 반면, 극단적인 능력 수준(<span
+            id="weakRanges"
+          ></span
+          >)에서는 CSEM이 높아 측정의 정확도가 떨어지는 것으로 분석되었습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>4. 문항 반응 이론(IRT)과 고전 검사 이론(CTT) 비교</h2>
+        <h3>4.1 IRT 기반 신뢰도와 Cronbach's α 비교</h3>
+        <table id="reliabilityTable">
+          <tr>
+            <th>평가 영역</th>
+            <th>IRT 신뢰도</th>
+            <th>Cronbach's α</th>
+          </tr>
+        </table>
+        <p>
+          전반적으로 IRT 기반 신뢰도가 Cronbach's α보다 약간 높게 나타났습니다.
+          이는 IRT가 문항의 특성을 더 정확히 반영하기 때문으로 해석됩니다.
+        </p>
+
+        <h3>4.2 방법론 간 차이점 및 장단점</h3>
+        <ul>
+          <li>
+            IRT는 문항의 특성과 응시자의 능력을 동시에 고려하여 더 정확한 측정이
+            가능합니다.
+          </li>
+          <li>
+            CTT는 계산이 간단하고 직관적이지만, 표본 의존성이 높다는 단점이
+            있습니다.
+          </li>
+          <li>
+            IRT는 문항 특성에 따른 정보 함수를 제공하여 시험 개선에 더 유용한
+            정보를 제공합니다.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. 결론 및 제언</h2>
+        <h3>5.1 주요 발견사항</h3>
+        <ul>
+          <li>
+            전체 시험의 신뢰도는 우수한 수준이나, 영역별로 편차가 있습니다.
+          </li>
+          <li>
+            중간 능력 수준에서의 측정 정확도는 높지만, 극단적인 능력 수준에서는
+            개선이 필요합니다.
+          </li>
+          <li>
+            IRT 기반 분석이 시험의 특성을 더 정확히 반영하는 것으로
+            나타났습니다.
+          </li>
+        </ul>
+
+        <h3>5.2 개선 제안</h3>
+        <ul>
+          <li>
+            쓰기 영역의 문항 수를 늘리고 변별도를 높여 신뢰도를 개선해야 합니다.
+          </li>
+          <li>
+            극단적인 능력 수준을 측정하는 문항을 추가하여 전체적인 측정 정확도를
+            높일 필요가 있습니다.
+          </li>
+          <li>
+            변별도가 낮은 문항(하위 20%)을 재검토하고 수정 또는 교체해야 합니다.
+          </li>
+          <li>
+            장기적으로 컴퓨터 적응 검사(CAT) 도입을 고려하여 개인별 측정
+            정확도를 극대화할 수 있습니다.
+          </li>
+        </ul>
+      </div>
     </div>
 
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+
     <script type="module">
-        import { df_questions, df_responses, df_questions_speaking, df_responses_speaking } from './data2.js';
+      import {
+        df_questions as _df_questions,
+        df_responses,
+        df_questions_speaking as _df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
 
-        // 신뢰도 계산 함수 (간단한 예시)
-        function calculateReliability(questions) {
-            const variances = questions.map(q => q.변별도 * q.변별도 * 0.25);
-            const totalVariance = variances.reduce((sum, v) => sum + v, 0);
-            return (totalVariance / (totalVariance + 1)).toFixed(2);
-        }
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
 
-        // Cronbach's alpha 계산 함수 (간단한 예시)
-        function calculateCronbachAlpha(questions) {
-            const reliability = calculateReliability(questions);
-            return (Number(reliability) - 0.02).toFixed(2); // 예시를 위해 IRT 신뢰도보다 약간 낮게 설정
-        }
+      // 신뢰도 계산 함수 (간단한 예시)
+      function calculateReliability(questions) {
+        const variances = questions.map((q) => q.변별도 * q.변별도 * 0.25);
+        const totalVariance = variances.reduce((sum, v) => sum + v, 0);
+        return (totalVariance / (totalVariance + 1)).toFixed(2);
+      }
 
-        // 평가영역별 신뢰도 계산
-        const domains = ['어휘', '문법', '쓰기', '읽기', '문화'];
-        const domainReliabilities = domains.map(domain => {
-            const domainQuestions = df_questions.filter(q => q.평가영역 === domain);
-            return calculateReliability(domainQuestions);
-        });
+      // Cronbach's alpha 계산 함수 (간단한 예시)
+      function calculateCronbachAlpha(questions) {
+        const reliability = calculateReliability(questions);
+        return (Number(reliability) - 0.02).toFixed(2); // 예시를 위해 IRT 신뢰도보다 약간 낮게 설정
+      }
 
-        const domainCronbachAlphas = domainReliabilities.map(r => (Number(r) - 0.02).toFixed(2));
+      // 평가영역별 신뢰도 계산
+      const domains = ["어휘", "문법", "쓰기", "읽기", "문화"];
+      const domainReliabilities = domains.map((domain) => {
+        const domainQuestions = df_questions.filter(
+          (q) => q.평가영역 === domain
+        );
+        return calculateReliability(domainQuestions);
+      });
 
-        // 전체 신뢰도 계산
-        const overallReliability = calculateReliability(df_questions);
-        const overallCronbachAlpha = calculateCronbachAlpha(df_questions);
+      const domainCronbachAlphas = domainReliabilities.map((r) =>
+        (Number(r) - 0.02).toFixed(2)
+      );
 
-        // 신뢰도 차트 업데이트
-        new Chart(document.getElementById('reliabilityChart'), {
-            type: 'bar',
-            data: {
-                labels: ['전체', ...domains],
-                datasets: [{
-                    label: 'IRT 신뢰도',
-                    data: [overallReliability, ...domainReliabilities],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                },
-                {
-                    label: "Cronbach's α",
-                    data: [overallCronbachAlpha, ...domainCronbachAlphas],
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                }]
+      // 전체 신뢰도 계산
+      const overallReliability = calculateReliability(df_questions);
+      const overallCronbachAlpha = calculateCronbachAlpha(df_questions);
+
+      // 신뢰도 차트 업데이트
+      new Chart(document.getElementById("reliabilityChart"), {
+        type: "bar",
+        data: {
+          labels: ["전체", ...domains],
+          datasets: [
+            {
+              label: "IRT 신뢰도",
+              data: [overallReliability, ...domainReliabilities],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
             },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 1
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'IRT 신뢰도와 Cronbach\'s α 비교'
-                    }
-                }
-            }
-        });
-
-        // CSEM 계산 함수
-        function calculateCSEM(theta) {
-            const info = df_questions.reduce((sum, q) => {
-                const p = 1 / (1 + Math.exp(-1.7 * q.변별도 * (theta - q.난이도)));
-                return sum + q.변별도 * q.변별도 * p * (1 - p);
-            }, 0);
-            return (1 / Math.sqrt(info)).toFixed(2);
-        }
-
-        const thetaRange = Array.from({length: 61}, (_, i) => (i - 30) / 10);
-        const csemData = thetaRange.map(theta => calculateCSEM(theta));
-
-        // CSEM 차트 업데이트
-        new Chart(document.getElementById('csemChart'), {
-            type: 'line',
-            data: {
-                labels: thetaRange,
-                datasets: [{
-                    label: 'CSEM',
-                    data: csemData,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
+            {
+              label: "Cronbach's α",
+              data: [overallCronbachAlpha, ...domainCronbachAlphas],
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
             },
-            options: {
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: '능력 수준 (θ)'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'CSEM'
-                        }
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: '능력 수준별 조건부 표준오차(CSEM)'
-                    }
-                }
-            }
-        });
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 1,
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "IRT 신뢰도와 Cronbach's α 비교",
+            },
+          },
+        },
+      });
 
-        // 데이터 업데이트
-        document.getElementById('totalQuestions').textContent = df_questions.length;
-        document.getElementById('totalSpeakingQuestions').textContent = df_questions_speaking.length;
-        document.getElementById('totalRespondents').textContent = df_responses.length;
+      // CSEM 계산 함수
+      function calculateCSEM(theta) {
+        const info = df_questions.reduce((sum, q) => {
+          const p = 1 / (1 + Math.exp(-1.7 * q.변별도 * (theta - q.난이도)));
+          return sum + q.변별도 * q.변별도 * p * (1 - p);
+        }, 0);
+        return (1 / Math.sqrt(info)).toFixed(2);
+      }
 
-        // 신뢰도 테이블 업데이트
-        const reliabilityTable = document.getElementById('reliabilityTable');
-        domains.forEach((domain, index) => {
-            const row = reliabilityTable.insertRow(-1);
-            row.insertCell(0).textContent = domain;
-            row.insertCell(1).textContent = domainReliabilities[index];
-            row.insertCell(2).textContent = domainCronbachAlphas[index];
-        });
+      const thetaRange = Array.from({ length: 61 }, (_, i) => (i - 30) / 10);
+      const csemData = thetaRange.map((theta) => calculateCSEM(theta));
 
-        // 변별도 범위별 문항 수 및 신뢰도 기여도 계산
-        const discriminationRanges = [
-            { range: '0.8 이상', min: 0.8, max: Infinity },
-            { range: '0.5 ~ 0.8', min: 0.5, max: 0.8 },
-            { range: '0.5 미만', min: 0, max: 0.5 }
-        ];
+      // CSEM 차트 업데이트
+      new Chart(document.getElementById("csemChart"), {
+        type: "line",
+        data: {
+          labels: thetaRange,
+          datasets: [
+            {
+              label: "CSEM",
+              data: csemData,
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "능력 수준 (θ)",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "CSEM",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "능력 수준별 조건부 표준오차(CSEM)",
+            },
+          },
+        },
+      });
 
-        const discriminationStats = discriminationRanges.map(range => {
-            const items = df_questions.filter(q => q.변별도 >= range.min && q.변별도 < range.max);
-            const avgContribution = items.length > 0 ? 
-                items.reduce((sum, q) => sum + q.변별도, 0) / items.length / df_questions.length : 0;
-            return {
-                range: range.range,
-                count: items.length,
-                avgContribution: avgContribution.toFixed(3)
-            };
-        });
+      // 데이터 업데이트
+      document.getElementById("totalQuestions").textContent =
+        df_questions.length;
+      document.getElementById("totalSpeakingQuestions").textContent =
+        df_questions_speaking.length;
+      document.getElementById("totalRespondents").textContent =
+        df_responses.length;
 
-        // 변별도 테이블 업데이트
-        const discriminationTable = document.getElementById('discriminationTable');
-        discriminationStats.forEach(stat => {
-            const row = discriminationTable.insertRow(-1);
-            row.insertCell(0).textContent = stat.range;
-            row.insertCell(1).textContent = stat.count;
-            row.insertCell(2).textContent = stat.avgContribution;
-        });
+      // 신뢰도 테이블 업데이트
+      const reliabilityTable = document.getElementById("reliabilityTable");
+      domains.forEach((domain, index) => {
+        const row = reliabilityTable.insertRow(-1);
+        row.insertCell(0).textContent = domain;
+        row.insertCell(1).textContent = domainReliabilities[index];
+        row.insertCell(2).textContent = domainCronbachAlphas[index];
+      });
 
-        // CSEM 분석 결과 업데이트
-        const minCSEM = Math.min(...csemData);
-        const minCSEMIndex = csemData.indexOf(minCSEM);
-        const minCSEMTheta = thetaRange[minCSEMIndex];
-        document.getElementById('minCSEMRange').textContent = `${minCSEMTheta.toFixed(1)}에서 ${(minCSEMTheta + 0.1).toFixed(1)}`;
+      // 변별도 범위별 문항 수 및 신뢰도 기여도 계산
+      const discriminationRanges = [
+        { range: "0.8 이상", min: 0.8, max: Infinity },
+        { range: "0.5 ~ 0.8", min: 0.5, max: 0.8 },
+        { range: "0.5 미만", min: 0, max: 0.5 },
+      ];
 
-        const weakRanges = thetaRange.filter((_, i) => csemData[i] > 0.5);
-        document.getElementById('weakRanges').textContent = `${Math.min(...weakRanges).toFixed(1)}에서 ${Math.max(...weakRanges).toFixed(1)}`;
+      const discriminationStats = discriminationRanges.map((range) => {
+        const items = df_questions.filter(
+          (q) => q.변별도 >= range.min && q.변별도 < range.max
+        );
+        const avgContribution =
+          items.length > 0
+            ? items.reduce((sum, q) => sum + q.변별도, 0) /
+              items.length /
+              df_questions.length
+            : 0;
+        return {
+          range: range.range,
+          count: items.length,
+          avgContribution: avgContribution.toFixed(3),
+        };
+      });
+
+      // 변별도 테이블 업데이트
+      const discriminationTable = document.getElementById(
+        "discriminationTable"
+      );
+      discriminationStats.forEach((stat) => {
+        const row = discriminationTable.insertRow(-1);
+        row.insertCell(0).textContent = stat.range;
+        row.insertCell(1).textContent = stat.count;
+        row.insertCell(2).textContent = stat.avgContribution;
+      });
+
+      // CSEM 분석 결과 업데이트
+      const minCSEM = Math.min(...csemData);
+      const minCSEMIndex = csemData.indexOf(minCSEM + "");
+      const minCSEMTheta = thetaRange[minCSEMIndex];
+      document.getElementById(
+        "minCSEMRange"
+      ).textContent = `${minCSEMTheta.toFixed(1)}에서 ${(
+        minCSEMTheta + 0.1
+      ).toFixed(1)}`;
+
+      const weakRanges = thetaRange.filter((_, i) => csemData[i] > 0.5);
+      document.getElementById("weakRanges").textContent = `${Math.min(
+        ...weakRanges
+      ).toFixed(1)}에서 ${Math.max(...weakRanges).toFixed(1)}`;
     </script>
-</body>
+  </body>
 </html>

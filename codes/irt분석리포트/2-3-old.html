@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 개인 능력 프로파일</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      .chart-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+      }
+      #distribution-chart {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+        width: 100%;
+      }
+      .tooltip {
+        position: absolute;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border-radius: 5px;
+        font-size: 12px;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 개인 능력 프로파일</h1>
+
+      <div class="section">
+        <h2>1. 개인 정보</h2>
+        <table>
+          <tr>
+            <th>이름</th>
+            <td id="examinee-name"></td>
+          </tr>
+          <tr>
+            <th>외국인등록번호</th>
+            <td id="examinee-id"></td>
+          </tr>
+          <tr>
+            <th>시험 일자</th>
+            <td>2024년 9월 28일</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>2. 종합 능력 평가</h2>
+        <p>전체 능력 추정치: <span id="total-ability"></span></p>
+        <p>백분위 점수: <span id="percentile"></span></p>
+        <p>95% 신뢰구간: <span id="confidence-interval"></span></p>
+      </div>
+
+      <div class="section">
+        <h2>3. 영역별 능력 프로파일</h2>
+        <div class="chart-container">
+          <canvas id="ability-profile-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>4. 전체 분포 내 위치</h2>
+        <div id="distribution-chart"></div>
+      </div>
+
+      <div class="section">
+        <h2>5. 향후 학습 제안</h2>
+        <ul id="learning-suggestions"></ul>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 무작위로 한 수험생 선택
+      const examinees = df_responses.filter((e) =>
+        df_responses_speaking.some((s) => s.외국인등록번호 === e.외국인등록번호)
+      );
+      const examinee = examinees[Math.floor(Math.random() * examinees.length)];
+      const speaking_examinee = df_responses_speaking.find(
+        (e) => e.외국인등록번호 === examinee.외국인등록번호
+      );
+
+      // 개인 정보 표시
+      document.getElementById("examinee-name").textContent = examinee.이름;
+      document.getElementById("examinee-id").textContent =
+        examinee.외국인등록번호;
+
+      // 종합 능력 평가
+      const writingAbility = parseFloat(examinee["능력 추정치 (theta)"]);
+      const speakingAbility = parseFloat(
+        speaking_examinee["능력 추정치 (theta)"]
+      );
+      const individualAbility = (writingAbility + speakingAbility) / 2;
+      document.getElementById("total-ability").textContent =
+        individualAbility.toFixed(2);
+
+      // 백분위 점수 계산
+      const allAbilities = examinees.map((e) => {
+        const speaking = df_responses_speaking.find(
+          (s) => s.외국인등록번호 === e.외국인등록번호
+        );
+        return (
+          (parseFloat(e["능력 추정치 (theta)"]) +
+            parseFloat(speaking["능력 추정치 (theta)"])) /
+          2
+        );
+      });
+      const percentile = (
+        (allAbilities.filter((a) => a < individualAbility).length /
+          allAbilities.length) *
+        100
+      ).toFixed(2);
+      document.getElementById("percentile").textContent = percentile + "%";
+
+      // 95% 신뢰구간 (예시 - 실제로는 표준오차를 이용해 계산해야 함)
+      const confidenceInterval = [
+        (individualAbility - 0.196).toFixed(2),
+        (individualAbility + 0.196).toFixed(2),
+      ];
+      document.getElementById(
+        "confidence-interval"
+      ).textContent = `${confidenceInterval[0]} ~ ${confidenceInterval[1]}`;
+
+      // 영역별 능력 프로파일 차트 (Chart.js 사용)
+      const ctx = document
+        .getElementById("ability-profile-chart")
+        .getContext("2d");
+      new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: ["말하기", "듣기", "읽기", "쓰기"],
+          datasets: [
+            {
+              label: "능력 점수",
+              data: [
+                speakingAbility,
+                writingAbility,
+                writingAbility,
+                writingAbility,
+              ],
+              fill: true,
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgb(54, 162, 235)",
+              pointBackgroundColor: "rgb(54, 162, 235)",
+              pointBorderColor: "#fff",
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "rgb(54, 162, 235)",
+            },
+          ],
+        },
+        options: {
+          elements: {
+            line: {
+              borderWidth: 3,
+            },
+          },
+          scales: {
+            r: {
+              angleLines: {
+                display: false,
+              },
+              suggestedMin: -3,
+              suggestedMax: 3,
+            },
+          },
+        },
+      });
+
+      // D3.js를 사용한 분포 차트
+      const margin = { top: 40, right: 30, bottom: 60, left: 60 };
+      const width = 700 - margin.left - margin.right;
+      const height = 400 - margin.top - margin.bottom;
+
+      const svg = d3
+        .select("#distribution-chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // 히스토그램 데이터 생성
+      const histogram = d3.histogram().domain([-3, 3]).thresholds(20);
+
+      const bins = histogram(allAbilities);
+
+      // x축 스케일
+      const x = d3.scaleLinear().domain([-3, 3]).range([0, width]);
+
+      // y축 스케일
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(bins, (d) => d.length)])
+        .range([height, 0]);
+
+      // x축 그리기
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(10))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-45)");
+
+      // y축 그리기
+      svg.append("g").call(d3.axisLeft(y));
+
+      // 툴팁 생성
+      const tooltip = d3
+        .select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+      // 막대 그리기
+      svg
+        .selectAll("rect")
+        .data(bins)
+        .join("rect")
+        .attr("x", (d) => x(d.x0) + 1)
+        .attr("y", (d) => y(d.length))
+        .attr("width", (d) => Math.max(0, x(d.x1) - x(d.x0) - 1))
+        .attr("height", (d) => height - y(d.length))
+        .style("fill", "#69b3a2")
+        .on("mouseover", function (event, d) {
+          tooltip.transition().duration(200).style("opacity", 0.9);
+          tooltip
+            .html(
+              `범위: ${d.x0.toFixed(2)} ~ ${d.x1.toFixed(2)}<br>빈도: ${
+                d.length
+              }`
+            )
+            .style("left", event.pageX + "px")
+            .style("top", event.pageY - 28 + "px");
+        })
+        .on("mouseout", function (d) {
+          tooltip.transition().duration(500).style("opacity", 0);
+        });
+
+      // 개인 위치 표시 선
+      svg
+        .append("line")
+        .attr("x1", x(individualAbility))
+        .attr("x2", x(individualAbility))
+        .attr("y1", height)
+        .attr("y2", 0)
+        .attr("stroke", "red")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "5,5");
+
+      // 개인 위치 라벨
+      svg
+        .append("text")
+        .attr("x", x(individualAbility))
+        .attr("y", 0)
+        .attr("text-anchor", "middle")
+        .style("fill", "red")
+        .style("font-weight", "bold")
+        .text(`당신의 위치 (${individualAbility.toFixed(2)})`);
+
+      // x축 레이블
+      svg
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10)
+        .text("능력 추정치")
+        .style("font-weight", "bold");
+
+      // y축 레이블
+      svg
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -height / 2)
+        .text("빈도")
+        .style("font-weight", "bold");
+
+      // 차트 제목
+      svg
+        .append("text")
+        .attr("x", width / 2)
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text("능력 추정치 분포");
+
+      // 향후 학습 제안
+      const suggestions = [];
+      if (speakingAbility < writingAbility) {
+        suggestions.push(
+          "말하기: 일상 대화 연습을 통해 유창성을 향상시키세요."
+        );
+        suggestions.push("말하기: 한국어 원어민과의 대화 기회를 늘려보세요.");
+      }
+      if (writingAbility < speakingAbility) {
+        suggestions.push(
+          "듣기: 한국 드라마나 뉴스를 활용하여 청해 능력을 키우세요."
+        );
+        suggestions.push(
+          "읽기: 다양한 장르의 한국어 텍스트를 읽어 어휘력을 넓히세요."
+        );
+        suggestions.push(
+          "쓰기: 일기 쓰기를 통해 문장 구성 능력을 향상시키세요."
+        );
+      }
+      if (suggestions.length === 0) {
+        suggestions.push(
+          "전반적으로 균형 잡힌 능력을 보여주고 있습니다. 모든 영역에서 지속적인 학습을 통해 더 높은 수준을 목표로 하세요."
+        );
+      }
+      const suggestionsList = document.getElementById("learning-suggestions");
+      suggestions.forEach((suggestion) => {
+        const li = document.createElement("li");
+        li.textContent = suggestion;
+        suggestionsList.appendChild(li);
+      });
+    </script>
+  </body>
+</html>

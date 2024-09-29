@@ -377,13 +377,14 @@
           (q) => q.문항코드.toString() === code
         );
         if (question) {
+          console.log(question);
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${index + 1}</td>
             <td>${code}</td>
             <td>${correctnessList[index]}</td>
-            <td>${question.난이도.toFixed(2)}</td>
-            <td>${question.변별도.toFixed(2)}</td>
+            <td>${Number(question.난이도).toFixed(2)}</td>
+            <td>${Number(question.변별도).toFixed(2)}</td>
             <td>${question.평가영역}</td>
             <td>${question.평가항목}</td>
           `;
@@ -584,8 +585,8 @@
               <td>${index + 1}</td>
               <td>${code}</td>
               <td>${correctnessListSpeaking[index]}</td>
-              <td>${question.난이도.toFixed(2)}</td>
-              <td>${question.변별도.toFixed(2)}</td>
+              <td>${Number(question.난이도).toFixed(2)}</td>
+              <td>${Number(question.변별도).toFixed(2)}</td>
               <td>${question.평가영역}</td>
               <td>${question["평가종류"] || "-"}</td>
             `;

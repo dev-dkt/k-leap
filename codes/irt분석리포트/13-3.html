@@ -55,12 +55,23 @@
     </footer>
     <script type="module">
       import {
-        df_questions,
+        df_questions as _df_questions,
         df_responses,
-        df_questions_speaking,
+        df_questions_speaking as _df_questions_speaking,
         df_responses_speaking,
         speaking_grading_criteria,
       } from "./data2.js";
+
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
       // 유효한 숫자인지 확인하는 함수
       function isValidNumber(n) {
         return typeof n === "number" && !isNaN(n) && isFinite(n);

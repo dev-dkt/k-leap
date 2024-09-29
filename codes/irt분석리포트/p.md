@@ -1,4 +1,4 @@
-주어진 "한국어능력시험 결과 기반 교육 프로그램 개선 가이드" 코드를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 정보 및 시각화 데이타를 적용해주세요.
+주어진 "한국어능력시한국어능력시험 개인 능력 프로파일" 코드를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 정보 및 시각화 데이타를 적용해주세요.
 
 "문항 뱅크 통계"문서의 "한국어능력시험 문항 보안 현황 및 관리 전략"를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 html코드를 생성해주세요.
 필요한 데이타는 목적에 맞게 생성하고,생성할 html전체 구조는 아래 html을 참조해주세요.
@@ -16,12 +16,13 @@
     <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script> <script
+    <script src="https://d3js.org/d3.v7.min.js"></script> 
+    <script
       id="MathJax-script"
       async
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
     ></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -51,3 +52,22 @@
 
   </body>
 </html>
+
+import {
+df_questions as \_df_questions,
+df_responses,
+df_questions_speaking as \_df_questions_speaking,
+df_responses_speaking,
+speaking_grading_criteria,
+} from "./data2.js";
+
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
