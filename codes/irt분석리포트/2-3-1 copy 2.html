@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 개인 능력 프로파일</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <!-- Chart.js 라이브러리 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 개인 능력 프로파일</h1>
+
+      <div class="section">
+        <h2>4. 문항별 난이도와 정답 현황</h2>
+        <div class="chart-container">
+          <canvas id="difficultyChart"></canvas>
+        </div>
+        <p>아래 그래프는 각 문항의 난이도와 수험생의 정답 여부를 나타냅니다.</p>
+      </div>
+    </div>
+
+    <!-- 스크립트 시작 -->
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 소수점 2자리로 반올림하는 함수
+      function round2(num) {
+        return Math.round((num + Number.EPSILON) * 100) / 100;
+      }
+
+      // 무작위로 한 수험생 선택
+      const examinee =
+        df_responses[Math.floor(Math.random() * df_responses.length)];
+
+      // 선택한 수험생의 문항별 정답 현황 및 문항 난이도 추출
+      const questionCodes = examinee.문항코드리스트.split(",");
+      const correctnessList = examinee.OX리스트.split("");
+
+      const questionDifficulties = questionCodes.map((code) => {
+        const question = df_questions.find(
+          (q) => q.문항코드.toString() === code
+        );
+        return question ? question.난이도 : null;
+      });
+
+      // 그래프 데이터 생성
+      const labels = questionCodes.map((code, index) => `Q${index + 1}`);
+      const data = questionDifficulties.map((difficulty, index) => {
+        return {
+          x: index + 1,
+          y: difficulty,
+          correctness: correctnessList[index],
+        };
+      });
+
+      // 정답과 오답을 분리하여 표시
+      const correctData = data.filter((d) => d.correctness === "O");
+      const incorrectData = data.filter((d) => d.correctness === "X");
+
+      // 차트 생성
+      const difficultyCtx = document
+        .getElementById("difficultyChart")
+        .getContext("2d");
+
+      const difficultyChart = new Chart(difficultyCtx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "정답",
+              data: correctData,
+              backgroundColor: "rgba(75, 192, 192, 1)",
+            },
+            {
+              label: "오답",
+              data: incorrectData,
+              backgroundColor: "rgba(255, 99, 132, 1)",
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: "linear",
+              position: "bottom",
+              title: {
+                display: true,
+                text: "문항 번호",
+              },
+              ticks: {
+                stepSize: 1,
+                callback: function (value, index, values) {
+                  return `Q${value}`;
+                },
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "난이도",
+              },
+              min: 0,
+              max: 1,
+            },
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const idx = context.dataIndex;
+                  const dataPoint = context.dataset.data[idx];
+                  return `문항: Q${dataPoint.x}, 난이도: ${round2(
+                    dataPoint.y
+                  )}`;
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // 수험생 정보 업데이트
+      document.querySelector(
+        ".section p"
+      ).textContent = `아래 그래프는 수험생 ${examinee.이름}님이 응시한 각 문항의 난이도와 정답 여부를 나타냅니다.`;
+    </script>
+    <!-- 스크립트 종료 -->
+  </body>
+</html>

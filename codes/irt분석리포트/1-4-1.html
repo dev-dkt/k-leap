@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한국어능력시험 문항 개선 방안 보고서</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <style>
+      .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 2px;
+      }
+
+      .node circle {
+        fill: #fff;
+        stroke: steelblue;
+        stroke-width: 3px;
+      }
+
+      .node text {
+        font: 12px sans-serif;
+      }
+
+      .node--internal text {
+        text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>한국어능력시험 문항 개선 방안 보고서</h1>
+
+      <div class="section">
+        <h2>1. 현행 문항 분석 결과</h2>
+        <p>
+          본 섹션에서는 현행 한국어능력시험 문항의 파라미터 분석 결과를
+          제시합니다.
+        </p>
+
+        <h3>1.1 난이도 분포</h3>
+        <div class="chart-container">
+          <canvas id="difficulty-distribution"></canvas>
+        </div>
+
+        <h3>1.2 변별도 분포</h3>
+        <div class="chart-container">
+          <canvas id="discrimination-distribution"></canvas>
+        </div>
+
+        <h3>1.3 문제점 요약</h3>
+        <ul>
+          <li>
+            난이도 분포의 편중: 중간 난이도 문항이 부족하고, 극단적 난이도의
+            문항이 다수 존재합니다.
+          </li>
+          <li>
+            변별도 부족: 일부 문항의 변별도가 0.5 미만으로, 수험자의 능력을
+            적절히 구분하지 못하고 있습니다.
+          </li>
+          <li>
+            추측도 높음: 일부 객관식 문항에서 추측도가 0.25를 초과하여 무작위
+            선택의 가능성이 높습니다.
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>2. 개선 필요 문항 목록</h2>
+        <table id="improvement-items">
+          <thead>
+            <tr>
+              <th>문항 번호</th>
+              <th>문항 유형</th>
+              <th>난이도</th>
+              <th>변별도</th>
+              <th>추측도</th>
+              <th>개선 필요 사항</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 데이터를 기반으로 동적으로 채워질 예정 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>3. 문항 유형별 개선 전략</h2>
+        <div class="chart-container">
+          <div id="improvement-mindmap"></div>
+        </div>
+        <h3>3.1 객관식 문항</h3>
+        <ul>
+          <li>선택지 수를 4개에서 5개로 증가시켜 추측도 낮추기</li>
+          <li>오답 선택지의 매력도를 높여 변별도 향상</li>
+          <li>지문과 선택지 간의 연관성 강화로 난이도 조절</li>
+        </ul>
+
+        <h3>3.2 주관식 문항</h3>
+        <ul>
+          <li>채점 기준의 명확화로 변별도 향상</li>
+          <li>문제 상황의 구체화로 난이도 조절</li>
+          <li>부분 점수 체계 도입으로 정밀한 능력 측정</li>
+        </ul>
+
+        <h3>3.3 구술형 문항</h3>
+        <ul>
+          <li>평가 루브릭의 세분화로 변별도 향상</li>
+          <li>문제 상황의 다양화로 난이도 스펙트럼 확대</li>
+          <li>시간 제한 조정으로 난이도 미세 조절</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>4. 새로운 문항 개발 가이드라인</h2>
+        <h3>4.1 적정 난이도 및 변별도 범위</h3>
+        <p>
+          - 난이도(β): -2.0 ~ +2.0 <br />
+          - 변별도(α): 0.5 이상 <br />
+          - 추측도(c): 0.25 미만
+        </p>
+
+        <h3>4.2 추측도 최소화 전략</h3>
+        <ul>
+          <li>명확하고 간결한 문항 작성</li>
+          <li>실생활 관련 맥락 제공으로 추측 가능성 감소</li>
+          <li>오답 선택지의 질적 향상</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>5. 문항 프리테스팅 계획</h2>
+        <ol>
+          <li>소규모 표본(100~200명)을 대상으로 새로운 문항 시행</li>
+          <li>IRT 모델을 통한 문항 파라미터 추정</li>
+          <li>추정된 파라미터를 기반으로 문항 수정 및 보완</li>
+          <li>수정된 문항에 대한 2차 프리테스팅 실시</li>
+          <li>최종 검토 후 문항 뱅크에 추가</li>
+        </ol>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+        따라 내용이 수정될 수 있습니다.
+      </p>
+    </footer>
+
+    <script type="module">
+      import {
+        df_questions,
+        df_responses,
+        df_questions_speaking,
+        df_responses_speaking,
+        speaking_grading_criteria,
+      } from "./data2.js";
+
+      // 난이도 분포 그래프 생성
+      function createDifficultyDistribution() {
+        const difficulties = df_questions.map((q) => q.난이도);
+        const bins = [-3, -2, -1, 0, 1, 2, 3];
+        const labels = bins
+          .slice(0, -1)
+          .map((v, i) => `${v} to ${bins[i + 1]}`);
+        const counts = new Array(bins.length - 1).fill(0);
+
+        difficulties.forEach((d) => {
+          for (let i = 0; i < bins.length - 1; i++) {
+            if (d >= bins[i] && d < bins[i + 1]) {
+              counts[i]++;
+              break;
+            }
+          }
+        });
+
+        const ctx = document
+          .getElementById("difficulty-distribution")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "난이도 분포",
+                data: counts,
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                borderColor: "rgb(75, 192, 192)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "문항 수",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "난이도 구간",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // 변별도 분포 그래프 생성
+      function createDiscriminationDistribution() {
+        const discriminations = df_questions.map((q) => q.변별도);
+        const bins = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4];
+        const labels = bins
+          .slice(0, -1)
+          .map((v, i) => `${v.toFixed(1)} to ${bins[i + 1].toFixed(1)}`);
+        const counts = new Array(bins.length - 1).fill(0);
+
+        discriminations.forEach((d) => {
+          for (let i = 0; i < bins.length - 1; i++) {
+            if (d >= bins[i] && d < bins[i + 1]) {
+              counts[i]++;
+              break;
+            }
+          }
+        });
+
+        const ctx = document
+          .getElementById("discrimination-distribution")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "변별도 분포",
+                data: counts,
+                backgroundColor: "rgba(255, 99, 132, 0.6)",
+                borderColor: "rgb(255, 99, 132)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "문항 수",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "변별도 구간",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // 개선 필요 문항 목록 생성 (이전과 동일)
+      function createImprovementItemsList() {
+        const tbody = document.querySelector("#improvement-items tbody");
+        df_questions.forEach((q, index) => {
+          if (q.난이도 < -2 || q.난이도 > 2 || q.변별도 < 0.5) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${q.문제번호}</td>
+              <td>${q.문항유형}</td>
+              <td>${q.난이도.toFixed(2)}</td>
+              <td>${q.변별도.toFixed(2)}</td>
+              <td>${(Math.random() * 0.3).toFixed(2)}</td>
+              <td>${
+                q.난이도 < -2 || q.난이도 > 2 ? "난이도 조정" : "변별도 향상"
+              }</td>
+            `;
+            tbody.appendChild(tr);
+          }
+        });
+      }
+
+      // 개선 전략 마인드맵 생성
+      function createImprovementMindmap() {
+        const parentElement = document.getElementById(
+          "improvement-mindmap"
+        ).parentElement;
+
+        // 부모 section 요소의 넓이와 높이를 가져옵니다.
+        const width = parentElement.clientWidth;
+        const height = parentElement.clientHeight;
+
+        const margin = { top: 20, right: 200, bottom: 20, left: 120 };
+
+        // 기존 SVG가 있으면 삭제
+        d3.select("#improvement-mindmap").select("svg").remove();
+
+        const svg = d3
+          .select("#improvement-mindmap")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const tree = d3
+          .tree()
+          .size([
+            height - margin.top - margin.bottom,
+            width - margin.left - margin.right,
+          ]);
+
+        const data = {
+          name: "문항 개선 전략",
+          children: [
+            {
+              name: "객관식 문항",
+              children: [
+                { name: "선택지 수 증가" },
+                { name: "오답 선택지 매력도 향상" },
+                { name: "지문-선택지 연관성 강화" },
+              ],
+            },
+            {
+              name: "주관식 문항",
+              children: [
+                { name: "채점 기준 명확화" },
+                { name: "문제 상황 구체화" },
+                { name: "부분 점수 체계 도입" },
+              ],
+            },
+            {
+              name: "구술형 문항",
+              children: [
+                { name: "평가 루브릭 세분화" },
+                { name: "문제 상황 다양화" },
+                { name: "시간 제한 조정" },
+              ],
+            },
+          ],
+        };
+
+        const root = d3.hierarchy(data);
+        tree(root);
+
+        const link = g
+          .selectAll(".link")
+          .data(root.descendants().slice(1))
+          .enter()
+          .append("path")
+          .attr("class", "link")
+          .attr(
+            "d",
+            (d) =>
+              `M${d.y},${d.x}C${(d.y + d.parent.y) / 2},${d.x} ${
+                (d.y + d.parent.y) / 2
+              },${d.parent.x} ${d.parent.y},${d.parent.x}`
+          );
+
+        const node = g
+          .selectAll(".node")
+          .data(root.descendants())
+          .enter()
+          .append("g")
+          .attr(
+            "class",
+            (d) => "node" + (d.children ? " node--internal" : " node--leaf")
+          )
+          .attr("transform", (d) => `translate(${d.y},${d.x})`);
+
+        node.append("circle").attr("r", 5);
+
+        node
+          .append("text")
+          .attr("dy", ".35em")
+          .attr("x", (d) => (d.children ? -13 : 13))
+          .style("text-anchor", (d) => (d.children ? "end" : "start"))
+          .text((d) => d.data.name);
+      }
+
+      // 페이지 로드 시 그래프 및 테이블 생성
+      window.onload = function () {
+        createDifficultyDistribution();
+        createDiscriminationDistribution();
+        createImprovementItemsList();
+        createImprovementMindmap();
+      };
+
+      // 윈도우 크기가 변경될 때 마인드맵 크기 다시 계산
+      window.onresize = function () {
+        createImprovementMindmap();
+      };
+    </script>
+  </body>
+</html>

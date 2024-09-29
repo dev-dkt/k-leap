@@ -124,6 +124,9 @@
         df_responses_speaking,
       } from "./data2.js";
 
+      const abilities = df_responses.map((r) => calculateAbility(r));
+      const standardErrors = df_responses.map((r) => calculateSE(r));
+
       function calculateAbility(responses) {
         return parseFloat(responses["능력 추정치 (theta)"]);
       }
@@ -192,11 +195,101 @@
         const df = n1 + n2 - 2;
         return { t, df };
       }
+      function createGroupBoxplot() {
+        const parentElement = document.getElementById("groupBoxplot");
 
+        // 부모 section 요소의 넓이와 높이를 가져옵니다.
+        const width = Math.max(parentElement.clientWidth - 60, 300); // 최소 300px 보장
+        const height = Math.max(parentElement.clientHeight - 60, 300); // 최소 300px 보장
+
+        const margin = { top: 10, right: 30, bottom: 30, left: 40 };
+
+        // 기존 SVG가 있으면 삭제
+        d3.select("#groupBoxplot svg").remove();
+
+        const svg = d3
+          .select("#groupBoxplot")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const nationalities = [...new Set(df_responses.map((r) => r.국적))];
+        const boxplotData = nationalities.map((nat) => {
+          const natAbilities = df_responses
+            .filter((r) => r.국적 === nat)
+            .map((r) => calculateAbility(r));
+          return {
+            nationality: nat,
+            min: Math.min(...natAbilities),
+            q1: quantile(natAbilities, 0.25),
+            median: quantile(natAbilities, 0.5),
+            q3: quantile(natAbilities, 0.75),
+            max: Math.max(...natAbilities),
+          };
+        });
+
+        const y = d3
+          .scaleBand()
+          .range([height, 0])
+          .domain(nationalities)
+          .padding(0.1);
+        svg.append("g").call(d3.axisLeft(y));
+
+        const x = d3
+          .scaleLinear()
+          .domain([Math.min(...abilities), Math.max(...abilities)])
+          .range([0, width]);
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x));
+
+        svg
+          .selectAll("vertLines")
+          .data(boxplotData)
+          .enter()
+          .append("line")
+          .attr("x1", (d) => x(d.min))
+          .attr("x2", (d) => x(d.max))
+          .attr("y1", (d) => y(d.nationality) + y.bandwidth() / 2)
+          .attr("y2", (d) => y(d.nationality) + y.bandwidth() / 2)
+          .attr("stroke", "black")
+          .style("width", 40);
+
+        svg
+          .selectAll("boxes")
+          .data(boxplotData)
+          .enter()
+          .append("rect")
+          .attr("x", (d) => x(d.q1))
+          .attr("y", (d) => y(d.nationality))
+          .attr("height", y.bandwidth())
+          .attr("width", (d) => x(d.q3) - x(d.q1))
+          .attr("stroke", "black")
+          .style("fill", "#69b3a2");
+
+        svg
+          .selectAll("medianLines")
+          .data(boxplotData)
+          .enter()
+          .append("line")
+          .attr("x1", (d) => x(d.median))
+          .attr("x2", (d) => x(d.median))
+          .attr("y1", (d) => y(d.nationality))
+          .attr("y2", (d) => y(d.nationality) + y.bandwidth())
+          .attr("stroke", "black")
+          .style("width", 80);
+      }
+
+      // 페이지 로드 시 박스플롯 생성
+
+      // 윈도우 크기가 변경될 때 박스플롯 크기 다시 계산
+      window.onresize = function () {
+        createGroupBoxplot();
+      };
       window.onload = function () {
-        const abilities = df_responses.map((r) => calculateAbility(r));
-        const standardErrors = df_responses.map((r) => calculateSE(r));
-
         // 1. 전체 요약
         document.getElementById("totalExaminees").textContent =
           df_responses.length;
@@ -281,85 +374,7 @@
         abilityHistogram.update();
 
         // 2.2 집단별 능력 분포 박스플롯
-        const nationalities = [...new Set(df_responses.map((r) => r.국적))];
-        const boxplotData = nationalities.map((nat) => {
-          const natAbilities = df_responses
-            .filter((r) => r.국적 === nat)
-            .map((r) => calculateAbility(r));
-          return {
-            nationality: nat,
-            min: Math.min(...natAbilities),
-            q1: quantile(natAbilities, 0.25),
-            median: quantile(natAbilities, 0.5),
-            q3: quantile(natAbilities, 0.75),
-            max: Math.max(...natAbilities),
-          };
-        });
 
-        const margin = { top: 10, right: 30, bottom: 30, left: 40 },
-          width = 460 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
-
-        const svg = d3
-          .select("#groupBoxplot")
-          .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const y = d3
-          .scaleBand()
-          .range([height, 0])
-          .domain(nationalities)
-          .padding(0.1);
-        svg.append("g").call(d3.axisLeft(y));
-
-        const x = d3
-          .scaleLinear()
-          .domain([Math.min(...abilities), Math.max(...abilities)])
-          .range([0, width]);
-        svg
-          .append("g")
-          .attr("transform", `translate(0,${height})`)
-          .call(d3.axisBottom(x));
-
-        svg
-          .selectAll("vertLines")
-          .data(boxplotData)
-          .enter()
-          .append("line")
-          .attr("x1", (d) => x(d.min))
-          .attr("x2", (d) => x(d.max))
-          .attr("y1", (d) => y(d.nationality) + y.bandwidth() / 2)
-          .attr("y2", (d) => y(d.nationality) + y.bandwidth() / 2)
-          .attr("stroke", "black")
-          .style("width", 40);
-
-        const boxWidth = 100;
-        svg
-          .selectAll("boxes")
-          .data(boxplotData)
-          .enter()
-          .append("rect")
-          .attr("x", (d) => x(d.q1))
-          .attr("y", (d) => y(d.nationality))
-          .attr("height", y.bandwidth())
-          .attr("width", (d) => x(d.q3) - x(d.q1))
-          .attr("stroke", "black")
-          .style("fill", "#69b3a2");
-
-        svg
-          .selectAll("medianLines")
-          .data(boxplotData)
-          .enter()
-          .append("line")
-          .attr("x1", (d) => x(d.median))
-          .attr("x2", (d) => x(d.median))
-          .attr("y1", (d) => y(d.nationality))
-          .attr("y2", (d) => y(d.nationality) + y.bandwidth())
-          .attr("stroke", "black")
-          .style("width", 80);
         // 3. 능력 추정 정확도 분석
         // 3.1 표준오차 분포 히스토그램
         const seHistogram = new Chart(
@@ -507,6 +522,8 @@
         ];
         document.getElementById("groupLearningSupport").innerHTML =
           groupLearningSupport.map((item) => `<li>${item}</li>`).join("");
+
+        createGroupBoxplot();
       };
 
       // 유틸리티 함수들
