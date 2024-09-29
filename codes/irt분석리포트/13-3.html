@@ -23,17 +23,26 @@
           제공합니다. 이 분포를 통해 학습자의 전반적인 수준과 편차를 파악할 수
           있으며, 이는 효과적인 교육 전략 수립의 기초가 됩니다.
         </p>
-        <canvas id="ability-distribution"></canvas>
+        <div class="chart-container">
+          <canvas id="ability-distribution"></canvas>
+        </div>
       </div>
 
       <div class="section">
         <h2>2. 학습자 그룹별 능력 분포 분석</h2>
-        <canvas id="group-analysis"></canvas>
+        <div class="chart-container">
+          <canvas id="group-analysis"></canvas>
+        </div>
       </div>
 
       <div class="section">
         <h2>3. 강점 및 약점 영역 식별</h2>
-        <div id="strength-weakness"></div>
+        <div
+          class="chart-container"
+          style="width: 100%; max-width: 600px; height: auto"
+        >
+          <div id="strength-weakness"></div>
+        </div>
       </div>
 
       <div class="section">
@@ -72,6 +81,7 @@
         q.변별도 = parseFloat(q.변별도);
         return q;
       });
+
       // 유효한 숫자인지 확인하는 함수
       function isValidNumber(n) {
         return typeof n === "number" && !isNaN(n) && isFinite(n);
@@ -211,18 +221,23 @@
         })
       );
 
-      // 레이더 차트 설정
-      const radarWidth = 600;
-      const radarHeight = 600;
-      const radarRadius = Math.min(radarWidth, radarHeight) / 2 - 100;
+      // 레이더 차트 설정 부분 수정
+      const chartContainer = document.querySelector("#strength-weakness");
+      const containerWidth = chartContainer.offsetWidth;
+      const svgSize = containerWidth; // 부모 컨테이너에 맞추기 위한 크기 조정
+      const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+      const chartSize = svgSize - margin.left - margin.right;
 
       const radarSvg = d3
         .select("#strength-weakness")
         .append("svg")
-        .attr("width", radarWidth)
-        .attr("height", radarHeight)
+        .attr("viewBox", `0 0 ${svgSize} ${svgSize}`)
+        .attr("preserveAspectRatio", "xMidYMid meet") // 부모 요소에 맞춰 조정
+        .style("width", "100%") // 100%로 설정하여 부모 컨테이너에 맞춤
+        .style("height", "auto") // 높이를 자동으로 설정
         .append("g")
-        .attr("transform", `translate(${radarWidth / 2},${radarHeight / 2})`);
+        .attr("transform", `translate(${svgSize / 2},${svgSize / 2})`);
+      const radarRadius = chartSize / 2;
 
       // 스케일 조정: 최소값과 최대값을 사용하여 범위 설정
       const scoreExtent = d3.extent(areaScoresArray, (d) => d.score);
@@ -375,6 +390,23 @@
         areaScoresArray[0]
       );
 
+      // 말하기 평가 결과 분석
+      const speakingScores = df_responses_speaking.map((r) => ({
+        score: parseFloat(r.점수),
+        level: r["한국어 수준"],
+      }));
+
+      const avgSpeakingScoreByLevel = d3.rollup(
+        speakingScores,
+        (v) => d3.mean(v, (d) => d.score),
+        (d) => d.level
+      );
+
+      const speakingAnalysis = Array.from(
+        avgSpeakingScoreByLevel,
+        ([level, score]) => ({ level, score })
+      ).sort((a, b) => a.level - b.level);
+
       document.getElementById("education-strategy").innerHTML = `
         <h3>수준별 학습 전략</h3>
         <ul>
@@ -384,13 +416,17 @@
         </ul>
         <h3>약점 영역 보완을 위한 커리큘럼 조정 방안</h3>
         <ul>
-          <li>${weakestArea.area} 영역 강화: 추가 학습 자료 제공, 개별 지도 시간 확대</li>
+          <li>${
+            weakestArea.area
+          } 영역 강화: 추가 학습 자료 제공, 개별 지도 시간 확대</li>
           <li>균형 잡힌 커리큘럼: 모든 영역의 균형적 발전을 위한 통합적 접근 방식 채택</li>
           <li>실전 연습 확대: 시험 유형에 맞춘 모의고사 및 피드백 세션 정기 실시</li>
         </ul>
         <h3>강점 활용 전략</h3>
         <ul>
-          <li>${strongestArea.area} 영역 활용: 다른 영역 학습에 강점 영역의 지식과 기술 접목</li>
+          <li>${
+            strongestArea.area
+          } 영역 활용: 다른 영역 학습에 강점 영역의 지식과 기술 접목</li>
           <li>멘토링 프로그램: 강점 영역에서 우수한 학생들이 다른 학생들을 돕는 체계 구축</li>
         </ul>
         <h3>구술 평가 개선 전략</h3>
@@ -399,6 +435,52 @@
           <li>발음 클리닉: 개인별 발음 교정 및 개선 프로그램 운영</li>
           <li>문화 통합 말하기: 한국 문화 주제를 활용한 말하기 과제 부여</li>
         </ul>
+        <h3>한국어 수준별 말하기 능력 분석</h3>
+        <ul>
+          ${speakingAnalysis
+            .map(
+              (item) =>
+                `<li>수준 ${item.level}: 평균 점수 ${item.score.toFixed(
+                  2
+                )}</li>`
+            )
+            .join("")}
+        </ul>
+        <p>이 분석을 바탕으로, 각 수준에 맞는 말하기 교육 전략을 수립하고 실행해야 합니다.</p>
+      `;
+
+      // 말하기 평가 기준 분석
+      const speakingCriteria = speaking_grading_criteria.reduce(
+        (acc, criterion) => {
+          if (!acc[criterion.문제번호]) {
+            acc[criterion.문제번호] = [];
+          }
+          acc[criterion.문제번호].push(criterion);
+          return acc;
+        },
+        {}
+      );
+
+      const criteriaAnalysis = Object.entries(speakingCriteria)
+        .map(([questionNumber, criteria]) => {
+          return `
+          <h4>문제 ${questionNumber}: ${criteria[0]["평가 목표"]}</h4>
+          <ul>
+            ${criteria
+              .map(
+                (c) =>
+                  `<li>${c["평가 기준"]}: ${c["평가 기준 설명"]} (${c.점수}점)</li>`
+              )
+              .join("")}
+          </ul>
+        `;
+        })
+        .join("");
+
+      document.getElementById("education-strategy").innerHTML += `
+        <h3>말하기 평가 기준 분석</h3>
+        ${criteriaAnalysis}
+        <p>이러한 평가 기준을 바탕으로 학생들의 말하기 능력을 체계적으로 향상시킬 수 있는 교육 전략을 수립해야 합니다.</p>
       `;
     </script>
   </body>

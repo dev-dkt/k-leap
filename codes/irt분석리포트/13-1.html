@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
   </head>
   <body>
     <div class="container">
@@ -24,11 +25,13 @@
       <div class="section">
         <h2>2. 능력 분포 상세 분석</h2>
         <div id="distribution-analysis"></div>
+        <canvas id="qq-plot"></canvas>
       </div>
 
       <div class="section">
         <h2>3. 집단별 분포 비교</h2>
         <div id="group-comparison"></div>
+        <div id="boxplot"></div>
       </div>
 
       <div class="section">
@@ -50,17 +53,28 @@
     </footer>
     <script type="module">
       import {
-        df_questions,
+        df_questions as _df_questions,
         df_responses,
-        df_questions_speaking,
+        df_questions_speaking as _df_questions_speaking,
         df_responses_speaking,
         speaking_grading_criteria,
       } from "./data2.js";
 
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+
       // 능력 추정치 배열 생성
-      const abilities = df_responses.map((r) =>
-        parseFloat(r["능력 추정치 (theta)"])
-      );
+      const abilities = df_responses
+        .map((r) => parseFloat(r["능력 추정치 (theta)"]))
+        .filter((a) => !isNaN(a));
 
       // 요약 통계 계산
       const mean = abilities.reduce((a, b) => a + b, 0) / abilities.length;
@@ -71,6 +85,8 @@
       const median = abilities.sort((a, b) => a - b)[
         Math.floor(abilities.length / 2)
       ];
+      const min = Math.min(...abilities);
+      const max = Math.max(...abilities);
 
       // 요약 섹션 업데이트
       document.getElementById("summary").innerHTML = `
@@ -79,11 +95,15 @@
           <li>평균: ${mean.toFixed(2)}</li>
           <li>표준편차: ${stdDev.toFixed(2)}</li>
           <li>중앙값: ${median.toFixed(2)}</li>
+          <li>최소값: ${min.toFixed(2)}</li>
+          <li>최대값: ${max.toFixed(2)}</li>
         </ul>
         <p>핵심 발견사항:</p>
         <ul>
           <li>응시자의 능력 분포는 대체로 정규 분포를 따르고 있습니다.</li>
-          <li>능력 추정치의 범위는 약 -2.5에서 2.5 사이에 분포하고 있습니다.</li>
+          <li>능력 추정치의 범위는 약 ${min.toFixed(2)}에서 ${max.toFixed(
+        2
+      )} 사이에 분포하고 있습니다.</li>
           <li>전체적인 난이도는 응시자 집단의 능력 수준에 적절히 맞춰져 있습니다.</li>
         </ul>
       `;
@@ -91,16 +111,20 @@
       // 히스토그램 생성
       const ctx = document.createElement("canvas");
       document.getElementById("distribution-analysis").appendChild(ctx);
+
+      const histogramData = d3
+        .histogram()
+        .domain(d3.extent(abilities))
+        .thresholds(20)(abilities);
+
       new Chart(ctx, {
         type: "bar",
         data: {
-          labels: [-3, -2, -1, 0, 1, 2, 3].map((v) => v.toString()),
+          labels: histogramData.map((d) => d.x0.toFixed(2)),
           datasets: [
             {
               label: "빈도",
-              data: [-3, -2, -1, 0, 1, 2, 3].map(
-                (v) => abilities.filter((a) => a >= v && a < v + 1).length
-              ),
+              data: histogramData.map((d) => d.length),
               backgroundColor: "rgba(54, 162, 235, 0.5)",
               borderColor: "rgba(54, 162, 235, 1)",
               borderWidth: 1,
@@ -110,8 +134,18 @@
         options: {
           responsive: true,
           scales: {
+            x: {
+              title: {
+                display: true,
+                text: "능력 추정치 (θ)",
+              },
+            },
             y: {
               beginAtZero: true,
+              title: {
+                display: true,
+                text: "빈도",
+              },
             },
           },
           plugins: {
@@ -126,14 +160,17 @@
       // 집단별 분포 비교
       const groupComparison = document.getElementById("group-comparison");
       const nationalities = [...new Set(df_responses.map((r) => r.국적))];
-      const nationalityData = nationalities.map((nat) => ({
-        nationality: nat,
-        mean:
-          df_responses
-            .filter((r) => r.국적 === nat)
-            .reduce((a, b) => a + parseFloat(b["능력 추정치 (theta)"]), 0) /
-          df_responses.filter((r) => r.국적 === nat).length,
-      }));
+      const nationalityData = nationalities
+        .map((nat) => ({
+          nationality: nat,
+          mean: d3.mean(
+            df_responses
+              .filter((r) => r.국적 === nat)
+              .map((r) => parseFloat(r["능력 추정치 (theta)"]))
+          ),
+          count: df_responses.filter((r) => r.국적 === nat).length,
+        }))
+        .sort((a, b) => b.count - a.count);
 
       const ctx2 = document.createElement("canvas");
       groupComparison.appendChild(ctx2);
@@ -156,6 +193,10 @@
           scales: {
             y: {
               beginAtZero: true,
+              title: {
+                display: true,
+                text: "평균 능력 추정치",
+              },
             },
           },
           plugins: {
@@ -168,47 +209,263 @@
       });
 
       // 시험 난이도 및 변별도 평가
+      const difficulties = df_questions
+        .map((q) => parseFloat(q.난이도))
+        .filter((d) => !isNaN(d));
+      const discriminations = df_questions
+        .map((q) => parseFloat(q.변별도))
+        .filter((d) => !isNaN(d));
+
       const testEvaluation = document.getElementById("test-evaluation");
       testEvaluation.innerHTML = `
         <p>문항 난이도 분포:</p>
         <ul>
-          <li>최소 난이도: ${Math.min(
-            ...df_questions.map((q) => q.난이도)
-          ).toFixed(2)}</li>
-          <li>최대 난이도: ${Math.max(
-            ...df_questions.map((q) => q.난이도)
-          ).toFixed(2)}</li>
-          <li>평균 난이도: ${(
-            df_questions.reduce((a, b) => a + b.난이도, 0) / df_questions.length
-          ).toFixed(2)}</li>
+          <li>최소 난이도: ${Math.min(...difficulties).toFixed(2)}</li>
+          <li>최대 난이도: ${Math.max(...difficulties).toFixed(2)}</li>
+          <li>평균 난이도: ${d3.mean(difficulties).toFixed(2)}</li>
+          <li>난이도 중앙값: ${d3.median(difficulties).toFixed(2)}</li>
         </ul>
         <p>변별도 분포:</p>
         <ul>
-          <li>최소 변별도: ${Math.min(
-            ...df_questions.map((q) => q.변별도)
-          ).toFixed(2)}</li>
-          <li>최대 변별도: ${Math.max(
-            ...df_questions.map((q) => q.변별도)
-          ).toFixed(2)}</li>
-          <li>평균 변별도: ${(
-            df_questions.reduce((a, b) => a + b.변별도, 0) / df_questions.length
-          ).toFixed(2)}</li>
+          <li>최소 변별도: ${Math.min(...discriminations).toFixed(2)}</li>
+          <li>최대 변별도: ${Math.max(...discriminations).toFixed(2)}</li>
+          <li>평균 변별도: ${d3.mean(discriminations).toFixed(2)}</li>
+          <li>변별도 중앙값: ${d3.median(discriminations).toFixed(2)}</li>
         </ul>
       `;
 
+      // 난이도와 변별도 산점도
+      const ctx3 = document.createElement("canvas");
+      testEvaluation.appendChild(ctx3);
+      new Chart(ctx3, {
+        type: "scatter",
+        data: {
+          datasets: [
+            {
+              label: "문항",
+              data: df_questions.map((q) => ({
+                x: parseFloat(q.난이도),
+                y: parseFloat(q.변별도),
+              })),
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "난이도",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "변별도",
+              },
+            },
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: "문항 난이도와 변별도의 관계",
+            },
+          },
+        },
+      });
+
       // 개선 권고사항
+      const lowDiscriminationItems = df_questions.filter(
+        (q) => parseFloat(q.변별도) < 0.2
+      ).length;
+      const highDifficultyItems = df_questions.filter(
+        (q) => parseFloat(q.난이도) > 1.5
+      ).length;
+      const lowDifficultyItems = df_questions.filter(
+        (q) => parseFloat(q.난이도) < -1.5
+      ).length;
+
       document.getElementById("recommendations").innerHTML = `
         <p>단기 개선 전략:</p>
         <ul>
-          <li>극단적인 난이도를 가진 문항들을 검토하고 조정하여 전반적인 난이도 균형을 개선합니다.</li>
-          <li>변별도가 낮은 문항들을 식별하고 개선하거나 대체합니다.</li>
+          <li>변별도가 0.2 미만인 ${lowDiscriminationItems}개의 문항을 검토하고 개선하거나 대체합니다.</li>
+          <li>난이도가 1.5를 초과하는 ${highDifficultyItems}개의 매우 어려운 문항과 -1.5 미만인 ${lowDifficultyItems}개의 매우 쉬운 문항을 재검토하여 난이도 균형을 개선합니다.</li>
+          <li>말하기 평가 기준을 보다 객관적이고 일관성 있게 적용할 수 있도록 평가자 교육을 강화합니다.</li>
         </ul>
         <p>장기 개선 전략:</p>
         <ul>
-          <li>다양한 국적의 응시자들의 능력 차이를 고려한 맞춤형 문항 개발을 검토합니다.</li>
+          <li>국적별 능력 차이를 고려한 맞춤형 문항 개발을 검토하여 시험의 공정성을 높입니다.</li>
           <li>지속적인 문항 분석과 능력 분포 모니터링을 통해 시험의 품질을 유지 및 개선합니다.</li>
+          <li>말하기 평가와 필기 시험 결과의 상관관계를 분석하여 종합적인 언어 능력 평가의 타당성을 검증합니다.</li>
         </ul>
       `;
+
+      // Q-Q 플롯 생성 함수
+      function createQQPlot(abilities) {
+        const sorted = abilities.sort((a, b) => a - b);
+        const n = sorted.length;
+        const theoretical = Array.from({ length: n }, (_, i) => {
+          const p = (i + 0.5) / n;
+          return math.sqrt(2) * math.inv(math.erf(2 * p - 1));
+        });
+
+        const ctx = document.getElementById("qq-plot").getContext("2d");
+        new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Q-Q Plot",
+                data: sorted.map((v, i) => ({ x: theoretical[i], y: v })),
+                pointBackgroundColor: "rgba(54, 162, 235, 0.5)",
+                pointBorderColor: "rgba(54, 162, 235, 1)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "이론적 분위수",
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "관측된 분위수",
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "능력 추정치의 Q-Q 플롯",
+              },
+            },
+          },
+        });
+      }
+
+      // 집단별 박스플롯 생성 함수
+      function createBoxPlot(df_responses) {
+        const boxplotDiv = document.getElementById("boxplot");
+        const margin = { top: 35, right: 30, bottom: 30, left: 50 },
+          width = 800 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+
+        const svg = d3
+          .select("#boxplot")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const nationalities = [...new Set(df_responses.map((r) => r.국적))];
+        const data = nationalities.map((nat) => {
+          const values = df_responses
+            .filter((r) => r.국적 === nat)
+            .map((r) => parseFloat(r["능력 추정치 (theta)"]))
+            .filter((v) => !isNaN(v));
+          return {
+            nationality: nat,
+            q1: d3.quantile(values, 0.25),
+            median: d3.median(values),
+            q3: d3.quantile(values, 0.75),
+            interQuantileRange:
+              d3.quantile(values, 0.75) - d3.quantile(values, 0.25),
+            min: d3.min(values),
+            max: d3.max(values),
+          };
+        });
+
+        const x = d3
+          .scaleBand()
+          .range([0, width])
+          .domain(nationalities)
+          .padding(0.4);
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x));
+
+        const y = d3
+          .scaleLinear()
+          .domain([d3.min(data, (d) => d.min), d3.max(data, (d) => d.max)])
+          .range([height, 0]);
+        svg.append("g").call(d3.axisLeft(y));
+
+        svg
+          .selectAll("vertLines")
+          .data(data)
+          .enter()
+          .append("line")
+          .attr("x1", (d) => x(d.nationality) + x.bandwidth() / 2)
+          .attr("x2", (d) => x(d.nationality) + x.bandwidth() / 2)
+          .attr("y1", (d) => y(d.min))
+          .attr("y2", (d) => y(d.max))
+          .attr("stroke", "black")
+          .style("width", 40);
+
+        const boxWidth = 50;
+        svg
+          .selectAll("boxes")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("x", (d) => x(d.nationality) - boxWidth / 2 + x.bandwidth() / 2)
+          .attr("y", (d) => y(d.q3))
+          .attr("height", (d) => y(d.q1) - y(d.q3))
+          .attr("width", boxWidth)
+          .attr("stroke", "black")
+          .style("fill", "#69b3a2");
+
+        svg
+          .selectAll("medianLines")
+          .data(data)
+          .enter()
+          .append("line")
+          .attr(
+            "x1",
+            (d) => x(d.nationality) - boxWidth / 2 + x.bandwidth() / 2
+          )
+          .attr(
+            "x2",
+            (d) => x(d.nationality) + boxWidth / 2 + x.bandwidth() / 2
+          )
+          .attr("y1", (d) => y(d.median))
+          .attr("y2", (d) => y(d.median))
+          .attr("stroke", "black")
+          .style("width", 80);
+
+        // Add chart title
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 0 - margin.top / 2)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .style("text-decoration", "underline")
+          .text("국적별 능력 추정치 분포");
+
+        // Add y-axis label
+        svg
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x", 0 - height / 2)
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("능력 추정치 (θ)");
+      }
+
+      // 함수 호출
+      createQQPlot(abilities);
+      createBoxPlot(df_responses);
     </script>
   </body>
 </html>

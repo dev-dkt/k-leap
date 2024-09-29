@@ -37,7 +37,9 @@
 
       <div class="section">
         <h2>2. 문항 사용 현황 분석</h2>
-        <div id="usage-frequency-chart"></div>
+        <div class="chart-container">
+          <canvas id="usage-frequency-histogram"></canvas>
+        </div>
         <h3>고빈도 사용 문항 (상위 5개)</h3>
         <table>
           <tr>
@@ -75,7 +77,9 @@
 
       <div class="section">
         <h2>3. 문항 노출 간격 분석</h2>
-        <div id="exposure-interval-chart"></div>
+        <div class="chart-container">
+          <canvas id="exposure-interval-distribution"></canvas>
+        </div>
         <p>보안 위험 문항 (노출 간격 90일 미만): 총 3문항</p>
         <ul>
           <li>문항 코드: 35360 (어휘) - 노출 간격 70일</li>
@@ -86,7 +90,9 @@
 
       <div class="section">
         <h2>4. 문항 유형 및 평가영역별 활용 분석</h2>
-        <div id="usage-by-type-chart"></div>
+        <div class="chart-container">
+          <canvas id="usage-by-type-and-area"></canvas>
+        </div>
         <p>
           객관식 문항의 활용도가 가장 높으며, 어휘와 문법 영역의 문항이
           상대적으로 자주 사용되고 있습니다. 반면, 쓰기와 말하기 영역의 문항
@@ -128,19 +134,21 @@
         speaking_grading_criteria,
       } from "./data2.js";
 
-      // 문항 사용 빈도 차트
-      const usageFrequencyCtx = document
-        .getElementById("usage-frequency-chart")
+      // 사용 빈도 히스토그램
+      const usageFrequencyHistogramCtx = document
+        .getElementById("usage-frequency-histogram")
         .getContext("2d");
-      new Chart(usageFrequencyCtx, {
+      new Chart(usageFrequencyHistogramCtx, {
         type: "bar",
         data: {
-          labels: ["0-1회", "1-2회", "2-3회", "3-4회", "4회 이상"],
+          labels: ["0-1", "1-2", "2-3", "3-4", "4-5", "5+"],
           datasets: [
             {
               label: "문항 수",
-              data: [5, 15, 20, 10, 5],
+              data: [8, 12, 15, 10, 7, 3],
               backgroundColor: "rgba(75, 192, 192, 0.6)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
             },
           ],
         },
@@ -164,32 +172,37 @@
           plugins: {
             title: {
               display: true,
-              text: "문항 사용 빈도 분포",
+              text: "문항 사용 빈도 히스토그램",
+            },
+            legend: {
+              display: false,
             },
           },
         },
       });
 
-      // 문항 노출 간격 차트
-      const exposureIntervalCtx = document
-        .getElementById("exposure-interval-chart")
+      // 노출 간격 분포 그래프
+      const exposureIntervalDistributionCtx = document
+        .getElementById("exposure-interval-distribution")
         .getContext("2d");
-      new Chart(exposureIntervalCtx, {
+      new Chart(exposureIntervalDistributionCtx, {
         type: "line",
         data: {
           labels: [
-            "0-30일",
-            "31-60일",
-            "61-90일",
-            "91-120일",
-            "121-150일",
-            "151일 이상",
+            "0-30",
+            "31-60",
+            "61-90",
+            "91-120",
+            "121-150",
+            "151-180",
+            "180+",
           ],
           datasets: [
             {
               label: "문항 수",
-              data: [1, 2, 5, 15, 20, 12],
-              borderColor: "rgba(255, 99, 132, 1)",
+              data: [2, 5, 10, 15, 12, 8, 3],
+              fill: false,
+              borderColor: "rgb(75, 192, 192)",
               tension: 0.1,
             },
           ],
@@ -207,7 +220,7 @@
             x: {
               title: {
                 display: true,
-                text: "노출 간격",
+                text: "노출 간격 (일)",
               },
             },
           },
@@ -220,18 +233,38 @@
         },
       });
 
-      // 문항 유형 및 평가영역별 활용 차트
-      const usageByTypeCtx = document
-        .getElementById("usage-by-type-chart")
+      // 유형별 사용 빈도 막대 그래프
+      const usageByTypeAndAreaCtx = document
+        .getElementById("usage-by-type-and-area")
         .getContext("2d");
-      new Chart(usageByTypeCtx, {
+      new Chart(usageByTypeAndAreaCtx, {
         type: "bar",
         data: {
-          labels: ["어휘", "문법", "읽기", "쓰기", "말하기"],
+          labels: ["객관식", "주관식", "서술형"],
           datasets: [
             {
-              label: "평균 사용 빈도",
-              data: [3.5, 3.2, 2.8, 1.5, 1.2],
+              label: "어휘",
+              data: [4.2, 2.8, 1.5],
+              backgroundColor: "rgba(255, 99, 132, 0.6)",
+            },
+            {
+              label: "문법",
+              data: [3.8, 2.5, 1.2],
+              backgroundColor: "rgba(54, 162, 235, 0.6)",
+            },
+            {
+              label: "읽기",
+              data: [3.5, 2.0, 1.8],
+              backgroundColor: "rgba(255, 206, 86, 0.6)",
+            },
+            {
+              label: "쓰기",
+              data: [1.2, 2.2, 2.5],
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+            },
+            {
+              label: "말하기",
+              data: [0.8, 1.5, 2.8],
               backgroundColor: "rgba(153, 102, 255, 0.6)",
             },
           ],
@@ -239,24 +272,25 @@
         options: {
           responsive: true,
           scales: {
+            x: {
+              stacked: true,
+              title: {
+                display: true,
+                text: "문항 유형",
+              },
+            },
             y: {
-              beginAtZero: true,
+              stacked: true,
               title: {
                 display: true,
                 text: "평균 사용 빈도 (연간)",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "평가 영역",
               },
             },
           },
           plugins: {
             title: {
               display: true,
-              text: "평가 영역별 문항 활용 빈도",
+              text: "문항 유형 및 평가영역별 사용 빈도",
             },
           },
         },

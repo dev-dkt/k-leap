@@ -17,14 +17,15 @@
       async
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
     ></script>
-  </head>
   <body>
     <div class="container">
       <h1>한국어능력시험 문항 활용도 분석 및 개발 가이드</h1>
 
       <div class="section">
         <h2>1. 문항 활용 현황 개요</h2>
-        <div id="usage-by-type-difficulty-chart"></div>
+        <div class="chart-container">
+        <canvas id="usage-by-type-difficulty-chart"></canvas>
+        </div>
         <p>
           위 그래프는 문항 유형별, 난이도별 활용 빈도를 보여줍니다. 객관식
           문항과 중간 난이도 문항의 활용도가 높은 것을 알 수 있습니다.
@@ -67,7 +68,9 @@
 
       <div class="section">
         <h2>3. 저활용 문항 분석</h2>
-        <div id="low-usage-items-chart"></div>
+        <div class="chart-container">
+          <canvas id="low-usage-items-chart"></canvas>
+        </div>
         <h3>저활용 원인 및 개선 방향</h3>
         <ul>
           <li>지나치게 높거나 낮은 난이도: 난이도 조정 필요</li>
@@ -87,7 +90,9 @@
           <li>통합적 언어 능력을 평가하는 복합 유형 문항</li>
         </ul>
         <h3>문항 수명 주기를 고려한 개발 전략</h3>
-        <div id="item-lifecycle-chart"></div>
+        <div class="chart-container">
+          <canvas id="item-lifecycle-chart"></canvas>
+        </div>
         <p>
           문항의 수명 주기를 고려하여 정기적인 갱신과 개선이 필요합니다. 고활용
           문항의 대체 버전을 미리 개발하고, 저활용 문항은 원인 분석 후
@@ -115,6 +120,32 @@
           <li>보기의 적절성 및 매력도 검토</li>
           <li>채점 기준의 명확성 확인</li>
         </ol>
+      </div>
+
+      <div class="section">
+        <h2>6. 문항 특성과 활용도 관계 분석</h2>
+        <div class="chart-container">
+          <canvas id="item-characteristics-usage-chart"></canvas>
+        </div>
+        <p>
+          이 산점도는 문항의 난이도와 변별도에 따른 활용 빈도를 보여줍니다. 
+          점의 크기는 활용 빈도를 나타내며, 색상은 문항 유형을 구분합니다. 
+          중간 난이도(0.4~0.6)와 높은 변별도(0.3 이상)를 가진 문항들이 
+          가장 많이 활용되는 경향을 볼 수 있습니다.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>7. 문항 수명 주기 관리</h2>
+        <div class="chart-container">
+          <canvas id="item-lifecycle-management-chart"></canvas>
+        </div>
+        <p>
+          이 도표는 문항의 수명 주기 각 단계에서의 관리 전략을 보여줍니다. 
+          개발 단계에서부터 폐기까지, 각 단계별로 필요한 작업과 고려사항을 
+          확인할 수 있습니다. 효과적인 문항 관리를 위해 이 수명 주기를 
+          참고하여 문항을 지속적으로 모니터링하고 개선해야 합니다.
+        </p>
       </div>
     </div>
 
@@ -287,6 +318,100 @@
             },
           },
         },
+      });
+
+      // 문항 특성-활용도 산점도
+      const itemCharacteristicsUsageCtx = document
+        .getElementById("item-characteristics-usage-chart")
+        .getContext("2d");
+      new Chart(itemCharacteristicsUsageCtx, {
+        type: 'bubble',
+        data: {
+          datasets: [{
+            label: '객관식',
+            data: [
+              {x: 0.3, y: 0.4, r: 10},
+              {x: 0.5, y: 0.6, r: 20},
+              {x: 0.7, y: 0.5, r: 15}
+            ],
+            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+          }, {
+            label: '주관식',
+            data: [
+              {x: 0.4, y: 0.3, r: 8},
+              {x: 0.6, y: 0.5, r: 12},
+              {x: 0.8, y: 0.4, r: 10}
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: '문항 특성과 활용도 관계'
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '난이도'
+              },
+              min: 0,
+              max: 1
+            },
+            y: {
+              title: {
+                display: true,
+                text: '변별도'
+              },
+              min: 0,
+              max: 1
+            }
+          }
+        }
+      });
+
+      // 문항 수명 주기 도표
+      const itemLifecycleManagementCtx = document
+        .getElementById("item-lifecycle-management-chart")
+        .getContext("2d");
+      new Chart(itemLifecycleManagementCtx, {
+        type: 'radar',
+        data: {
+          labels: ['개발', '검증', '활용', '모니터링', '개선', '폐기'],
+          datasets: [{
+            label: '관리 중요도',
+            data: [5, 4, 3, 5, 4, 2],
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(54, 162, 235)'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: '문항 수명 주기 관리'
+            }
+          },
+          scales: {
+            r: {
+              angleLines: {
+                display: false
+              },
+              suggestedMin: 0,
+              suggestedMax: 5
+            }
+          }
+        }
       });
     </script>
   </body>
