@@ -9,8 +9,15 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script> 
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -118,11 +125,23 @@
 
     <script type="module">
       import {
-        df_questions,
+        df_questions as _df_questions,
         df_responses,
-        df_questions_speaking,
+        df_questions_speaking as _df_questions_speaking,
         df_responses_speaking,
+        speaking_grading_criteria,
       } from "./data2.js";
+
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
 
       const abilities = df_responses.map((r) => calculateAbility(r));
       const standardErrors = df_responses.map((r) => calculateSE(r));
