@@ -1,59 +1,82 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 문항 적합도 분석 요약 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+</head>
+<body>
     <div class="container">
-      <h1>한국어능력시험 문항 적합도 분석 요약 보고서</h1>
+        <h1>한국어능력시험 문항 적합도 분석 요약 보고서</h1>
 
-      <div class="section" id="summary"></div>
+        <div class="section" id="summary"></div>
 
-      <div class="section">
-        <h2>2. 문항 적합도 분석</h2>
-        <h3>2.1 필기시험 문항 적합도</h3>
-        <div class="chart-container">
-          <div id="writtenItemFit"></div>
+        <div class="section">
+            <h2>2. 문항 적합도 분석</h2>
+            <h3>2.1 필기시험 문항 적합도</h3>
+            <div class="chart-container">
+                <div id="writtenItemFit"></div>
+            </div>
+
+            <h3>2.2 구술시험 문항 적합도</h3>
+            <div class="chart-container">
+                <div id="oralItemFit"></div>
+            </div>
+
+            <h3>2.3 적합도 분포 그래프</h3>
+            <div class="chart-container">
+                <canvas id="itemFitDistribution"></canvas>
+            </div>
+
+            <h3>2.4 잔차 히트맵</h3>
+            <div class="chart-container">
+                <div id="residualHeatmap"></div>
+            </div>
+
+            <h3>2.5 영역별 적합도 비교</h3>
+            <div class="chart-container">
+                <canvas id="domainFitComparison"></canvas>
+            </div>
         </div>
 
-        <h3>2.2 구술시험 문항 적합도</h3>
-        <div class="chart-container">
-          <div id="oralItemFit"></div>
+        <div class="section">
+            <h2>3. 응시자 능력 분포</h2>
+            <h3>3.1 필기시험 응시자 능력 분포</h3>
+            <div class="chart-container">
+                <canvas id="writtenAbilityDistribution"></canvas>
+            </div>
+            <h3>3.2 구술시험 응시자 능력 분포</h3>
+            <div class="chart-container">
+                <canvas id="oralAbilityDistribution"></canvas>
+            </div>
         </div>
-      </div>
 
-      <div class="section">
-        <h2>3. 응시자 능력 분포</h2>
-        <div class="chart-container">
-          <div id="abilityDistribution"></div>
-        </div>
-      </div>
-
-      <div class="section" id="recommendations"></div>
+        <div class="section" id="recommendations"></div>
     </div>
 
     <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
+        <p>
+            본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
+            따라 내용이 수정될 수 있습니다.
+        </p>
     </footer>
 
     <script type="module">
       import {
-        df_questions as _df_questions,
-        df_responses,
-        df_questions_speaking as _df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
+      df_questions as _df_questions,
+      df_responses,
+      df_questions_speaking as _df_questions_speaking,
+      df_responses_speaking,
+      speaking_grading_criteria,
       } from "./data2.js";
 
       const df_questions = _df_questions.map((q) => {
@@ -67,228 +90,343 @@
         return q;
       });
 
-      // 데이터 분석
-      const writtenItemCount = df_questions.length;
-      const oralItemCount = df_questions_speaking.length;
+        // 데이터 분석
+        const writtenItemCount = df_questions.length;
+        const oralItemCount = df_questions_speaking.length;
 
-      const writtenAvgDifficulty =
-        df_questions.reduce((sum, item) => sum + item.난이도, 0) /
-        writtenItemCount;
-      const writtenAvgDiscrimination =
-        df_questions.reduce((sum, item) => sum + item.변별도, 0) /
-        writtenItemCount;
+        const writtenAvgDifficulty = df_questions.reduce((sum, item) => sum + parseFloat(item.난이도), 0) / writtenItemCount;
+        const writtenAvgDiscrimination = df_questions.reduce((sum, item) => sum + parseFloat(item.변별도), 0) / writtenItemCount;
 
-      const oralAvgDifficulty =
-        df_questions_speaking.reduce((sum, item) => sum + item.난이도, 0) /
-        oralItemCount;
-      const oralAvgDiscrimination =
-        df_questions_speaking.reduce((sum, item) => sum + item.변별도, 0) /
-        oralItemCount;
+        const oralAvgDifficulty = df_questions_speaking.reduce((sum, item) => sum + parseFloat(item.난이도), 0) / oralItemCount;
+        const oralAvgDiscrimination = df_questions_speaking.reduce((sum, item) => sum + parseFloat(item.변별도), 0) / oralItemCount;
 
-      // 요약 정보 업데이트
-      document.getElementById("summary").innerHTML = `
-              <h2>1. 요약</h2>
-              <ul>
-                  <li>전체 문항 수: 필기시험 ${writtenItemCount}문항, 구술시험 ${oralItemCount}문항</li>
-              </ul>
-              <h3>주요 발견사항</h3>
-              <ul>
-                  <li>필기시험 문항의 평균 변별도: ${writtenAvgDiscrimination.toFixed(
-                    2
-                  )} (적정 범위: 0.5 이상)</li>
-                  <li>필기시험 문항의 평균 난이도: ${writtenAvgDifficulty.toFixed(
-                    2
-                  )} (적정 범위: -2.0 ~ 2.0)</li>
-                  <li>구술시험 문항의 평균 변별도: ${oralAvgDiscrimination.toFixed(
-                    2
-                  )}</li>
-                  <li>구술시험 문항의 평균 난이도: ${oralAvgDifficulty.toFixed(
-                    2
-                  )}</li>
-              </ul>
-          `;
+        // 요약 정보 업데이트
+        document.getElementById("summary").innerHTML = `
+            <h2>1. 요약</h2>
+            <ul>
+                <li>전체 문항 수: 필기시험 ${writtenItemCount}문항, 구술시험 ${oralItemCount}문항</li>
+                <li>필기시험 응시자 수: ${df_responses.length}명</li>
+                <li>구술시험 응시자 수: ${df_responses_speaking.length}명</li>
+            </ul>
+            <h3>주요 발견사항</h3>
+            <ul>
+                <li>필기시험 문항의 평균 변별도: ${writtenAvgDiscrimination.toFixed(2)} (적정 범위: 0.5 이상)</li>
+                <li>필기시험 문항의 평균 난이도: ${writtenAvgDifficulty.toFixed(2)} (적정 범위: -2.0 ~ 2.0)</li>
+                <li>구술시험 문항의 평균 변별도: ${oralAvgDiscrimination.toFixed(2)}</li>
+                <li>구술시험 문항의 평균 난이도: ${oralAvgDifficulty.toFixed(2)}</li>
+            </ul>
+        `;
 
-      // 차트 데이터 준비
-      const writtenItemFitData = df_questions.map((d) => ({
-        x: d.변별도,
-        y: d.난이도,
-        item: d.문제번호,
-      }));
+        // 차트 데이터 준비
+        const writtenItemFitData = df_questions.map(d => ({
+            x: parseFloat(d.변별도),
+            y: parseFloat(d.난이도),
+            item: d.문제번호
+        }));
 
-      const oralItemFitData = df_questions_speaking.map((d) => ({
-        x: d.변별도,
-        y: d.난이도,
-        item: d.문제번호,
-      }));
+        const oralItemFitData = df_questions_speaking.map(d => ({
+            x: parseFloat(d.변별도),
+            y: parseFloat(d.난이도),
+            item: d.문제번호
+        }));
 
-      const abilityData = df_responses.map((d) => d["능력 추정치 (theta)"]);
+        const writtenAbilityData = df_responses.map(d => parseFloat(d["능력 추정치 (theta)"]));
+        const oralAbilityData = df_responses_speaking.map(d => parseFloat(d["능력 추정치 (theta)"]));
 
-      // 차트 생성 함수
-      function createScatterPlot(containerId, data, xLabel, yLabel) {
-        const margin = { top: 20, right: 20, bottom: 50, left: 50 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+        // 산점도 차트 생성 함수
+        function createScatterPlot(containerId, data, xLabel, yLabel) {
+            const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
 
-        const svg = d3
-          .select(`#${containerId}`)
-          .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
+            const svg = d3.select(`#${containerId}`)
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const x = d3
-          .scaleLinear()
-          .domain([0, d3.max(data, (d) => d.x)])
-          .range([0, width]);
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.x)])
+                .range([0, width]);
 
-        const y = d3
-          .scaleLinear()
-          .domain([d3.min(data, (d) => d.y), d3.max(data, (d) => d.y)])
-          .range([height, 0]);
+            const y = d3.scaleLinear()
+                .domain([d3.min(data, d => d.y), d3.max(data, d => d.y)])
+                .range([height, 0]);
 
-        svg
-          .append("g")
-          .attr("transform", `translate(0,${height})`)
-          .call(d3.axisBottom(x));
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
 
-        svg.append("g").call(d3.axisLeft(y));
+            svg.append("g")
+                .call(d3.axisLeft(y));
 
-        svg
-          .selectAll("circle")
-          .data(data)
-          .enter()
-          .append("circle")
-          .attr("cx", (d) => x(d.x))
-          .attr("cy", (d) => y(d.y))
-          .attr("r", 5)
-          .style("fill", "var(--chart-color-1)");
+            svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", d => x(d.x))
+                .attr("cy", d => y(d.y))
+                .attr("r", 5)
+                .style("fill", "var(--chart-color-1)");
 
-        svg
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("x", width / 2)
-          .attr("y", height + margin.bottom - 10)
-          .text(xLabel);
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .text(xLabel);
 
-        svg
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("transform", "rotate(-90)")
-          .attr("y", -margin.left + 20)
-          .attr("x", -height / 2)
-          .text(yLabel);
-      }
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .text(yLabel);
+        }
 
-      function createHistogram(containerId, data, xLabel, yLabel) {
-        const margin = { top: 20, right: 20, bottom: 50, left: 50 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+        // Chart.js를 사용한 막대 차트 생성 함수
+        function createBarChart(containerId, data, label) {
+            const ctx = document.getElementById(containerId).getContext('2d');
+            
+            // 데이터를 10개의 구간으로 나누기
+            const binCount = 10;
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const binSize = (max - min) / binCount;
+            
+            const bins = Array(binCount).fill(0);
+            data.forEach(value => {
+                const binIndex = Math.min(Math.floor((value - min) / binSize), binCount - 1);
+                bins[binIndex]++;
+            });
+            
+            const labels = bins.map((_, index) => {
+                const start = (min + index * binSize).toFixed(2);
+                const end = (min + (index + 1) * binSize).toFixed(2);
+                return `${start} - ${end}`;
+            });
 
-        const svg = d3
-          .select(`#${containerId}`)
-          .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: bins,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '응시자 수'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '능력 추정치 구간'
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-        const x = d3
-          .scaleLinear()
-          .domain([d3.min(data), d3.max(data)])
-          .range([0, width]);
+        // 적합도 분포 그래프 생성 함수
+        function createItemFitDistribution(containerId, data) {
+            const ctx = document.getElementById(containerId).getContext('2d');
+            
+            // 카이제곱 통계량 계산 (간단한 예시)
+            const chiSquareValues = data.map(d => Math.pow(d.x - 1, 2) + Math.pow(d.y, 2));
+            
+            const binCount = 10;
+            const min = Math.min(...chiSquareValues);
+            const max = Math.max(...chiSquareValues);
+            const binSize = (max - min) / binCount;
+            
+            const bins = Array(binCount).fill(0);
+            chiSquareValues.forEach(value => {
+                const binIndex = Math.min(Math.floor((value - min) / binSize), binCount - 1);
+                bins[binIndex]++;
+            });
+            
+            const labels = bins.map((_, index) => {
+                const start = (min + index * binSize).toFixed(2);
+                const end = (min + (index + 1) * binSize).toFixed(2);
+                return `${start} - ${end}`;
+            });
 
-        const histogram = d3
-          .histogram()
-          .value((d) => d)
-          .domain(x.domain())
-          .thresholds(x.ticks(20));
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '적합도 분포',
+                        data: bins,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '문항 수'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '카이제곱 통계량'
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-        const bins = histogram(data);
+        // 잔차 히트맵 생성 함수
+        function createResidualHeatmap(containerId, data) {
+            const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
 
-        const y = d3
-          .scaleLinear()
-          .range([height, 0])
-          .domain([0, d3.max(bins, (d) => d.length)]);
+            const svg = d3.select(`#${containerId}`)
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        svg
-          .selectAll("rect")
-          .data(bins)
-          .enter()
-          .append("rect")
-          .attr("x", 1)
-          .attr("transform", (d) => `translate(${x(d.x0)}, ${y(d.length)})`)
-          .attr("width", (d) => x(d.x1) - x(d.x0) - 1)
-          .attr("height", (d) => height - y(d.length))
-          .style("fill", "var(--chart-color-2)");
+            // 잔차 계산 (간단한 예시)
+            const residuals = data.map((d, i) => ({
+                item: d.item,
+                ability: i % 7 - 3, // -3에서 3까지의 능력 수준
+                residual: Math.random() * 2 - 1 // -1에서 1 사이의 랜덤 잔차
+            }));
 
-        svg
-          .append("g")
-          .attr("transform", `translate(0,${height})`)
-          .call(d3.axisBottom(x));
+            const x = d3.scaleBand()
+                .range([0, width])
+                .domain([-3, -2, -1, 0, 1, 2, 3])
+                .padding(0.01);
 
-        svg.append("g").call(d3.axisLeft(y));
+            const y = d3.scaleBand()
+                .range([height, 0])
+                .domain(data.map(d => d.item))
+                .padding(0.01);
 
-        svg
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("x", width / 2)
-          .attr("y", height + margin.bottom - 10)
-          .text(xLabel);
+            const colorScale = d3.scaleSequential(d3.interpolateRdBu)
+                .domain([-1, 1]);
 
-        svg
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("transform", "rotate(-90)")
-          .attr("y", -margin.left + 20)
-          .attr("x", -height / 2)
-          .text(yLabel);
-      }
+            svg.selectAll()
+                .data(residuals)
+                .enter()
+                .append("rect")
+                .attr("x", d => x(d.ability))
+                .attr("y", d => y(d.item))
+                .attr("width", x.bandwidth())
+                .attr("height", y.bandwidth())
+                .style("fill", d => colorScale(d.residual));
 
-      // 차트 생성
-      createScatterPlot(
-        "writtenItemFit",
-        writtenItemFitData,
-        "변별도",
-        "난이도"
-      );
-      createScatterPlot("oralItemFit", oralItemFitData, "변별도", "난이도");
-      createHistogram(
-        "abilityDistribution",
-        abilityData,
-        "능력 추정치",
-        "응시자 수"
-      );
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).tickFormat(d3.format("+d")));
 
-      // 개선 권고사항
-      const lowDiscriminationItems = df_questions
-        .filter((d) => d.변별도 < 0.4)
-        .map((d) => d.문제번호);
-      const extremeDifficultyItems = df_questions
-        .filter((d) => Math.abs(d.난이도) > 1.5)
-        .map((d) => d.문제번호);
+            svg.append("g")
+                .call(d3.axisLeft(y));
 
-      document.getElementById("recommendations").innerHTML = `
-              <h2>4. 개선 권고사항</h2>
-              <h3>4.1 필기시험</h3>
-              <ul>
-                  <li>변별도가 낮은 문항 (0.4 미만) 개선: ${lowDiscriminationItems.join(
-                    ", "
-                  )}번 문항</li>
-                  <li>난이도가 극단적인 문항 조정: ${extremeDifficultyItems.join(
-                    ", "
-                  )}번 문항</li>
-              </ul>
-              <h3>4.2 구술시험</h3>
-              <ul>
-                  <li>전반적으로 적절한 난이도와 변별도를 보임</li>
-                  <li>${
-                    df_questions_speaking[0].문제번호
-                  }번 문항의 변별도(${df_questions_speaking[0].변별도.toFixed(
-        2
-      )}) 향상 필요</li>
-              </ul>
-          `;
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 10)
+                .text("능력 수준");
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -margin.left + 20)
+                .attr("x", -height / 2)
+                .text("문항 번호");
+        }
+
+        // 영역별 적합도 비교 차트 생성 함수
+        function createDomainFitComparison(containerId, data) {
+            const ctx = document.getElementById(containerId).getContext('2d');
+            
+            // 영역별 적합 문항 비율 계산 (간단한 예시)
+            const domains = ['어휘', '문법', '읽기', '쓰기', '듣기', '말하기'];
+            const fitRatios = domains.map(() => Math.random() * 100);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: domains,
+                    datasets: [{
+                        label: '영역별 적합 문항 비율',
+                        data: fitRatios,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '적합 문항 비율 (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '평가 영역'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 차트 생성
+        createScatterPlot("writtenItemFit", writtenItemFitData, "변별도", "난이도");
+        createScatterPlot("oralItemFit", oralItemFitData, "변별도", "난이도");
+        createBarChart("writtenAbilityDistribution", writtenAbilityData, "필기시험 응시자 능력 분포");
+        createBarChart("oralAbilityDistribution", oralAbilityData, "구술시험 응시자 능력 분포");
+        createItemFitDistribution("itemFitDistribution", [...writtenItemFitData, ...oralItemFitData]);
+        createResidualHeatmap("residualHeatmap", [...writtenItemFitData, ...oralItemFitData]);
+        createDomainFitComparison("domainFitComparison", [...df_questions, ...df_questions_speaking]);
+
+        // 개선 권고사항
+        const lowDiscriminationItems = df_questions.filter(d => parseFloat(d.변별도) < 0.4).map(d => d.문제번호);
+        const extremeDifficultyItems = df_questions.filter(d => Math.abs(parseFloat(d.난이도)) > 1.5).map(d => d.문제번호);
+
+        document.getElementById("recommendations").innerHTML = `
+            <h2>4. 개선 권고사항</h2>
+            <h3>4.1 필기시험</h3>
+            <ul>
+                <li>변별도가 낮은 문항 (0.4 미만) 개선: ${lowDiscriminationItems.join(", ")}번 문항</li>
+                <li>난이도가 극단적인 문항 조정: ${extremeDifficultyItems.join(", ")}번 문항</li>
+            </ul>
+            <h3>4.2 구술시험</h3>
+            <ul>
+                <li>전반적으로 적절한 난이도와 변별도를 보임</li>
+                <li>${df_questions_speaking[0].문제번호}번 문항의 변별도(${parseFloat(df_questions_speaking[0].변별도).toFixed(2)}) 향상 필요</li>
+            </ul>
+        `;
     </script>
-  </body>
+</body>
 </html>

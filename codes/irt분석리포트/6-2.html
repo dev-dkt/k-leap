@@ -1,383 +1,720 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 문항 적합도 상세 분석 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 문항 적합도 상세 분석 보고서</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 문항 적합도 상세 분석 보고서</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 문항 적합도 상세 분석 보고서</h1>
 
-      <div class="section">
-        <h2>1. 연구 개요</h2>
-        <h3>1.1 연구 목적</h3>
-        <p>
-          본 연구는 한국어능력시험의 문항 적합도를 분석하여 시험의 신뢰도와
-          타당도를 평가하고, 향후 문항 개선 방향을 제시하는 것을 목적으로
-          합니다.
-        </p>
+            <div class="section">
+                <h2>1. 연구 개요</h2>
+                <h3>1.1 연구 목적</h3>
+                <p>
+                    본 연구는 한국어능력시험의 문항 적합도를 분석하여 시험의
+                    신뢰도와 타당도를 평가하고, 향후 문항 개선 방향을 제시하는
+                    것을 목적으로 합니다.
+                </p>
 
-        <h3>1.2 연구 방법</h3>
-        <p>
-          문항반응이론(IRT)을 적용하여 각 문항의 변별도와 난이도를 추정하고,
-          이를 바탕으로 문항 적합도를 평가했습니다.
-        </p>
+                <h3>1.2 연구 방법</h3>
+                <p>
+                    문항반응이론(IRT)을 적용하여 각 문항의 변별도와 난이도를
+                    추정하고, 이를 바탕으로 문항 적합도를 평가했습니다.
+                </p>
 
-        <h3>1.3 데이터 설명</h3>
-        <ul>
-          <li>시험 정보: 사전평가</li>
-          <li>필기시험: <span id="writtenItemCount"></span>문항</li>
-          <li>구술시험: <span id="oralItemCount"></span>문항</li>
-          <li>응시자 수: <span id="respondentCount"></span>명</li>
-        </ul>
-      </div>
+                <h3>1.3 데이터 설명</h3>
+                <ul>
+                    <li>시험 정보: 사전평가</li>
+                    <li>필기시험: <span id="writtenItemCount"></span>문항</li>
+                    <li>구술시험: <span id="oralItemCount"></span>문항</li>
+                    <li>응시자 수: <span id="respondentCount"></span>명</li>
+                </ul>
+            </div>
 
-      <div class="section">
-        <h2>2. IRT 모델 및 적합도 검정 방법</h2>
-        <p>
-          2모수 로지스틱 모델을 사용하여 각 문항의 변별도와 난이도를
-          추정했습니다. 문항 적합도는 변별도와 난이도의 분포를 통해
-          평가되었습니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>2. IRT 모델 및 적합도 검정 방법</h2>
+                <p>
+                    2모수 로지스틱 모델을 사용하여 각 문항의 변별도와 난이도를
+                    추정했습니다. 문항 적합도는 변별도와 난이도의 분포를 통해
+                    평가되었습니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>3. 문항 적합도 상세 분석</h2>
-        <h3>3.1 필기시험 문항 분석</h3>
-        <div id="writtenItemAnalysis" class="chart-container">
-          <canvas></canvas>
+            <div class="section">
+                <h2>3. 문항 적합도 상세 분석</h2>
+                <h3>3.1 필기시험 문항 분석</h3>
+                <div id="writtenItemAnalysis" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>
+                    변별도 평균: <span id="writtenDiscriminationMean"></span>,
+                    표준편차: <span id="writtenDiscriminationStd"></span>
+                </p>
+                <p>
+                    난이도 평균: <span id="writtenDifficultyMean"></span>,
+                    표준편차: <span id="writtenDifficultyStd"></span>
+                </p>
+
+                <h3>3.2 구술시험 문항 분석</h3>
+                <div id="oralItemAnalysis" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>
+                    변별도 평균: <span id="oralDiscriminationMean"></span>,
+                    표준편차: <span id="oralDiscriminationStd"></span>
+                </p>
+                <p>
+                    난이도 평균: <span id="oralDifficultyMean"></span>,
+                    표준편차: <span id="oralDifficultyStd"></span>
+                </p>
+
+                <h3>3.3 적합도와 문항 특성의 관계 분석</h3>
+                <p>
+                    필기시험에서 변별도와 난이도 사이의 상관계수:
+                    <span id="writtenCorrelation"></span>
+                </p>
+                <p>
+                    구술시험에서 변별도와 난이도 사이의 상관계수:
+                    <span id="oralCorrelation"></span>
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>4. 잔차 분석 결과</h2>
+                <h3>4.1 능력 수준별 잔차 분포</h3>
+                <div id="residualDistribution" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>
+                    잔차 분석을 통해 문항이 특정 능력 수준에서 적절히 기능하는지
+                    확인할 수 있습니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>5. 응시자 능력 분포 분석</h2>
+                <div id="abilityDistribution" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>평균 능력 추정치: <span id="meanAbility"></span></p>
+                <p>능력 추정치 표준편차: <span id="stdAbility"></span></p>
+            </div>
+
+            <div class="section">
+                <h2>6. 적합도 분포 그래프</h2>
+                <div id="itemFitDistribution" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>문항 적합도의 전체적인 분포를 확인할 수 있습니다.</p>
+            </div>
+
+            <div class="section">
+                <h2>7. Q-Q 플롯 분석</h2>
+                <div id="qqPlot" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>
+                    Q-Q 플롯을 통해 응시자 능력 추정치의 정규성을 확인할 수
+                    있습니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>8. 문항 특성 곡선(ICC) 분석</h2>
+                <div id="iccPlot" class="chart-container">
+                    <canvas></canvas>
+                </div>
+                <p>
+                    ICC와 실제 응답 비교를 통해 각 문항의 성능을 평가할 수
+                    있습니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>9. 결론 및 제언</h2>
+                <ul id="conclusions"></ul>
+            </div>
         </div>
-        <p>
-          변별도 평균: <span id="writtenDiscriminationMean"></span>, 표준편차:
-          <span id="writtenDiscriminationStd"></span>
-        </p>
-        <p>
-          난이도 평균: <span id="writtenDifficultyMean"></span>, 표준편차:
-          <span id="writtenDifficultyStd"></span>
-        </p>
 
-        <h3>3.2 구술시험 문항 분석</h3>
-        <div id="oralItemAnalysis" class="chart-container">
-          <canvas></canvas>
-        </div>
-        <p>
-          변별도 평균: <span id="oralDiscriminationMean"></span>, 표준편차:
-          <span id="oralDiscriminationStd"></span>
-        </p>
-        <p>
-          난이도 평균: <span id="oralDifficultyMean"></span>, 표준편차:
-          <span id="oralDifficultyStd"></span>
-        </p>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
 
-        <h3>3.3 적합도와 문항 특성의 관계 분석</h3>
-        <p>
-          필기시험에서 변별도와 난이도 사이의 상관계수:
-          <span id="writtenCorrelation"></span>
-        </p>
-        <p>
-          구술시험에서 변별도와 난이도 사이의 상관계수:
-          <span id="oralCorrelation"></span>
-        </p>
-      </div>
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>4. 잔차 분석 결과</h2>
-        <h3>4.1 능력 수준별 잔차 분포</h3>
-        <div id="residualDistribution" class="chart-container">
-          <canvas></canvas>
-        </div>
-        <p>
-          잔차 분석을 통해 문항이 특정 능력 수준에서 적절히 기능하는지 확인할 수
-          있습니다.
-        </p>
-      </div>
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
 
-      <div class="section">
-        <h2>5. 응시자 능력 분포 분석</h2>
-        <div id="abilityDistribution" class="chart-container">
-          <canvas></canvas>
-        </div>
-        <p>평균 능력 추정치: <span id="meanAbility"></span></p>
-        <p>능력 추정치 표준편차: <span id="stdAbility"></span></p>
-      </div>
+            document.addEventListener("DOMContentLoaded", () => {
+                // 기본 정보 업데이트
+                document.getElementById("writtenItemCount").textContent =
+                    df_questions.length
+                document.getElementById("oralItemCount").textContent =
+                    df_questions_speaking.length
+                document.getElementById("respondentCount").textContent =
+                    df_responses.length
 
-      <div class="section">
-        <h2>6. 결론 및 제언</h2>
-        <ul id="conclusions"></ul>
-      </div>
-    </div>
+                // 통계 함수
+                function calculateMeanStd(arr) {
+                    const mean = arr.reduce((a, b) => a + b) / arr.length
+                    const std = Math.sqrt(
+                        arr
+                            .map((x) => Math.pow(x - mean, 2))
+                            .reduce((a, b) => a + b) / arr.length
+                    )
+                    return { mean, std }
+                }
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
+                // 필기시험 문항 분석
+                const writtenDiscrimination = df_questions.map((q) =>
+                    parseFloat(q.변별도)
+                )
+                const writtenDifficulty = df_questions.map((q) =>
+                    parseFloat(q.난이도)
+                )
+                const writtenStats = {
+                    discrimination: calculateMeanStd(writtenDiscrimination),
+                    difficulty: calculateMeanStd(writtenDifficulty),
+                }
 
-    <script type="module">
-      import {
-        df_questions,
-        df_responses,
-        df_questions_speaking,
-        df_responses_speaking,
-      } from "./data2.js";
+                document.getElementById(
+                    "writtenDiscriminationMean"
+                ).textContent = writtenStats.discrimination.mean.toFixed(2)
+                document.getElementById(
+                    "writtenDiscriminationStd"
+                ).textContent = writtenStats.discrimination.std.toFixed(2)
+                document.getElementById("writtenDifficultyMean").textContent =
+                    writtenStats.difficulty.mean.toFixed(2)
+                document.getElementById("writtenDifficultyStd").textContent =
+                    writtenStats.difficulty.std.toFixed(2)
 
-      document.addEventListener("DOMContentLoaded", () => {
-        // 기본 정보 업데이트
-        document.getElementById("writtenItemCount").textContent =
-          df_questions.length;
-        document.getElementById("oralItemCount").textContent =
-          df_questions_speaking.length;
-        document.getElementById("respondentCount").textContent =
-          df_responses.length;
+                const writtenCtx = document
+                    .querySelector("#writtenItemAnalysis canvas")
+                    .getContext("2d")
+                new Chart(writtenCtx, {
+                    type: "scatter",
+                    data: {
+                        datasets: [
+                            {
+                                label: "필기시험 문항",
+                                data: df_questions.map((item) => ({
+                                    x: parseFloat(item.변별도),
+                                    y: parseFloat(item.난이도),
+                                })),
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            x: { title: { display: true, text: "변별도" } },
+                            y: { title: { display: true, text: "난이도" } },
+                        },
+                    },
+                })
 
-        // 통계 함수
-        function calculateMeanStd(arr) {
-          const mean = arr.reduce((a, b) => a + b) / arr.length;
-          const std = Math.sqrt(
-            arr.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
-              arr.length
-          );
-          return { mean, std };
-        }
+                // 구술시험 문항 분석
+                const oralDiscrimination = df_questions_speaking.map((q) =>
+                    parseFloat(q.변별도)
+                )
+                const oralDifficulty = df_questions_speaking.map((q) =>
+                    parseFloat(q.난이도)
+                )
+                const oralStats = {
+                    discrimination: calculateMeanStd(oralDiscrimination),
+                    difficulty: calculateMeanStd(oralDifficulty),
+                }
 
-        // 필기시험 문항 분석
-        const writtenDiscrimination = df_questions.map((q) => q.변별도);
-        const writtenDifficulty = df_questions.map((q) => q.난이도);
-        const writtenStats = {
-          discrimination: calculateMeanStd(writtenDiscrimination),
-          difficulty: calculateMeanStd(writtenDifficulty),
-        };
+                document.getElementById("oralDiscriminationMean").textContent =
+                    oralStats.discrimination.mean.toFixed(2)
+                document.getElementById("oralDiscriminationStd").textContent =
+                    oralStats.discrimination.std.toFixed(2)
+                document.getElementById("oralDifficultyMean").textContent =
+                    oralStats.difficulty.mean.toFixed(2)
+                document.getElementById("oralDifficultyStd").textContent =
+                    oralStats.difficulty.std.toFixed(2)
 
-        document.getElementById("writtenDiscriminationMean").textContent =
-          writtenStats.discrimination.mean.toFixed(2);
-        document.getElementById("writtenDiscriminationStd").textContent =
-          writtenStats.discrimination.std.toFixed(2);
-        document.getElementById("writtenDifficultyMean").textContent =
-          writtenStats.difficulty.mean.toFixed(2);
-        document.getElementById("writtenDifficultyStd").textContent =
-          writtenStats.difficulty.std.toFixed(2);
+                const oralCtx = document
+                    .querySelector("#oralItemAnalysis canvas")
+                    .getContext("2d")
+                new Chart(oralCtx, {
+                    type: "scatter",
+                    data: {
+                        datasets: [
+                            {
+                                label: "구술시험 문항",
+                                data: df_questions_speaking.map((item) => ({
+                                    x: parseFloat(item.변별도),
+                                    y: parseFloat(item.난이도),
+                                })),
+                                backgroundColor: "rgba(255, 99, 132, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            x: { title: { display: true, text: "변별도" } },
+                            y: { title: { display: true, text: "난이도" } },
+                        },
+                    },
+                })
 
-        const writtenCtx = document
-          .querySelector("#writtenItemAnalysis canvas")
-          .getContext("2d");
-        new Chart(writtenCtx, {
-          type: "scatter",
-          data: {
-            datasets: [
-              {
-                label: "필기시험 문항",
-                data: df_questions.map((item) => ({
-                  x: item.변별도,
-                  y: item.난이도,
-                })),
-                backgroundColor: "rgba(75, 192, 192, 0.6)",
-              },
-            ],
-          },
-          options: {
-            scales: {
-              x: { title: { display: true, text: "변별도" } },
-              y: { title: { display: true, text: "난이도" } },
-            },
-          },
-        });
+                // 상관계수 계산
+                function calculateCorrelation(x, y) {
+                    const n = x.length
+                    let sumX = 0,
+                        sumY = 0,
+                        sumXY = 0,
+                        sumX2 = 0,
+                        sumY2 = 0
+                    for (let i = 0; i < n; i++) {
+                        sumX += x[i]
+                        sumY += y[i]
+                        sumXY += x[i] * y[i]
+                        sumX2 += x[i] * x[i]
+                        sumY2 += y[i] * y[i]
+                    }
+                    const numerator = n * sumXY - sumX * sumY
+                    const denominator = Math.sqrt(
+                        (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY)
+                    )
+                    return numerator / denominator
+                }
 
-        // 구술시험 문항 분석
-        const oralDiscrimination = df_questions_speaking.map((q) => q.변별도);
-        const oralDifficulty = df_questions_speaking.map((q) => q.난이도);
-        const oralStats = {
-          discrimination: calculateMeanStd(oralDiscrimination),
-          difficulty: calculateMeanStd(oralDifficulty),
-        };
+                const writtenCorrelation = calculateCorrelation(
+                    writtenDiscrimination,
+                    writtenDifficulty
+                )
+                const oralCorrelation = calculateCorrelation(
+                    oralDiscrimination,
+                    oralDifficulty
+                )
 
-        document.getElementById("oralDiscriminationMean").textContent =
-          oralStats.discrimination.mean.toFixed(2);
-        document.getElementById("oralDiscriminationStd").textContent =
-          oralStats.discrimination.std.toFixed(2);
-        document.getElementById("oralDifficultyMean").textContent =
-          oralStats.difficulty.mean.toFixed(2);
-        document.getElementById("oralDifficultyStd").textContent =
-          oralStats.difficulty.std.toFixed(2);
+                document.getElementById("writtenCorrelation").textContent =
+                    writtenCorrelation.toFixed(4)
+                document.getElementById("oralCorrelation").textContent =
+                    oralCorrelation.toFixed(4)
 
-        const oralCtx = document
-          .querySelector("#oralItemAnalysis canvas")
-          .getContext("2d");
-        new Chart(oralCtx, {
-          type: "scatter",
-          data: {
-            datasets: [
-              {
-                label: "구술시험 문항",
-                data: df_questions_speaking.map((item) => ({
-                  x: item.변별도,
-                  y: item.난이도,
-                })),
-                backgroundColor: "rgba(255, 99, 132, 0.6)",
-              },
-            ],
-          },
-          options: {
-            scales: {
-              x: { title: { display: true, text: "변별도" } },
-              y: { title: { display: true, text: "난이도" } },
-            },
-          },
-        });
+                // 응시자 능력 분포
+                const abilityCtx = document
+                    .querySelector("#abilityDistribution canvas")
+                    .getContext("2d")
+                const abilityData = df_responses.map((item) =>
+                    parseFloat(item["능력 추정치 (theta)"])
+                )
+                new Chart(abilityCtx, {
+                    type: "bar",
+                    data: {
+                        labels: [
+                            "[-3,-2)",
+                            "[-2,-1)",
+                            "[-1,0)",
+                            "[0,1)",
+                            "[1,2)",
+                            "[2,3]",
+                        ],
+                        datasets: [
+                            {
+                                label: "응시자 수",
+                                data: [
+                                    abilityData.filter((x) => x >= -3 && x < -2)
+                                        .length,
+                                    abilityData.filter((x) => x >= -2 && x < -1)
+                                        .length,
+                                    abilityData.filter((x) => x >= -1 && x < 0)
+                                        .length,
+                                    abilityData.filter((x) => x >= 0 && x < 1)
+                                        .length,
+                                    abilityData.filter((x) => x >= 1 && x < 2)
+                                        .length,
+                                    abilityData.filter((x) => x >= 2 && x <= 3)
+                                        .length,
+                                ],
+                                backgroundColor: "rgba(153, 102, 255, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: "응시자 수" },
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "능력 추정치 (θ)",
+                                },
+                            },
+                        },
+                    },
+                })
 
-        // 상관계수 계산
-        function calculateCorrelation(x, y) {
-          const n = x.length;
-          let sumX = 0,
-            sumY = 0,
-            sumXY = 0,
-            sumX2 = 0,
-            sumY2 = 0;
-          for (let i = 0; i < n; i++) {
-            sumX += x[i];
-            sumY += y[i];
-            sumXY += x[i] * y[i];
-            sumX2 += x[i] * x[i];
-            sumY2 += y[i] * y[i];
-          }
-          const numerator = n * sumXY - sumX * sumY;
-          const denominator = Math.sqrt(
-            (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY)
-          );
-          return numerator / denominator;
-        }
+                // 능력 수준별 잔차 분석 데이터 (예시 데이터 사용)
+                const residualData = df_questions.map((q) => ({
+                    문제번호: q.문제번호,
+                    residuals: df_responses.map((r) => ({
+                        theta: parseFloat(r["능력 추정치 (theta)"]),
+                        residual: Math.random() * 2 - 1, // 실제 잔차 값 계산이 필요함
+                    })),
+                }))
 
-        const writtenCorrelation = calculateCorrelation(
-          writtenDiscrimination,
-          writtenDifficulty
-        );
-        const oralCorrelation = calculateCorrelation(
-          oralDiscrimination,
-          oralDifficulty
-        );
+                // 잔차 데이터를 위한 산점도 차트 생성
+                const residualCtx = document
+                    .querySelector("#residualDistribution canvas")
+                    .getContext("2d")
+                const residualChartData = {
+                    datasets: residualData.map((item) => ({
+                        label: `문항 ${item.문제번호}`,
+                        data: item.residuals.map((res) => ({
+                            x: res.theta,
+                            y: res.residual,
+                        })),
+                        backgroundColor: "rgba(255, 206, 86, 0.6)",
+                    })),
+                }
 
-        document.getElementById("writtenCorrelation").textContent =
-          writtenCorrelation.toFixed(4);
-        document.getElementById("oralCorrelation").textContent =
-          oralCorrelation.toFixed(4);
+                new Chart(residualCtx, {
+                    type: "scatter",
+                    data: residualChartData,
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "능력 추정치 (θ)",
+                                },
+                                min: -3,
+                                max: 3,
+                            },
+                            y: {
+                                title: { display: true, text: "잔차 값" },
+                                min: -3,
+                                max: 3,
+                            },
+                        },
+                    },
+                })
 
-        // 응시자 능력 분포
-        const abilityCtx = document
-          .querySelector("#abilityDistribution canvas")
-          .getContext("2d");
-        const abilityData = df_responses.map(
-          (item) => item["능력 추정치 (theta)"]
-        );
-        new Chart(abilityCtx, {
-          type: "bar",
-          data: {
-            labels: ["[-3,-2)", "[-2,-1)", "[-1,0)", "[0,1)", "[1,2)", "[2,3]"],
-            datasets: [
-              {
-                label: "응시자 수",
-                data: [
-                  abilityData.filter((x) => x >= -3 && x < -2).length,
-                  abilityData.filter((x) => x >= -2 && x < -1).length,
-                  abilityData.filter((x) => x >= -1 && x < 0).length,
-                  abilityData.filter((x) => x >= 0 && x < 1).length,
-                  abilityData.filter((x) => x >= 1 && x < 2).length,
-                  abilityData.filter((x) => x >= 2 && x <= 3).length,
-                ],
-                backgroundColor: "rgba(153, 102, 255, 0.6)",
-              },
-            ],
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: { display: true, text: "응시자 수" },
-              },
-              x: { title: { display: true, text: "능력 추정치 (θ)" } },
-            },
-          },
-        });
+                // 능력 추정치 평균 및 표준편차 계산
+                const abilityStats = calculateMeanStd(abilityData)
+                document.getElementById("meanAbility").textContent =
+                    abilityStats.mean.toFixed(4)
+                document.getElementById("stdAbility").textContent =
+                    abilityStats.std.toFixed(4)
 
-        // 능력 수준별 잔차 분석 데이터
-        const residualData = df_questions.map((q) => ({
-          문제번호: q.문제번호,
-          residuals: df_responses.map((r) => ({
-            theta: r["능력 추정치 (theta)"],
-            residual: Math.random() * 2 - 1, // 실제 잔차 값을 여기에 계산하여 넣어야 합니다.
-          })),
-        }));
+                // 적합도 분포 그래프
+                const fitDistributionCtx = document
+                    .querySelector("#itemFitDistribution canvas")
+                    .getContext("2d")
+                const fitValues = [
+                    ...writtenDiscrimination,
+                    ...oralDiscrimination,
+                ] // 예시로 변별도를 사용
+                const fitBins = 10
+                const fitHistogram = Array(fitBins).fill(0)
+                fitValues.forEach((value) => {
+                    const binIndex = Math.min(
+                        Math.floor(
+                            ((value - Math.min(...fitValues)) /
+                                (Math.max(...fitValues) -
+                                    Math.min(...fitValues))) *
+                                fitBins
+                        ),
+                        fitBins - 1
+                    )
+                    fitHistogram[binIndex]++
+                })
 
-        // 잔차 데이터를 위한 히트맵 또는 산점도 차트 생성
-        const residualCtx = document
-          .querySelector("#residualDistribution canvas")
-          .getContext("2d");
-        const residualChartData = {
-          labels: residualData.map((item) => item.문제번호),
-          datasets: residualData.map((item) => ({
-            label: `문항 ${item.문제번호}`,
-            data: item.residuals.map((res) => ({
-              x: res.theta, // 능력 수준
-              y: res.residual, // 잔차 값
-            })),
-            backgroundColor: "rgba(255, 206, 86, 0.6)",
-          })),
-        };
+                new Chart(fitDistributionCtx, {
+                    type: "bar",
+                    data: {
+                        labels: Array(fitBins)
+                            .fill()
+                            .map((_, i) => i),
+                        datasets: [
+                            {
+                                label: "문항 수",
+                                data: fitHistogram,
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: "문항 수" },
+                            },
+                            x: {
+                                title: { display: true, text: "적합도 구간" },
+                            },
+                        },
+                    },
+                })
 
-        new Chart(residualCtx, {
-          type: "scatter",
-          data: {
-            datasets: residualChartData.datasets,
-          },
-          options: {
-            scales: {
-              x: {
-                title: { display: true, text: "능력 추정치 (θ)" },
-                min: -3,
-                max: 3,
-              },
-              y: { title: { display: true, text: "잔차 값" }, min: -3, max: 3 },
-            },
-          },
-        });
+                // Q-Q 플롯 생성
+                // 표준 정규 분포의 역함수 구현
+                function inverseNormal(p) {
+                    const a1 = -39.6968302866538,
+                        a2 = 220.946098424521,
+                        a3 = -275.928510446969
+                    const a4 = 138.357751867269,
+                        a5 = -30.6647980661472,
+                        a6 = 2.50662827745924
+                    const b1 = -54.4760987982241,
+                        b2 = 161.585836858041,
+                        b3 = -155.698979859887
+                    const b4 = 66.8013118877197,
+                        b5 = -13.2806815528857,
+                        c1 = -7.78489400243029e-3
+                    const c2 = -0.322396458041136,
+                        c3 = -2.40075827716184,
+                        c4 = -2.54973253934373
+                    const c5 = 4.37466414146497,
+                        c6 = 2.93816398269878,
+                        d1 = 7.78469570904146e-3
+                    const d2 = 0.32246712907004,
+                        d3 = 2.445134137143,
+                        d4 = 3.75440866190742
+                    const p_low = 0.02425,
+                        p_high = 1 - p_low
+                    let q, r
 
-        // 능력 추정치 평균 및 표준편차 계산
-        const abilityStats = calculateMeanStd(abilityData);
-        document.getElementById("meanAbility").textContent =
-          abilityStats.mean.toFixed(4);
-        document.getElementById("stdAbility").textContent =
-          abilityStats.std.toFixed(4);
+                    if (p < p_low) {
+                        q = Math.sqrt(-2 * Math.log(p))
+                        return (
+                            (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) *
+                                q +
+                                c6) /
+                            ((((d1 * q + d2) * q + d3) * q + d4) * q + 1)
+                        )
+                    } else if (p <= p_high) {
+                        q = p - 0.5
+                        r = q * q
+                        return (
+                            ((((((a1 * r + a2) * r + a3) * r + a4) * r + a5) *
+                                r +
+                                a6) *
+                                q) /
+                            (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) *
+                                r +
+                                1)
+                        )
+                    } else {
+                        q = Math.sqrt(-2 * Math.log(1 - p))
+                        return (
+                            -(
+                                ((((c1 * q + c2) * q + c3) * q + c4) * q + c5) *
+                                    q +
+                                c6
+                            ) /
+                            ((((d1 * q + d2) * q + d3) * q + d4) * q + 1)
+                        )
+                    }
+                }
 
-        // 결론 및 제언
-        const lowDiscriminationItems = df_questions
-          .filter((q) => q.변별도 < 0.4)
-          .map((q) => q.문제번호);
-        const extremeDifficultyItems = df_questions
-          .filter((q) => Math.abs(q.난이도) > 1.5)
-          .map((q) => q.문제번호);
+                // Q-Q 플롯 생성 부분 수정
+                const qqPlotCtx = document
+                    .querySelector("#qqPlot canvas")
+                    .getContext("2d")
+                const sortedAbilityData = abilityData.sort((a, b) => a - b)
+                const n = sortedAbilityData.length
 
-        const conclusions = [
-          `필기시험 문항 중 변별도가 0.4 미만인 문항들(${lowDiscriminationItems.join(
-            ", "
-          )})에 대한 재검토가 필요합니다.`,
-          `구술시험 문항은 전반적으로 높은 변별도를 보이나, 난이도가 다소 높은 편입니다. 중급 수준의 응시자를 위한 문항 난이도 조정을 고려해볼 수 있습니다.`,
-          `응시자 능력 분포가 정규 분포에 가까운지 확인하고, 필요시 문항 난이도 조정을 통해 더 넓은 범위의 능력을 측정할 수 있도록 개선이 필요합니다.`,
-        ];
+                // 수정된 부분: 직접 구현한 inverseNormal 함수 사용
+                const theoreticalQuantiles = Array.from(
+                    { length: n },
+                    (_, i) => {
+                        const p = (i + 0.5) / n
+                        return inverseNormal(p)
+                    }
+                )
 
-        const conclusionsList = document.getElementById("conclusions");
-        conclusions.forEach((conclusion) => {
-          const li = document.createElement("li");
-          li.textContent = conclusion;
-          conclusionsList.appendChild(li);
-        });
-      });
-    </script>
-  </body>
+                new Chart(qqPlotCtx, {
+                    type: "scatter",
+                    data: {
+                        datasets: [
+                            {
+                                label: "Q-Q Plot",
+                                data: theoreticalQuantiles.map((q, i) => ({
+                                    x: q,
+                                    y: sortedAbilityData[i],
+                                })),
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: { display: true, text: "이론적 분위수" },
+                            },
+                            y: {
+                                title: { display: true, text: "관측된 분위수" },
+                            },
+                        },
+                    },
+                })
+
+                // ICC 플롯 생성
+                const iccPlotCtx = document
+                    .querySelector("#iccPlot canvas")
+                    .getContext("2d")
+                const thetaRange = Array.from(
+                    { length: 100 },
+                    (_, i) => -3 + i * 0.06
+                )
+
+                function iccFunction(theta, a, b) {
+                    return 1 / (1 + Math.exp(-a * (theta - b)))
+                }
+
+                const iccDatasets = df_questions.slice(0, 5).map((q, index) => {
+                    const a = parseFloat(q.변별도)
+                    const b = parseFloat(q.난이도)
+                    return {
+                        label: `문항 ${q.문제번호}`,
+                        data: thetaRange.map((theta) => ({
+                            x: theta,
+                            y: iccFunction(theta, a, b),
+                        })),
+                        borderColor: `hsl(${index * 60}, 70%, 50%)`,
+                        fill: false,
+                    }
+                })
+
+                new Chart(iccPlotCtx, {
+                    type: "line",
+                    data: {
+                        datasets: iccDatasets,
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: { display: true, text: "능력 수준 (θ)" },
+                            },
+                            y: {
+                                title: { display: true, text: "정답 확률" },
+                                min: 0,
+                                max: 1,
+                            },
+                        },
+                    },
+                })
+
+                // 실제 응답 데이터 오버레이 (예시)
+                const responseOverlay = df_questions
+                    .slice(0, 5)
+                    .map((q, index) => {
+                        const itemResponses = df_responses.map((r) => ({
+                            theta: parseFloat(r["능력 추정치 (theta)"]),
+                            response: r.OX리스트[index] === "O" ? 1 : 0,
+                        }))
+
+                        // 능력 구간별 평균 응답 계산
+                        const bins = 10
+                        const binnedResponses = Array(bins)
+                            .fill()
+                            .map(() => [])
+                        itemResponses.forEach((r) => {
+                            const binIndex = Math.min(
+                                Math.floor(((r.theta + 3) / 6) * bins),
+                                bins - 1
+                            )
+                            binnedResponses[binIndex].push(r.response)
+                        })
+
+                        const averagedResponses = binnedResponses
+                            .map((bin, i) => ({
+                                x: -3 + ((i + 0.5) * 6) / bins,
+                                y:
+                                    bin.length > 0
+                                        ? bin.reduce((a, b) => a + b) /
+                                          bin.length
+                                        : null,
+                            }))
+                            .filter((r) => r.y !== null)
+
+                        return {
+                            label: `실제 응답 (문항 ${q.문제번호})`,
+                            data: averagedResponses,
+                            borderColor: `hsl(${index * 60}, 70%, 50%)`,
+                            backgroundColor: `hsla(${
+                                index * 60
+                            }, 70%, 50%, 0.5)`,
+                            pointStyle: "circle",
+                            showLine: false,
+                            pointRadius: 5,
+                        }
+                    })
+
+                iccPlotCtx.chart.data.datasets = [
+                    ...iccDatasets,
+                    ...responseOverlay,
+                ]
+                iccPlotCtx.chart.update()
+
+                // 결론 및 제언
+                const lowDiscriminationItems = df_questions
+                    .filter((q) => parseFloat(q.변별도) < 0.4)
+                    .map((q) => q.문제번호)
+                const extremeDifficultyItems = df_questions
+                    .filter((q) => Math.abs(parseFloat(q.난이도)) > 1.5)
+                    .map((q) => q.문제번호)
+
+                const conclusions = [
+                    `필기시험 문항 중 변별도가 0.4 미만인 문항들(${lowDiscriminationItems.join(
+                        ", "
+                    )})에 대한 재검토가 필요합니다.`,
+                    `구술시험 문항은 전반적으로 높은 변별도를 보이나, 난이도가 다소 높은 편입니다. 중급 수준의 응시자를 위한 문항 난이도 조정을 고려해볼 수 있습니다.`,
+                    `응시자 능력 분포가 정규 분포에 가까운지 확인하고, 필요시 문항 난이도 조정을 통해 더 넓은 범위의 능력을 측정할 수 있도록 개선이 필요합니다.`,
+                    `Q-Q 플롯 분석 결과, 응시자 능력 추정치의 정규성 가정이 어느 정도 충족되는 것으로 보입니다. 그러나 양 극단에서 약간의 편차가 관찰되므로 추가적인 검토가 필요할 수 있습니다.`,
+                    `ICC 분석 결과, 일부 문항에서 이론적 곡선과 실제 응답 사이에 차이가 관찰됩니다. 이러한 문항들에 대해 내용 검토 및 개선이 필요할 수 있습니다.`,
+                ]
+
+                const conclusionsList = document.getElementById("conclusions")
+                conclusions.forEach((conclusion) => {
+                    const li = document.createElement("li")
+                    li.textContent = conclusion
+                    conclusionsList.appendChild(li)
+                })
+            })
+        </script>
+    </body>
 </html>

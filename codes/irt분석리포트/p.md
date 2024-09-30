@@ -1,5 +1,9 @@
 주어진 "한국어능력시한국어능력시험 개인 능력 프로파일" 코드를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 정보 및 시각화 데이타를 적용해주세요.
 
+```
+https://echarts.apache.org/en/index.html
+```
+
 ---
 
 "시험 정보 함수 (TIF) 관련 측정"문서의 "한국어능력시험 정보 함수 분석 및 효율성 평가 보고서" 코드를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 정보 및 시각화 데이타를 적용해주세요.
@@ -31,6 +35,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
   </head>
   <body>
     <div class="container">

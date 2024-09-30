@@ -1,289 +1,365 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 신뢰도 분석 요약 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 신뢰도 분석 요약 보고서</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 신뢰도 분석 요약 보고서</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 신뢰도 분석 요약 보고서</h1>
 
-      <div class="section">
-        <h2>1. 요약</h2>
-        <p>
-          본 보고서는 2024년 9월 10일에 CBT평가센터에서 실시된 100회차
-          한국어능력시험 사전평가의 신뢰도 분석 결과를 요약합니다.
-        </p>
-        <ul>
-          <li>
-            전체 시험 신뢰도 계수: <span id="overallReliability"></span> (우수)
-          </li>
-          <li>
-            평가영역별 신뢰도 계수:
-            <ul>
-              <li>어휘: <span id="어휘Reliability"></span></li>
-              <li>문법: <span id="문법Reliability"></span></li>
-              <li>쓰기: <span id="쓰기Reliability"></span></li>
-              <li>읽기: <span id="읽기Reliability"></span></li>
-              <li>문화: <span id="문화Reliability"></span></li>
-            </ul>
-          </li>
-        </ul>
-        <h3>주요 발견사항</h3>
-        <ul>
-          <li>전체적으로 시험의 신뢰도는 우수한 수준입니다.</li>
-          <li>문법 영역이 가장 높은 신뢰도를 보이고 있습니다.</li>
-          <li>쓰기 영역의 신뢰도가 상대적으로 낮아 개선이 필요합니다.</li>
-        </ul>
-      </div>
+            <div class="section">
+                <h2>1. 요약</h2>
+                <p>
+                    본 보고서는 2024년 9월 10일에 CBT평가센터에서 실시된 100회차
+                    한국어능력시험 사전평가의 신뢰도 분석 결과를 요약합니다.
+                </p>
+                <ul>
+                    <li>
+                        전체 시험 신뢰도 계수:
+                        <span id="overallReliability"></span>
+                    </li>
+                    <li>
+                        평가영역별 신뢰도 계수:
+                        <ul id="domainReliabilityList"></ul>
+                    </li>
+                </ul>
+                <h3>주요 발견사항</h3>
+                <ul id="keyFindings"></ul>
+            </div>
 
-      <div class="section">
-        <h2>2. 신뢰도 상세 분석</h2>
-        <h3>2.1 신뢰도 요약 표</h3>
-        <div class="chart-container">
-          <canvas id="reliabilityChart"></canvas>
+            <div class="section">
+                <h2>2. 신뢰도 상세 분석</h2>
+                <h3>2.1 신뢰도 요약 표</h3>
+                <div class="chart-container">
+                    <canvas id="reliabilityChart"></canvas>
+                </div>
+
+                <h3>2.2 문항별 신뢰도 기여도</h3>
+                <table>
+                    <tr>
+                        <th>상위 5개 문항</th>
+                        <th>하위 5개 문항</th>
+                    </tr>
+                    <tr>
+                        <td><ol id="topItems"></ol></td>
+                        <td><ol id="bottomItems"></ol></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="section">
+                <h2>3. 조건부 표준오차(CSEM) 분석</h2>
+                <div class="chart-container">
+                    <canvas id="csemChart"></canvas>
+                </div>
+                <p>
+                    CSEM 분석 결과, 능력 수준
+                    <span id="minCSEMRange"></span> 사이에서 가장 낮은 측정
+                    오차를 보이고 있습니다. 이는 이 구간에서 시험의 정확도가
+                    가장 높음을 의미합니다.
+                </p>
+                <h3>취약 구간</h3>
+                <p>
+                    능력 수준 <span id="weakRanges"></span> 사이에서 상대적으로
+                    높은 CSEM 값을 보이고 있어, 이 구간들의 측정 정확도 개선이
+                    필요합니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>4. 개선 권고사항</h2>
+                <h3>단기 전략</h3>
+                <ul id="shortTermStrategy"></ul>
+                <h3>장기 전략</h3>
+                <ul id="longTermStrategy"></ul>
+            </div>
         </div>
 
-        <h3>2.2 문항별 신뢰도 기여도</h3>
-        <table>
-          <tr>
-            <th>상위 5개 문항</th>
-            <th>하위 5개 문항</th>
-          </tr>
-          <tr>
-            <td>
-              <ol id="topItems"></ol>
-            </td>
-            <td>
-              <ol id="bottomItems"></ol>
-            </td>
-          </tr>
-        </table>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
 
-      <div class="section">
-        <h2>3. 조건부 표준오차(CSEM) 분석</h2>
-        <div class="chart-container">
-          <canvas id="csemChart"></canvas>
-        </div>
-        <p>
-          CSEM 분석 결과, 능력 수준 <span id="minCSEMRange"></span> 사이에서
-          가장 낮은 측정 오차를 보이고 있습니다. 이는 이 구간에서 시험의
-          정확도가 가장 높음을 의미합니다.
-        </p>
-        <h3>취약 구간</h3>
-        <p>
-          능력 수준 <span id="weakRanges"></span> 사이에서 상대적으로 높은 CSEM
-          값을 보이고 있어, 이 구간들의 측정 정확도 개선이 필요합니다.
-        </p>
-      </div>
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>4. 개선 권고사항</h2>
-        <h3>단기 전략</h3>
-        <ul>
-          <li>쓰기 영역의 문항 수를 증가시켜 신뢰도 향상</li>
-          <li>하위 5개 문항의 재검토 및 수정</li>
-          <li>
-            극단적인 능력 수준(-3.0 ~ -2.0, 2.0 ~ 3.0)을 측정하는 문항 추가
-          </li>
-        </ul>
-        <h3>장기 전략</h3>
-        <ul>
-          <li>문항 개발 과정에서 변별도 향상에 중점</li>
-          <li>정기적인 문항 분석 및 갱신 체계 구축</li>
-          <li>컴퓨터 적응 검사(CAT) 도입 검토</li>
-        </ul>
-      </div>
-    </div>
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
+            // 신뢰도 계산 함수
+            function calculateReliability(questions) {
+                const variances = questions.map(
+                    (q) => q.변별도 * q.변별도 * 0.25
+                )
+                const totalVariance = variances.reduce((sum, v) => sum + v, 0)
+                const reliability = totalVariance / (totalVariance + 1)
+                return reliability.toFixed(2)
+            }
 
-    <script type="module">
-      import {
-        df_questions as _df_questions,
-        df_responses,
-        df_questions_speaking as _df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+            // 평가영역별 신뢰도 계산
+            const domains = ["어휘", "문법", "쓰기", "읽기", "문화"]
+            const domainReliabilities = domains.map((domain) => {
+                const domainQuestions = df_questions.filter(
+                    (q) => q.평가영역 === domain
+                )
+                const reliability = parseFloat(
+                    calculateReliability(domainQuestions)
+                )
+                return reliability
+            })
 
-      const df_questions = _df_questions.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
-      const df_questions_speaking = _df_questions_speaking.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
+            // 전체 신뢰도 계산
+            const overallReliability = calculateReliability(df_questions)
 
-      // 신뢰도 계산 함수 (간단한 예시, 실제로는 더 복잡한 계산이 필요할 수 있습니다)
-      function calculateReliability(questions) {
-        const variances = questions.map((q) => q.변별도 * q.변별도 * 0.25); // 이항분포의 분산 근사치
-        const totalVariance = variances.reduce((sum, v) => sum + v, 0);
-        const reliability = totalVariance / (totalVariance + 1); // 간단한 신뢰도 추정
-        return reliability.toFixed(2);
-      }
+            // HTML 업데이트
+            document.getElementById("overallReliability").textContent =
+                overallReliability
+            const domainReliabilityList = document.getElementById(
+                "domainReliabilityList"
+            )
+            domains.forEach((domain, index) => {
+                const li = document.createElement("li")
+                li.textContent = `${domain}: ${domainReliabilities[index]}`
+                domainReliabilityList.appendChild(li)
+            })
 
-      // 평가영역별 신뢰도 계산
-      const domains = ["어휘", "문법", "쓰기", "읽기", "문화"];
-      const domainReliabilities = domains.map((domain) => {
-        const domainQuestions = df_questions.filter(
-          (q) => q.평가영역 === domain
-        );
-        return calculateReliability(domainQuestions);
-      });
+            // 주요 발견사항 업데이트
+            const keyFindings = document.getElementById("keyFindings")
+            const findings = [
+                `전체적으로 시험의 신뢰도는 ${
+                    overallReliability > 0.8 ? "우수한" : "개선이 필요한"
+                } 수준입니다.`,
+                `${
+                    domains[
+                        domainReliabilities.indexOf(
+                            Math.max(...domainReliabilities)
+                        )
+                    ]
+                } 영역이 가장 높은 신뢰도를 보이고 있습니다.`,
+                `${
+                    domains[
+                        domainReliabilities.indexOf(
+                            Math.min(...domainReliabilities)
+                        )
+                    ]
+                } 영역의 신뢰도가 상대적으로 낮아 개선이 필요합니다.`,
+            ]
+            findings.forEach((finding) => {
+                const li = document.createElement("li")
+                li.textContent = finding
+                keyFindings.appendChild(li)
+            })
 
-      // 전체 신뢰도 계산
-      const overallReliability = calculateReliability(df_questions);
+            // 신뢰도 차트 업데이트
+            new Chart(document.getElementById("reliabilityChart"), {
+                type: "bar",
+                data: {
+                    labels: ["전체", ...domains],
+                    datasets: [
+                        {
+                            label: "신뢰도 계수",
+                            data: [overallReliability, ...domainReliabilities],
+                            backgroundColor: "rgba(75, 192, 192, 0.6)",
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "평가영역별 신뢰도 계수",
+                        },
+                    },
+                },
+            })
 
-      // 신뢰도 차트 업데이트
-      new Chart(document.getElementById("reliabilityChart"), {
-        type: "bar",
-        data: {
-          labels: ["전체", ...domains],
-          datasets: [
-            {
-              label: "신뢰도 계수",
-              data: [overallReliability, ...domainReliabilities],
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 1,
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "평가영역별 신뢰도 계수",
-            },
-          },
-        },
-      });
+            // 문항별 신뢰도 기여도 계산 및 정렬
+            const itemContributions = df_questions.map((q, index) => {
+                const contribReliability = calculateReliability(
+                    df_questions.filter((_, i) => i !== index)
+                )
+                return {
+                    number: q.문제번호,
+                    contribution: (
+                        overallReliability - contribReliability
+                    ).toFixed(3),
+                }
+            })
 
-      // CSEM 계산 (간단한 예시)
-      function calculateCSEM(theta) {
-        const info = df_questions.reduce((sum, q) => {
-          const p = 1 / (1 + Math.exp(-1.7 * q.변별도 * (theta - q.난이도)));
-          return sum + q.변별도 * q.변별도 * p * (1 - p);
-        }, 0);
-        return (1 / Math.sqrt(info)).toFixed(2);
-      }
+            const sortedContributions = itemContributions.sort(
+                (a, b) => b.contribution - a.contribution
+            )
+            const topItems = sortedContributions.slice(0, 5)
+            const bottomItems = sortedContributions.slice(-5).reverse()
 
-      const thetaRange = Array.from({ length: 61 }, (_, i) => (i - 30) / 10);
-      const csemData = thetaRange.map((theta) => calculateCSEM(theta));
+            const topItemsList = document.getElementById("topItems")
+            const bottomItemsList = document.getElementById("bottomItems")
 
-      // CSEM 차트 업데이트
-      new Chart(document.getElementById("csemChart"), {
-        type: "line",
-        data: {
-          labels: thetaRange,
-          datasets: [
-            {
-              label: "CSEM",
-              data: csemData,
-              borderColor: "rgb(75, 192, 192)",
-              tension: 0.1,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "능력 수준 (θ)",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "CSEM",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "능력 수준별 조건부 표준오차(CSEM)",
-            },
-          },
-        },
-      });
+            topItems.forEach((item) => {
+                const li = document.createElement("li")
+                li.textContent = `문항 ${item.number} (${item.contribution})`
+                topItemsList.appendChild(li)
+            })
 
-      // 문항별 신뢰도 기여도 계산 및 정렬
-      const itemContributions = df_questions.map((q, index) => {
-        const contribReliability = calculateReliability(
-          df_questions.filter((_, i) => i !== index)
-        );
-        return {
-          number: q.문제번호,
-          contribution: (overallReliability - contribReliability).toFixed(3),
-        };
-      });
+            bottomItems.forEach((item) => {
+                const li = document.createElement("li")
+                li.textContent = `문항 ${item.number} (${item.contribution})`
+                bottomItemsList.appendChild(li)
+            })
 
-      const sortedContributions = itemContributions.sort(
-        (a, b) => b.contribution - a.contribution
-      );
-      const topItems = sortedContributions.slice(0, 5);
-      const bottomItems = sortedContributions.slice(-5).reverse();
+            // CSEM 계산 및 차트 업데이트
+            function calculateCSEM(theta) {
+                const info = df_questions.reduce((sum, q) => {
+                    const p =
+                        1 / (1 + Math.exp(-1.7 * q.변별도 * (theta - q.난이도)))
+                    return sum + q.변별도 * q.변별도 * p * (1 - p)
+                }, 0)
+                return 1 / Math.sqrt(info)
+            }
 
-      // HTML 업데이트
-      document.querySelector("#overallReliability").textContent =
-        overallReliability;
-      domains.forEach((domain, index) => {
-        document.querySelector(`#${domain}Reliability`).textContent =
-          domainReliabilities[index];
-      });
+            const thetaRange = Array.from(
+                { length: 61 },
+                (_, i) => (i - 30) / 10
+            )
+            const csemData = thetaRange.map((theta) => calculateCSEM(theta))
 
-      const topItemsList = document.querySelector("#topItems");
-      topItems.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `문항 ${item.number} (${item.contribution})`;
-        topItemsList.appendChild(li);
-      });
+            new Chart(document.getElementById("csemChart"), {
+                type: "line",
+                data: {
+                    labels: thetaRange,
+                    datasets: [
+                        {
+                            label: "CSEM",
+                            data: csemData,
+                            borderColor: "rgb(75, 192, 192)",
+                            tension: 0.1,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "능력 수준 (θ)",
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "CSEM",
+                            },
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "능력 수준별 조건부 표준오차(CSEM)",
+                        },
+                    },
+                },
+            })
 
-      const bottomItemsList = document.querySelector("#bottomItems");
-      bottomItems.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `문항 ${item.number} (${item.contribution})`;
-        bottomItemsList.appendChild(li);
-      });
+            // CSEM 분석 결과 업데이트
+            const minCSEM = Math.min(...csemData)
+            const minCSEMIndex = csemData.indexOf(minCSEM)
+            const minCSEMTheta = thetaRange[minCSEMIndex]
 
-      // CSEM 분석 결과 업데이트
-      const minCSEM = Math.min(...csemData);
-      const minCSEMIndex = csemData.indexOf(minCSEM + "");
-      const minCSEMTheta = thetaRange[minCSEMIndex];
-      document.querySelector(
-        "#minCSEMRange"
-      ).textContent = `${minCSEMTheta.toFixed(1)}에서 ${(
-        minCSEMTheta + 0.1
-      ).toFixed(1)}`;
+            if (minCSEMTheta !== undefined) {
+                document.getElementById(
+                    "minCSEMRange"
+                ).textContent = `${minCSEMTheta.toFixed(1)}에서 ${(
+                    minCSEMTheta + 0.1
+                ).toFixed(1)}`
+            } else {
+                document.getElementById("minCSEMRange").textContent =
+                    "계산할 수 없음"
+            }
 
-      const weakRanges = thetaRange.filter((_, i) => csemData[i] > 0.5);
-      document.querySelector("#weakRanges").textContent = `${Math.min(
-        ...weakRanges
-      ).toFixed(1)}에서 ${Math.max(...weakRanges).toFixed(1)}`;
-    </script>
-  </body>
+            const weakRanges = thetaRange.filter((_, i) => csemData[i] > 0.5)
+            if (weakRanges.length > 0) {
+                document.getElementById("weakRanges").textContent = `${Math.min(
+                    ...weakRanges
+                ).toFixed(1)}에서 ${Math.max(...weakRanges).toFixed(1)}`
+            } else {
+                document.getElementById("weakRanges").textContent =
+                    "해당 구간 없음"
+            }
+
+            // 개선 권고사항 업데이트
+            const shortTermStrategy =
+                document.getElementById("shortTermStrategy")
+            const longTermStrategy = document.getElementById("longTermStrategy")
+
+            const shortTermStrategies = [
+                `${
+                    domains[
+                        domainReliabilities.indexOf(
+                            Math.min(...domainReliabilities)
+                        )
+                    ]
+                } 영역의 문항 수를 증가시켜 신뢰도 향상`,
+                "하위 5개 문항의 재검토 및 수정",
+                "극단적인 능력 수준(-3.0 ~ -2.0, 2.0 ~ 3.0)을 측정하는 문항 추가",
+            ]
+
+            const longTermStrategies = [
+                "문항 개발 과정에서 변별도 향상에 중점",
+                "정기적인 문항 분석 및 갱신 체계 구축",
+                "컴퓨터 적응 검사(CAT) 도입 검토",
+            ]
+
+            shortTermStrategies.forEach((strategy) => {
+                const li = document.createElement("li")
+                li.textContent = strategy
+                shortTermStrategy.appendChild(li)
+            })
+
+            longTermStrategies.forEach((strategy) => {
+                const li = document.createElement("li")
+                li.textContent = strategy
+                longTermStrategy.appendChild(li)
+            })
+        </script>
+    </body>
 </html>
