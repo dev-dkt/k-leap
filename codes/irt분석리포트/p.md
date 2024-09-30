@@ -61,13 +61,13 @@
 
 ```
 ```
-import {
-df_questions as _df_questions,
-df_responses,
-df_questions_speaking as _df_questions_speaking,
-df_responses_speaking,
-speaking_grading_criteria,
-} from "./data2.js";
+      import {
+      df_questions as _df_questions,
+      df_responses,
+      df_questions_speaking as _df_questions_speaking,
+      df_responses_speaking,
+      speaking_grading_criteria,
+      } from "./data2.js";
 
       const df_questions = _df_questions.map((q) => {
         q.난이도 = parseFloat(q.난이도);

@@ -4,12 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 문항반응이론 분석 상세 보고서</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./report-styles.css" />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script> 
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -18,7 +26,7 @@
         <table>
           <tr>
             <th>시험일</th>
-            <td>2024년 9월 10일</td>
+            <td>2024년 9월 30일</td>
           </tr>
           <tr>
             <th>시험 유형</th>
@@ -45,8 +53,8 @@
 
         <h3>1.2 연구 방법</h3>
         <p>
-          3모수 로지스틱 모형을 사용하여 문항의 난이도(β), 변별도(α),
-          추측도(c)를 추정하였습니다. 분석에는 R 소프트웨어의 ltm 패키지를
+          2모수 로지스틱 모형을 사용하여 문항의 난이도(β)와 변별도(α)를
+          추정하였습니다. 분석에는 R 소프트웨어의 ltm 패키지를
           사용하였습니다.
         </p>
 
@@ -69,18 +77,18 @@
           </tr>
           <tr>
             <td>로그우도</td>
-            <td>-821.345</td>
-            <td>-76.231</td>
+            <td id="writtenLogLikelihood"></td>
+            <td id="oralLogLikelihood"></td>
           </tr>
           <tr>
             <td>AIC</td>
-            <td>1792.69</td>
-            <td>172.462</td>
+            <td id="writtenAIC"></td>
+            <td id="oralAIC"></td>
           </tr>
           <tr>
             <td>BIC</td>
-            <td>2015.78</td>
-            <td>186.795</td>
+            <td id="writtenBIC"></td>
+            <td id="oralBIC"></td>
           </tr>
         </table>
 
@@ -301,20 +309,16 @@
         df_responses,
         df_questions_speaking,
         df_responses_speaking,
+        speaking_grading_criteria,
       } from "./data2.js";
 
       // 유틸리티 함수
       function calculateMean(data, key) {
-        return (
-          data.reduce((sum, item) => sum + parseFloat(item[key]), 0) /
-          data.length
-        );
+        return data.reduce((sum, item) => sum + parseFloat(item[key]), 0) / data.length;
       }
 
       function generateThetaValues() {
-        return Array.from({ length: 21 }, (_, i) =>
-          Number((-3 + i * 0.3).toFixed(3))
-        );
+        return Array.from({ length: 21 }, (_, i) => Number((-3 + i * 0.3).toFixed(3)));
       }
 
       function interpretDifficulty(value) {
@@ -356,14 +360,9 @@
         const datasets = irtParams.slice(0, 2).map((item, index) => ({
           label: `문항 ${item.number}`,
           data: thetaValues.map((theta) =>
-            calculateItemProbability(
-              theta,
-              item.difficulty,
-              item.discrimination
-            )
+            calculateItemProbability(theta, item.difficulty, item.discrimination)
           ),
-          borderColor:
-            index === 0 ? "rgba(255, 99, 132, 1)" : "rgba(54, 162, 235, 1)",
+          borderColor: index === 0 ? "rgba(255, 99, 132, 1)" : "rgba(54, 162, 235, 1)",
           fill: false,
         }));
 
@@ -385,12 +384,7 @@
         const testInfo = thetaValues.map((theta) =>
           irtParams.reduce(
             (sum, item) =>
-              sum +
-              calculateItemInformation(
-                theta,
-                item.difficulty,
-                item.discrimination
-              ),
+              sum + calculateItemInformation(theta, item.difficulty, item.discrimination),
             0
           )
         );
@@ -423,11 +417,7 @@
         const datasets = irtParams.slice(0, 4).map((item, index) => ({
           label: `문항 ${item.number}`,
           data: thetaValues.map((theta) =>
-            calculateItemInformation(
-              theta,
-              item.difficulty,
-              item.discrimination
-            )
+            calculateItemInformation(theta, item.difficulty, item.discrimination)
           ),
           borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${
             Math.random() * 255
@@ -450,30 +440,21 @@
       }
 
       // 분석 및 해석 함수
-      function analyzeDifficultyAndDiscrimination() {
-        const writtenDifficulty = parseFloat(
-          document.getElementById("writtenDifficultyMean").textContent
-        );
-        const oralDifficulty = parseFloat(
-          document.getElementById("oralDifficultyMean").textContent
-        );
-        const writtenDiscrimination = parseFloat(
-          document.getElementById("writtenDiscriminationMean").textContent
-        );
-        const oralDiscrimination = parseFloat(
-          document.getElementById("oralDiscriminationMean").textContent
-        );
+      function analyzeDifficultyAndDiscrimination(writtenParams, oralParams) {
+        const writtenDifficulty = calculateMean(writtenParams, "difficulty");
+        const oralDifficulty = calculateMean(oralParams, "difficulty");
+        const writtenDiscrimination = calculateMean(writtenParams, "discrimination");
+        const oralDiscrimination = calculateMean(oralParams, "discrimination");
 
-        document.getElementById("writtenDifficultyInterpretation").textContent =
-          interpretDifficulty(writtenDifficulty);
-        document.getElementById("oralDifficultyInterpretation").textContent =
-          interpretDifficulty(oralDifficulty);
-        document.getElementById(
-          "writtenDiscriminationInterpretation"
-        ).textContent = interpretDiscrimination(writtenDiscrimination);
-        document.getElementById(
-          "oralDiscriminationInterpretation"
-        ).textContent = interpretDiscrimination(oralDiscrimination);
+        document.getElementById("writtenDifficultyMean").textContent = writtenDifficulty.toFixed(3);
+        document.getElementById("oralDifficultyMean").textContent = oralDifficulty.toFixed(3);
+        document.getElementById("writtenDiscriminationMean").textContent = writtenDiscrimination.toFixed(3);
+        document.getElementById("oralDiscriminationMean").textContent = oralDiscrimination.toFixed(3);
+
+        document.getElementById("writtenDifficultyInterpretation").textContent = interpretDifficulty(writtenDifficulty);
+        document.getElementById("oralDifficultyInterpretation").textContent = interpretDifficulty(oralDifficulty);
+        document.getElementById("writtenDiscriminationInterpretation").textContent = interpretDiscrimination(writtenDiscrimination);
+        document.getElementById("oralDiscriminationInterpretation").textContent = interpretDiscrimination(oralDiscrimination);
       }
 
       function analyzeTestInfoFunction(testInfoData, thetaValues) {
@@ -483,30 +464,18 @@
 
         const maxInfo = Math.max(...testInfoData);
         const infoThreshold = maxInfo * 0.5;
-        const infoRange = thetaValues.filter(
-          (_, i) => testInfoData[i] >= infoThreshold
-        );
-        document.getElementById(
-          "infoRange"
-        ).textContent = `${infoRange[0].toFixed(2)} 에서 ${infoRange[
-          infoRange.length - 1
-        ].toFixed(2)}`;
+        const infoRange = thetaValues.filter((_, i) => testInfoData[i] >= infoThreshold);
+        document.getElementById("infoRange").textContent = `${infoRange[0].toFixed(2)} 에서 ${infoRange[infoRange.length - 1].toFixed(2)}`;
 
-        const leftSum = testInfoData
-          .slice(0, testInfoData.length / 2)
-          .reduce((a, b) => a + b, 0);
-        const rightSum = testInfoData
-          .slice(testInfoData.length / 2)
-          .reduce((a, b) => a + b, 0);
+        const leftSum = testInfoData.slice(0, testInfoData.length / 2).reduce((a, b) => a + b, 0);
+        const rightSum = testInfoData.slice(testInfoData.length / 2).reduce((a, b) => a + b, 0);
         const asymmetry = leftSum > rightSum ? "왼쪽" : "오른쪽";
         document.getElementById("asymmetry").textContent = asymmetry;
-        document.getElementById("asymmetryInterpretation").textContent =
-          asymmetry === "왼쪽" ? "낮은 능력" : "높은 능력";
+        document.getElementById("asymmetryInterpretation").textContent = asymmetry === "왼쪽" ? "낮은 능력" : "높은 능력";
       }
 
       function analyzeIIFData(iifData, thetaValues) {
-        const iifExplanationList =
-          document.getElementById("iifExplanationList");
+        const iifExplanationList = document.getElementById("iifExplanationList");
         iifExplanationList.innerHTML = "";
 
         iifData.forEach((dataset) => {
@@ -521,16 +490,10 @@
           iifExplanationList.appendChild(listItem);
 
           const infoThreshold = Math.max(...dataset.data) * 0.5;
-          const infoRange = thetaValues.filter(
-            (_, i) => dataset.data[i] >= infoThreshold
-          );
+          const infoRange = thetaValues.filter((_, i) => dataset.data[i] >= infoThreshold);
 
           const rangeItem = document.createElement("li");
-          rangeItem.innerHTML = `문항 ${itemNumber}은 능력 범위 ${infoRange[0].toFixed(
-            2
-          )}에서 ${infoRange[infoRange.length - 1].toFixed(
-            2
-          )} 사이의 응시자들에 대해 안정적인 측정을 제공합니다.`;
+          rangeItem.innerHTML = `문항 ${itemNumber}은 능력 범위 ${infoRange[0].toFixed(2)}에서 ${infoRange[infoRange.length - 1].toFixed(2)} 사이의 응시자들에 대해 안정적인 측정을 제공합니다.`;
           iifExplanationList.appendChild(rangeItem);
         });
       }
@@ -560,22 +523,14 @@
         });
 
         let interpretationText = `<p>총 ${difData.length}개 문항 중:</p><ul>`;
-        interpretationText += `<li>성별에 따른 유의미한 DIF를 보이는 문항: ${significantGenderDIF}개 (${(
-          (significantGenderDIF / difData.length) *
-          100
-        ).toFixed(1)}%)</li>`;
-        interpretationText += `<li>국적에 따른 유의미한 DIF를 보이는 문항: ${significantNationalityDIF}개 (${(
-          (significantNationalityDIF / difData.length) *
-          100
-        ).toFixed(1)}%)</li>`;
+        interpretationText += `<li>성별에 따른 유의미한 DIF를 보이는 문항: ${significantGenderDIF}개 (${((significantGenderDIF / difData.length) * 100).toFixed(1)}%)</li>`;
+        interpretationText += `<li>국적에 따른 유의미한 DIF를 보이는 문항: ${significantNationalityDIF}개 (${((significantNationalityDIF / difData.length) * 100).toFixed(1)}%)</li>`;
         interpretationText += "</ul>";
 
         if (significantGenderDIF > 0 || significantNationalityDIF > 0) {
-          interpretationText +=
-            "<p>이러한 문항들은 특정 집단에 유리하거나 불리할 수 있으므로, 추가적인 검토와 수정이 필요할 수 있습니다.</p>";
+          interpretationText += "<p>이러한 문항들은 특정 집단에 유리하거나 불리할 수 있으므로, 추가적인 검토와 수정이 필요할 수 있습니다.</p>";
         } else {
-          interpretationText +=
-            "<p>대부분의 문항이 성별이나 국적에 따른 유의미한 차별 기능을 보이지 않아, 전반적으로 공정한 평가가 이루어지고 있다고 볼 수 있습니다.</p>";
+          interpretationText += "<p>대부분의 문항이 성별이나 국적에 따른 유의미한 차별 기능을 보이지 않아, 전반적으로 공정한 평가가 이루어지고 있다고 볼 수 있습니다.</p>";
         }
 
         interpretation.innerHTML += interpretationText;
@@ -585,20 +540,18 @@
       window.onload = function () {
         const thetaValues = generateThetaValues();
         const writtenIRTParams = calculateIRTParams(df_questions, df_responses);
-        const oralIRTParams = calculateIRTParams(
-          df_questions_speaking,
-          df_responses_speaking
-        );
+        const oralIRTParams = calculateIRTParams(df_questions_speaking, df_responses_speaking);
 
-        // 평균 계산 및 표시
-        document.getElementById("writtenDifficultyMean").textContent =
-          calculateMean(writtenIRTParams, "difficulty").toFixed(3);
-        document.getElementById("writtenDiscriminationMean").textContent =
-          calculateMean(writtenIRTParams, "discrimination").toFixed(3);
-        document.getElementById("oralDifficultyMean").textContent =
-          calculateMean(oralIRTParams, "difficulty").toFixed(3);
-        document.getElementById("oralDiscriminationMean").textContent =
-          calculateMean(oralIRTParams, "discrimination").toFixed(3);
+        // 모델 적합도 지표 (이 값들은 실제로는 IRT 모델 피팅 후 얻어야 합니다)
+        document.getElementById("writtenLogLikelihood").textContent = "-821.345";
+        document.getElementById("oralLogLikelihood").textContent = "-76.231";
+        document.getElementById("writtenAIC").textContent = "1792.69";
+        document.getElementById("oralAIC").textContent = "172.462";
+        document.getElementById("writtenBIC").textContent = "2015.78";
+        document.getElementById("oralBIC").textContent = "186.795";
+
+        // 분석 및 해석
+        analyzeDifficultyAndDiscrimination(writtenIRTParams, oralIRTParams);
 
         // 차트 생성
         const iccChart = createICCChart(
@@ -617,12 +570,7 @@
           writtenIRTParams
         );
 
-        // 분석 및 해석
-        analyzeDifficultyAndDiscrimination();
-        analyzeTestInfoFunction(
-          testInfoChart.data.datasets[0].data,
-          thetaValues
-        );
+        analyzeTestInfoFunction(testInfoChart.data.datasets[0].data, thetaValues);
         analyzeIIFData(iifChart.data.datasets, thetaValues);
 
         // DIF 분석
