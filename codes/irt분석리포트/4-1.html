@@ -1,542 +1,568 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 정보 함수 분석 및 효율성 평가 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script
-      id="MathJax-script"
-      async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-    ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-    <style>
-      .heatmap-cell {
-        stroke: #fff;
-      }
-      .heatmap-legend text {
-        font-size: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 정보 함수 분석 및 효율성 평가 보고서</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 정보 함수 분석 및 효율성 평가 보고서</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+        <style>
+            .heatmap-cell {
+                stroke: #fff;
+            }
+            .heatmap-legend text {
+                font-size: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 정보 함수 분석 및 효율성 평가 보고서</h1>
 
-      <div class="section">
-        <h2>1. 요약</h2>
-        <ul>
-          <li>시험의 주요 측정 능력 범위: \(-0.5 \leq \theta \leq 1.0\)</li>
-          <li>정보량 최대 지점: \(\theta = 0.30\) (정보량: 15.20)</li>
-          <li>정보량 최소 지점: \(\theta = -3.00\) (정보량: 2.10)</li>
-        </ul>
+            <div class="section">
+                <h2>1. 요약</h2>
+                <ul id="summary"></ul>
 
-        <h3>주요 발견사항</h3>
-        <ul>
-          <li>시험은 중상위 수준의 능력을 가장 정확하게 측정하고 있습니다.</li>
-          <li>
-            극단적인 능력 수준(\(\theta \lt -3\) 또는 \(\theta \gt 3\))에서는
-            측정의 정확도가 낮습니다.
-          </li>
-          <li>
-            응시자의 능력 분포와 시험 정보 함수 간에 약간의 불일치가 있습니다.
-          </li>
-          <li>
-            읽기와 쓰기 영역이 다른 영역에 비해 더 많은 정보를 제공하고
-            있습니다.
-          </li>
-        </ul>
-      </div>
+                <h3>주요 발견사항</h3>
+                <ul>
+                    <li>
+                        시험은 중상위 수준의 능력을 가장 정확하게 측정하고
+                        있습니다.
+                    </li>
+                    <li>
+                        극단적인 능력 수준(\(\theta \lt -3\) 또는 \(\theta \gt
+                        3\))에서는 측정의 정확도가 낮습니다.
+                    </li>
+                    <li>
+                        응시자의 능력 분포와 시험 정보 함수 간에 약간의 불일치가
+                        있습니다.
+                    </li>
+                    <li>
+                        평가영역 간 정보 제공량에 차이가 있어 균형 개선이
+                        필요합니다.
+                    </li>
+                </ul>
+            </div>
 
-      <div class="section">
-        <h2>2. 시험 정보 함수 분석</h2>
-        <div class="chart-container">
-          <canvas id="tifChart"></canvas>
+            <div class="section">
+                <h2>2. 시험 정보 함수 분석</h2>
+                <div class="chart-container">
+                    <canvas id="tifChart"></canvas>
+                </div>
+                <p>
+                    시험 정보 함수는 능력 수준 \(\theta\)에 따른 측정의 정확도를
+                    나타냅니다. 정보량이 높을수록 해당 능력 수준에서 측정이
+                    정확함을 의미합니다.
+                </p>
+
+                <h3>능력 수준별 정보량 히트맵</h3>
+                <div class="chart-container">
+                    <div id="heatmapChart"></div>
+                </div>
+                <p>
+                    히트맵은 각 평가영역별로 능력 수준에 따른 정보량을
+                    시각화합니다. 색이 진할수록 해당 영역과 능력 수준에서 높은
+                    정보량을 제공함을 나타냅니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>3. 응시자 분포와의 일치도 분석</h2>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+                <p>
+                    이 그래프는 응시자의 능력 분포와 시험 정보 함수를
+                    비교합니다. 두 분포가 일치할수록 시험이 응시자 집단에
+                    적합하게 설계되었음을 의미합니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>4. 평가영역별 정보 제공 분석</h2>
+                <div class="chart-container">
+                    <canvas id="domainInfoChart"></canvas>
+                </div>
+                <p>
+                    이 차트는 각 평가영역이 제공하는 평균 정보량을 보여줍니다.
+                    영역 간 균형을 평가하고 개선이 필요한 영역을 식별하는 데
+                    도움이 됩니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>5. 개선 권고사항</h2>
+                <h3>5.1 정보량 부족 구간 개선</h3>
+                <ul>
+                    <li>
+                        극단적인 능력 수준(\(\theta \lt -3\) 또는 \(\theta \gt
+                        3\))을 측정하는 문항 추가
+                    </li>
+                    <li>
+                        특히 고난도 문항(\(\theta \gt 2\))의 비중을 늘려 상위
+                        능력 측정 정확도 향상
+                    </li>
+                </ul>
+
+                <h3>5.2 응시자 분포 일치도 향상</h3>
+                <ul>
+                    <li>
+                        시험의 전반적인 난이도를 응시자 분포의 중심과 일치하도록
+                        조정
+                    </li>
+                    <li>응시자 분포의 중심 구간에 해당하는 문항 비중 증가</li>
+                </ul>
+
+                <h3>5.3 평가영역 간 균형 개선</h3>
+                <ul>
+                    <li>
+                        정보량이 낮은 영역의 문항 수 증가 또는 문항 품질 개선
+                    </li>
+                    <li>
+                        모든 평가영역에서 고른 정보량을 제공하도록 문항 구성
+                        조정
+                    </li>
+                </ul>
+            </div>
         </div>
-        <p>
-          시험 정보 함수는 능력 수준 \(\theta = 0.30\)에서 최대값을 가지며, 이는
-          이 시험이 중상위 수준의 능력을 가장 정확하게 측정함을 의미합니다. 시험
-          정보 함수는 다음과 같이 정의됩니다:
-        </p>
-        <p>
-          \[I(\theta) = \sum_{i=1}^n I_i(\theta) = \sum_{i=1}^n
-          \frac{[P_i'(\theta)]^2}{P_i(\theta)[1-P_i(\theta)]}\]
-        </p>
-        <p>
-          여기서 \(I(\theta)\)는 시험 정보 함수, \(I_i(\theta)\)는 각 문항의
-          정보 함수, \(P_i(\theta)\)는 능력 수준 \(\theta\)에서 i번째 문항에
-          정답을 맞출 확률입니다.
-        </p>
 
-        <h3>능력 수준별 정보량 히트맵</h3>
-        <div class="chart-container">
-          <div id="heatmapChart"></div>
-        </div>
-        <p>
-          히트맵에서 볼 수 있듯이, 읽기와 쓰기 영역이 전반적으로 높은 정보량을
-          제공하고 있습니다. 반면, 말하기 영역은 상대적으로 낮은 정보량을 보이고
-          있습니다.
-        </p>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
 
-      <div class="section">
-        <h2>3. 응시자 분포와의 일치도 분석</h2>
-        <div class="chart-container">
-          <canvas id="distributionChart"></canvas>
-        </div>
-        <p>
-          응시자의 능력 분포와 시험 정보 함수 사이에 약간의 불일치가 관찰됩니다.
-          시험은 \(\theta = 0.30\) 근처에서 가장 많은 정보를 제공하지만,
-          응시자의 능력 분포는 이보다 약간 낮은 구간에 집중되어 있습니다.
-        </p>
-      </div>
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>4. 평가영역별 정보 제공 분석</h2>
-        <div class="chart-container">
-          <canvas id="domainInfoChart"></canvas>
-        </div>
-        <p>
-          읽기와 쓰기 영역이 가장 많은 정보를 제공하고 있으며, 말하기 영역의
-          정보 제공량이 가장 적습니다. 이는 말하기 영역의 문항 개선이 필요함을
-          시사합니다.
-        </p>
-      </div>
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
 
-      <div class="section">
-        <h2>5. 개선 권고사항</h2>
-        <h3>5.1 정보량 부족 구간 개선</h3>
-        <ul>
-          <li>
-            극단적인 능력 수준(\(\theta \lt -3\) 또는 \(\theta \gt 3\))을
-            측정하는 문항 추가
-          </li>
-          <li>
-            특히 고난도 문항(\(\theta \gt 2\))의 비중을 늘려 상위 능력 측정
-            정확도 향상
-          </li>
-        </ul>
+            // 모든 문항을 합친 배열 생성
+            const allQuestions = [...df_questions, ...df_questions_speaking]
 
-        <h3>5.2 응시자 분포 일치도 향상</h3>
-        <ul>
-          <li>
-            시험의 전반적인 난이도를 약간 낮추어 응시자 분포의 중심과 일치시킴
-          </li>
-          <li>\(-0.5 \leq \theta \leq 0.5\) 구간의 문항 비중 증가</li>
-        </ul>
+            // 능력 수준의 범위 설정
+            const thetaRange = Array.from(
+                { length: 61 },
+                (_, i) => -3 + i * 0.1
+            )
 
-        <h3>5.3 평가영역 간 균형 개선</h3>
-        <ul>
-          <li>말하기 영역의 문항 수 증가 또는 문항 품질 개선</li>
-          <li>듣기 영역의 변별도 높은 문항 추가</li>
-        </ul>
-      </div>
-    </div>
+            // TIF 계산 함수
+            function calculateTIF(theta) {
+                return allQuestions.reduce((totalInfo, item) => {
+                    const alpha = item.변별도
+                    const beta = item.난이도
+                    const p = 1 / (1 + Math.exp(-alpha * (theta - beta)))
+                    const info = Math.pow(alpha, 2) * p * (1 - p)
+                    return totalInfo + info
+                }, 0)
+            }
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
+            // thetaRange에 대한 TIF 계산
+            const tifData = thetaRange.map((theta) => calculateTIF(theta))
 
-    <script type="module">
-      import {
-        df_questions as _df_questions,
-        df_responses,
-        df_questions_speaking as _df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+            // 최대 정보량 및 해당 능력 수준 찾기
+            const maxTifIndex = tifData.indexOf(Math.max(...tifData))
+            const maxTifTheta = thetaRange[maxTifIndex]
+            const maxTifValue = tifData[maxTifIndex]
 
-      const df_questions = _df_questions.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
-      const df_questions_speaking = _df_questions_speaking.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
+            // 최소 정보량 및 해당 능력 수준 찾기
+            const minTifIndex = tifData.indexOf(Math.min(...tifData))
+            const minTifTheta = thetaRange[minTifIndex]
+            const minTifValue = tifData[minTifIndex]
 
-      // 능력 수준의 범위 설정
-      const thetaRange = Array.from({ length: 61 }, (_, i) => -3 + i * 0.1);
+            // 요약 섹션 업데이트
+            document.querySelector("#summary").innerHTML = `
+                <li>시험의 주요 측정 능력 범위: \\(${thetaRange[0].toFixed(2)} \\leq \\theta \\leq ${thetaRange[thetaRange.length - 1].toFixed(2)}\\)</li>
+                <li>정보량 최대 지점: \\(\\theta = ${maxTifTheta.toFixed(2)}\\) (정보량: ${maxTifValue.toFixed(2)})</li>
+                <li>정보량 최소 지점: \\(\\theta = ${minTifTheta.toFixed(2)}\\) (정보량: ${minTifValue.toFixed(2)})</li>
+            `;
 
-      // TIF 계산 함수
-      function calculateTIF(theta) {
-        return df_questions.reduce((totalInfo, item) => {
-          const alpha = parseFloat(item.변별도);
-          const beta = parseFloat(item.난이도);
-          const p = 1 / (1 + Math.exp(-alpha * (theta - beta)));
-          const info = Math.pow(alpha, 2) * p * (1 - p);
-          return totalInfo + info;
-        }, 0);
-      }
-
-      // thetaRange에 대한 TIF 계산
-      const tifData = thetaRange.map((theta) => calculateTIF(theta));
-
-      // 최대 정보량 및 해당 능력 수준 찾기
-      const maxTifIndex = tifData.indexOf(Math.max(...tifData));
-      const maxTifTheta = thetaRange[maxTifIndex];
-      const maxTifValue = tifData[maxTifIndex];
-
-      // 최소 정보량 및 해당 능력 수준 찾기
-      const minTifIndex = tifData.indexOf(Math.min(...tifData));
-      const minTifTheta = thetaRange[minTifIndex];
-      const minTifValue = tifData[minTifIndex];
-
-      // 요약 섹션 업데이트
-      document.querySelector(".section ul").innerHTML = `
-            <li>시험의 주요 측정 능력 범위: \(${thetaRange[0].toFixed(
-              2
-            )} \leq \theta \leq ${thetaRange[thetaRange.length - 1].toFixed(
-        2
-      )}\)</li>
-            <li>정보량 최대 지점: \(\theta = ${maxTifTheta.toFixed(
-              2
-            )}\) (정보량: ${maxTifValue.toFixed(2)})</li>
-            <li>정보량 최소 지점: \(\theta = ${minTifTheta.toFixed(
-              2
-            )}\) (정보량: ${minTifValue.toFixed(2)})</li>
-        `;
-
-      // TIF 차트 업데이트
-      const tifChart = new Chart(document.getElementById("tifChart"), {
-        type: "line",
-        data: {
-          labels: thetaRange.map((theta) => theta.toFixed(2)),
-          datasets: [
-            {
-              label: "시험 정보량",
-              data: tifData,
-              borderColor: "rgb(75, 192, 192)",
-              tension: 0.1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: "시험 정보 함수",
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "능력 수준 (θ)",
-              },
-              ticks: {
-                callback: function (value, index, values) {
-                  return Number(this.getLabelForValue(value)).toFixed(2);
-                },
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "정보량",
-              },
-            },
-          },
-        },
-      });
-
-      // 히트맵 데이터 생성
-      const heatmapData = df_questions.map((question) => ({
-        ability: parseFloat(question.난이도),
-        domain: question.평가영역,
-        value: parseFloat(question.변별도),
-      }));
-
-      // 응시자 분포 데이터 생성
-      const abilityEstimates = df_responses.map((response) =>
-        parseFloat(response["능력 추정치 (theta)"])
-      );
-      const distributionData = Array(7).fill(0);
-      abilityEstimates.forEach((ability) => {
-        const index = Math.floor(ability + 3);
-        if (index >= 0 && index < 7) distributionData[index]++;
-      });
-
-      // 분포 차트 업데이트
-      const distributionChart = new Chart(
-        document.getElementById("distributionChart"),
-        {
-          type: "bar",
-          data: {
-            labels: [-3, -2, -1, 0, 1, 2, 3],
-            datasets: [
-              {
-                type: "bar",
-                label: "응시자 분포",
-                data: distributionData,
-                backgroundColor: "rgba(255, 99, 132, 0.5)",
-              },
-              {
+            // TIF 차트 업데이트
+            const tifChart = new Chart(document.getElementById("tifChart"), {
                 type: "line",
-                label: "시험 정보량",
-                data: tifData.filter((_, index) => index % 10 === 0),
-                borderColor: "rgb(75, 192, 192)",
-                yAxisID: "y1",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: "응시자 분포와 시험 정보 함수",
-              },
-            },
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "능력 수준 (θ)",
+                data: {
+                    labels: thetaRange.map((theta) => theta.toFixed(2)),
+                    datasets: [
+                        {
+                            label: "시험 정보량",
+                            data: tifData,
+                            borderColor: "rgb(75, 192, 192)",
+                            tension: 0.1,
+                        },
+                    ],
                 },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "응시자 수",
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "시험 정보 함수",
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "능력 수준 (θ)",
+                            },
+                            ticks: {
+                                callback: function (value, index, values) {
+                                    return Number(
+                                        this.getLabelForValue(value)
+                                    ).toFixed(1)
+                                },
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "정보량",
+                            },
+                        },
+                    },
                 },
-              },
-              y1: {
-                type: "linear",
-                display: true,
-                position: "right",
-                title: {
-                  display: true,
-                  text: "정보량",
-                },
-              },
-            },
-          },
-        }
-      );
+            })
 
-      // 평가영역별 평균 정보량 계산
-      const domainInfo = {};
-      df_questions.forEach((question) => {
-        const domain = question.평가영역;
-        const alpha = parseFloat(question.변별도);
-        if (!domainInfo[domain]) {
-          domainInfo[domain] = { totalAlpha: 0, count: 0 };
-        }
-        domainInfo[domain].totalAlpha += alpha;
-        domainInfo[domain].count += 1;
-      });
+            // 히트맵 데이터 생성
+            const heatmapData = allQuestions.map((question) => ({
+                ability: question.난이도,
+                domain: question.평가영역,
+                value: question.변별도,
+            }))
 
-      const domainAverages = Object.keys(domainInfo).map((domain) => ({
-        domain,
-        averageAlpha: domainInfo[domain].totalAlpha / domainInfo[domain].count,
-      }));
+            // 응시자 분포 데이터 생성
+            const allResponses = [...df_responses, ...df_responses_speaking]
+            const abilityEstimates = allResponses.map((response) =>
+                parseFloat(response["능력 추정치 (theta)"])
+            )
+            const distributionData = Array(61).fill(0)
+            abilityEstimates.forEach((ability) => {
+                const index = Math.round((ability + 3) * 10)
+                if (index >= 0 && index < 61) distributionData[index]++
+            })
 
-      // 평가영역별 정보량 차트 업데이트
-      const domainInfoChart = new Chart(
-        document.getElementById("domainInfoChart"),
-        {
-          type: "bar",
-          data: {
-            labels: domainAverages.map((d) => d.domain),
-            datasets: [
-              {
-                label: "평균 정보량",
-                data: domainAverages.map((d) => d.averageAlpha),
-                backgroundColor: "rgba(75, 192, 192, 0.6)",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: "평가영역별 평균 정보량",
-              },
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "평균 정보량",
-                },
-              },
-            },
-          },
-        }
-      );
+            // 분포 차트 업데이트
+            const distributionChart = new Chart(
+                document.getElementById("distributionChart"),
+                {
+                    type: "bar",
+                    data: {
+                        labels: thetaRange.map((theta) => theta.toFixed(1)),
+                        datasets: [
+                            {
+                                type: "bar",
+                                label: "응시자 분포",
+                                data: distributionData,
+                                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                                yAxisID: "y",
+                            },
+                            {
+                                type: "line",
+                                label: "시험 정보량",
+                                data: tifData,
+                                borderColor: "rgb(75, 192, 192)",
+                                yAxisID: "y1",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "응시자 분포와 시험 정보 함수",
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "능력 수준 (θ)",
+                                },
+                                ticks: {
+                                    maxTicksLimit: 13,
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "응시자 수",
+                                },
+                                position: "left",
+                            },
+                            y1: {
+                                type: "linear",
+                                display: true,
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "정보량",
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            },
+                        },
+                    },
+                }
+            )
 
-      // D3.js 히트맵 업데이트 (반응형 및 가독성 개선)
-      function createHeatmap() {
-        // 기존 SVG 요소 제거
-        d3.select("#heatmapChart").selectAll("svg").remove();
+            // 평가영역별 평균 정보량 계산
+            const domainInfo = {}
+            allQuestions.forEach((question) => {
+                const domain = question.평가영역
+                const info = Math.pow(question.변별도, 2) / 4 // 정보량 근사값
+                if (!domainInfo[domain]) {
+                    domainInfo[domain] = { totalInfo: 0, count: 0 }
+                }
+                domainInfo[domain].totalInfo += info
+                domainInfo[domain].count += 1
+            })
 
-        // 컨테이너의 크기에 맞춰 SVG 크기 설정
-        const container = d3.select("#heatmapChart");
-        const containerWidth = container.node().getBoundingClientRect().width;
-        const containerHeight = Math.min(containerWidth * 0.6, 400); // 높이 제한 추가
+            const domainAverages = Object.keys(domainInfo).map((domain) => ({
+                domain,
+                averageInfo:
+                    domainInfo[domain].totalInfo / domainInfo[domain].count,
+            }))
 
-        const margin = { top: 30, right: 80, bottom: 50, left: 70 };
-        const width = containerWidth - margin.left - margin.right;
-        const height = containerHeight - margin.top - margin.bottom;
+            // 평가영역별 정보량 차트 업데이트
+            const domainInfoChart = new Chart(
+                document.getElementById("domainInfoChart"),
+                {
+                    type: "bar",
+                    data: {
+                        labels: domainAverages.map((d) => d.domain),
+                        datasets: [
+                            {
+                                label: "평균 정보량",
+                                data: domainAverages.map((d) => d.averageInfo),
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "평가영역별 평균 정보량",
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "평균 정보량",
+                                },
+                            },
+                        },
+                    },
+                }
+            )
 
-        const svg = container
-          .append("svg")
-          .attr("width", containerWidth)
-          .attr("height", containerHeight)
-          .append("g")
-          .attr("transform", `translate(${margin.left},${margin.top})`);
+            // D3.js 히트맵 업데이트 (반응형 및 가독성 개선)
+            function createHeatmap() {
+                // 기존 SVG 요소 제거
+                d3.select("#heatmapChart").selectAll("svg").remove()
 
-        const abilities = Array.from(
-          new Set(heatmapData.map((d) => d.ability))
-        ).sort((a, b) => a - b);
-        const domains = Array.from(new Set(heatmapData.map((d) => d.domain)));
+                // 컨테이너의 크기에 맞춰 SVG 크기 설정
+                const container = d3.select("#heatmapChart")
+                const containerWidth = container
+                    .node()
+                    .getBoundingClientRect().width
+                const containerHeight = Math.min(containerWidth * 0.6, 400) // 높이 제한 추가
 
-        const x = d3
-          .scaleBand()
-          .range([0, width])
-          .domain(abilities)
-          .padding(0.01);
+                const margin = { top: 30, right: 80, bottom: 50, left: 70 }
+                const width = containerWidth - margin.left - margin.right
+                const height = containerHeight - margin.top - margin.bottom
 
-        const y = d3
-          .scaleBand()
-          .range([height, 0])
-          .domain(domains)
-          .padding(0.01);
+                const svg = container
+                    .append("svg")
+                    .attr("width", containerWidth)
+                    .attr("height", containerHeight)
+                    .append("g")
+                    .attr(
+                        "transform",
+                        `translate(${margin.left},${margin.top})`
+                    )
 
-        const color = d3
-          .scaleSequential()
-          .interpolator(d3.interpolateBlues)
-          .domain([0, d3.max(heatmapData, (d) => d.value)]);
+                const abilities = Array.from(
+                    new Set(heatmapData.map((d) => d.ability))
+                ).sort((a, b) => a - b)
+                const domains = Array.from(
+                    new Set(heatmapData.map((d) => d.domain))
+                )
 
-        svg
-          .selectAll()
-          .data(heatmapData)
-          .enter()
-          .append("rect")
-          .attr("x", (d) => x(d.ability))
-          .attr("y", (d) => y(d.domain))
-          .attr("width", x.bandwidth())
-          .attr("height", y.bandwidth())
-          .style("fill", (d) => color(d.value))
-          .attr("class", "heatmap-cell");
+                const x = d3
+                    .scaleBand()
+                    .range([0, width])
+                    .domain(abilities)
+                    .padding(0.01)
 
-        // x축 생성 및 스타일링
-        const xAxis = svg
-          .append("g")
-          .attr("transform", `translate(0,${height})`)
-          .call(
-            d3
-              .axisBottom(x)
-              .tickValues(
-                x
-                  .domain()
-                  .filter((d, i) => i % Math.ceil(abilities.length / 8) === 0)
-              )
-              .tickFormat(d3.format(".2f"))
-          )
-          .call((g) => g.select(".domain").remove());
+                const y = d3
+                    .scaleBand()
+                    .range([height, 0])
+                    .domain(domains)
+                    .padding(0.01)
 
-        xAxis
-          .selectAll("text")
-          .attr("y", 10)
-          .attr("x", -5)
-          .attr("dy", ".35em")
-          .attr("transform", "rotate(-45)")
-          .style("text-anchor", "end")
-          .style("font-size", "8px");
+                const color = d3
+                    .scaleSequential()
+                    .interpolator(d3.interpolateBlues)
+                    .domain([0, d3.max(heatmapData, (d) => d.value)])
 
-        xAxis
-          .append("text")
-          .attr("x", width / 2)
-          .attr("y", 40)
-          .attr("fill", "black")
-          .style("text-anchor", "middle")
-          .style("font-size", "10px")
-          .text("능력 수준 (θ)");
+                svg.selectAll()
+                    .data(heatmapData)
+                    .enter()
+                    .append("rect")
+                    .attr("x", (d) => x(d.ability))
+                    .attr("y", (d) => y(d.domain))
+                    .attr("width", x.bandwidth())
+                    .attr("height", y.bandwidth())
+                    .style("fill", (d) => color(d.value))
+                    .attr("class", "heatmap-cell")
 
-        svg
-          .append("g")
-          .call(d3.axisLeft(y))
-          .selectAll("text")
-          .style("font-size", "8px");
+                // x축 생성 및 스타일링
+                const xAxis = svg
+                    .append("g")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(
+                        d3
+                            .axisBottom(x)
+                            .tickValues(
+                                x
+                                    .domain()
+                                    .filter(
+                                        (d, i) =>
+                                            i %
+                                                Math.ceil(
+                                                    abilities.length / 8
+                                                ) ===
+                                            0
+                                    )
+                            )
+                            .tickFormat(d3.format(".2f"))
+                    )
+                    .call((g) => g.select(".domain").remove())
 
-        svg
-          .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", -50)
-          .attr("x", -height / 2)
-          .attr("fill", "black")
-          .style("text-anchor", "middle")
-          .style("font-size", "10px")
-          .text("평가영역");
+                xAxis
+                    .selectAll("text")
+                    .attr("y", 10)
+                    .attr("x", -5)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end")
+                    .style("font-size", "8px")
 
-        const legendWidth = 20;
-        const legendHeight = height;
+                xAxis
+                    .append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 40)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .style("font-size", "10px")
+                    .text("능력 수준 (θ)")
 
-        const legendScale = d3
-          .scaleLinear()
-          .domain(color.domain())
-          .range([legendHeight, 0]);
+                svg.append("g")
+                    .call(d3.axisLeft(y))
+                    .selectAll("text")
+                    .style("font-size", "8px")
 
-        const legendAxis = d3
-          .axisRight(legendScale)
-          .ticks(5)
-          .tickFormat(d3.format(".2f"));
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -50)
+                    .attr("x", -height / 2)
+                    .attr("fill", "black")
+                    .style("text-anchor", "middle")
+                    .style("font-size", "10px")
+                    .text("평가영역")
 
-        const legend = svg
-          .append("g")
-          .attr("transform", `translate(${width + 10}, 0)`);
+                const legendWidth = 20
+                const legendHeight = height
 
-        legend
-          .selectAll()
-          .data(color.ticks(100))
-          .enter()
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", (d) => legendScale(d))
-          .attr("width", legendWidth)
-          .attr("height", legendHeight / 100)
-          .style("fill", color);
+                const legendScale = d3
+                    .scaleLinear()
+                    .domain(color.domain())
+                    .range([legendHeight, 0])
 
-        legend
-          .append("g")
-          .attr("class", "heatmap-legend")
-          .attr("transform", `translate(${legendWidth}, 0)`)
-          .call(legendAxis)
-          .selectAll("text")
-          .style("font-size", "8px");
+                const legendAxis = d3
+                    .axisRight(legendScale)
+                    .ticks(5)
+                    .tickFormat(d3.format(".2f"))
 
-        legend
-          .append("text")
-          .attr("x", legendWidth / 2)
-          .attr("y", -10)
-          .attr("transform", "rotate(-90)")
-          .style("text-anchor", "end")
-          .style("font-size", "10px")
-          .text("정보량");
-      }
+                const legend = svg
+                    .append("g")
+                    .attr("transform", `translate(${width + 10}, 0)`)
 
-      // 초기 히트맵 생성
-      createHeatmap();
+                legend
+                    .selectAll()
+                    .data(color.ticks(100))
+                    .enter()
+                    .append("rect")
+                    .attr("x", 0)
+                    .attr("y", (d) => legendScale(d))
+                    .attr("width", legendWidth)
+                    .attr("height", legendHeight / 100)
+                    .style("fill", color)
 
-      // 윈도우 리사이즈 이벤트에 대응하여 히트맵 다시 그리기
-      window.addEventListener("resize", _.debounce(createHeatmap, 250));
-    </script>
-  </body>
+                legend
+                    .append("g")
+                    .attr("class", "heatmap-legend")
+                    .attr("transform", `translate(${legendWidth}, 0)`)
+                    .call(legendAxis)
+                    .selectAll("text")
+                    .style("font-size", "8px")
+
+                legend
+                    .append("text")
+                    .attr("x", legendWidth / 2)
+                    .attr("y", -10)
+                    .attr("transform", "rotate(-90)")
+                    .style("text-anchor", "end")
+                    .style("font-size", "10px")
+                    .text("정보량")
+            }
+
+            // 초기 히트맵 생성
+            createHeatmap()
+
+            // 윈도우 리사이즈 이벤트에 대응하여 히트맵 다시 그리기
+            window.addEventListener("resize", _.debounce(() => {
+                createHeatmap();
+                MathJax.typesetPromise().catch((err) => console.log('MathJax typesetting failed: ' + err.message));
+            }, 250));
+            // MathJax 재렌더링
+            MathJax.typeset()
+        </script>
+    </body>
 </html>
