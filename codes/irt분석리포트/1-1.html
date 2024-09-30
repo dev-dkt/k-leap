@@ -4,12 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 문항 파라미터 분석 요약 보고서</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./report-styles.css" />
+    <link rel="stylesheet" href="report-styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script> 
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -19,7 +27,7 @@
         <table>
           <tr>
             <th>시험일</th>
-            <td>2024년 9월 27일</td>
+            <td>2024년 9월 30일</td>
           </tr>
           <tr>
             <th>시험 유형</th>
@@ -40,39 +48,38 @@
         <h2>1. 분석 결과 요약</h2>
         <h3>시험 통계</h3>
         <ul>
-          <li>총 응시자 수: 30명</li>
-          <li>필답형 평가 문항 수: 50문항</li>
-          <li>구술형 평가 문항 수: 5문항</li>
-          <li>필답형 평가 평균 점수: 33.07점 (100점 만점 기준)</li>
-          <li>구술형 평가 평균 점수: 8.33점 (25점 만점 기준)</li>
-          <li>필답형 평가 합격률: 10% (64점 이상 기준)</li>
+          <li id="totalParticipants">총 응시자 수: 30명</li>
+          <li id="writtenQuestions">필답형 평가 문항 수: 50문항</li>
+          <li id="oralQuestions">구술형 평가 문항 수: 5문항</li>
+          <li id="writtenAverageScore">필답형 평가 평균 점수: 0점 (75점 만점 기준)</li>
+          <li id="oralAverageScore">구술형 평가 평균 점수: 0점 (25점 만점 기준)</li>
+          <li id="writtenPassRate">필답형 평가 합격률: 0% (48점 이상 기준)</li>
         </ul>
 
         <h3>주요 분석 결과</h3>
         <ul>
-          <li>
+          <li id="difficultyDistribution">
             필답형 평가 문항 난이도 분포:
             <ul>
-              <li>저난도(-3.0 ~ -1.0) 11문항</li>
-              <li>중난도(-1.0 ~ 1.0) 35문항</li>
-              <li>고난도(1.0 ~ 3.0) 4문항</li>
+              <li>저난도(-3.0 ~ -1.0) 0문항</li>
+              <li>중난도(-1.0 ~ 1.0) 0문항</li>
+              <li>고난도(1.0 ~ 3.0) 0문항</li>
             </ul>
           </li>
-          <li>
-            6개 필답형 평가 문항(11, 16, 24, 37, 43, 45번)에서 고변별도(>1.0)가
-            관찰되었습니다.
+          <li id="highDiscriminationItems">
+            0개 필답형 평가 문항에서 고변별도(>1.0)가 관찰되었습니다.
           </li>
-          <li>
+          <li id="areaDistribution">
             평가영역별 필답형 문항 구성:
             <ul>
-              <li>어휘 14문항</li>
-              <li>문법 14문항</li>
-              <li>쓰기 5문항</li>
-              <li>읽기 5문항</li>
-              <li>문화 12문항</li>
+              <li>어휘 0문항</li>
+              <li>문법 0문항</li>
+              <li>쓰기 0문항</li>
+              <li>읽기 0문항</li>
+              <li>문화 0문항</li>
             </ul>
           </li>
-          <li>구술형 평가 문항은 모두 높은 변별도(>0.6)를 나타냈습니다.</li>
+          <li id="oralDiscrimination">구술형 평가 문항은 모두 높은 변별도(>0.6)를 나타냈습니다.</li>
         </ul>
       </div>
 
@@ -105,11 +112,11 @@
         <h3>필답형 평가</h3>
         <ul>
           <li>고변별도 문항 기준: 변별도 > 1.0</li>
-          <li>해당 문항: 11, 16, 24, 37, 43, 45번</li>
+          <li id="highDiscriminationList">해당 문항: </li>
         </ul>
         <h3>구술형 평가</h3>
         <ul>
-          <li>모든 문항이 높은 변별도를 보임 (변별도 > 0.6)</li>
+          <li id="oralDiscriminationAnalysis"></li>
         </ul>
       </div>
 
@@ -135,7 +142,7 @@
             조정하십시오.
           </li>
           <li>
-            낮은 합격률을 고려하여 전반적인 시험 난이도의 적절성을 평가하십시오.
+            합격률을 고려하여 전반적인 시험 난이도의 적절성을 평가하십시오.
           </li>
         </ol>
 
@@ -155,11 +162,23 @@
 
     <script type="module">
       import {
-        df_questions,
+        df_questions as _df_questions,
         df_responses,
-        df_questions_speaking,
+        df_questions_speaking as _df_questions_speaking,
         df_responses_speaking,
+        speaking_grading_criteria,
       } from "./data2.js";
+
+      const df_questions = _df_questions.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
+      const df_questions_speaking = _df_questions_speaking.map((q) => {
+        q.난이도 = parseFloat(q.난이도);
+        q.변별도 = parseFloat(q.변별도);
+        return q;
+      });
 
       // 필답형 평가 데이터 처리
       function processWrittenData(questions, responses) {
@@ -169,9 +188,9 @@
         let passCount = 0;
 
         responses.forEach((r) => {
-          const score = parseInt(r.점수);
+          const score = parseFloat(r.점수);
           totalScore += score;
-          if (score >= 64) passCount++;
+          if (score >= 48) passCount++;
         });
 
         const averageScore = totalScore / totalResponses;
@@ -252,47 +271,15 @@
 
       window.onload = function () {
         const writtenData = processWrittenData(df_questions, df_responses);
-        const oralData = processOralData(
-          df_questions_speaking,
-          df_responses_speaking
-        );
-
-        // 특정 텍스트를 포함하는 li 요소를 찾는 함수
-        function findListItem(text) {
-          const items = document.querySelectorAll("li");
-          for (let item of items) {
-            if (item.textContent.includes(text)) {
-              return item;
-            }
-          }
-          return null;
-        }
+        const oralData = processOralData(df_questions_speaking, df_responses_speaking);
 
         // 통계 정보 업데이트
-        findListItem(
-          "총 응시자 수"
-        ).textContent = `총 응시자 수: ${writtenData.totalResponses}명`;
-        findListItem(
-          "필답형 평가 문항 수"
-        ).textContent = `필답형 평가 문항 수: ${writtenData.totalQuestions}문항`;
-        findListItem(
-          "구술형 평가 문항 수"
-        ).textContent = `구술형 평가 문항 수: ${oralData.totalQuestions}문항`;
-        findListItem(
-          "필답형 평가 평균 점수"
-        ).textContent = `필답형 평가 평균 점수: ${writtenData.averageScore.toFixed(
-          2
-        )}점 (100점 만점 기준)`;
-        findListItem(
-          "구술형 평가 평균 점수"
-        ).textContent = `구술형 평가 평균 점수: ${oralData.averageScore.toFixed(
-          2
-        )}점 (25점 만점 기준)`;
-        findListItem(
-          "필답형 평가 합격률"
-        ).textContent = `필답형 평가 합격률: ${writtenData.passRate.toFixed(
-          2
-        )}% (64점 이상 기준)`;
+        document.getElementById("totalParticipants").textContent = `총 응시자 수: ${writtenData.totalResponses}명`;
+        document.getElementById("writtenQuestions").textContent = `필답형 평가 문항 수: ${writtenData.totalQuestions}문항`;
+        document.getElementById("oralQuestions").textContent = `구술형 평가 문항 수: ${oralData.totalQuestions}문항`;
+        document.getElementById("writtenAverageScore").textContent = `필답형 평가 평균 점수: ${writtenData.averageScore.toFixed(2)}점 (75점 만점 기준)`;
+        document.getElementById("oralAverageScore").textContent = `구술형 평가 평균 점수: ${oralData.averageScore.toFixed(2)}점 (25점 만점 기준)`;
+        document.getElementById("writtenPassRate").textContent = `필답형 평가 합격률: ${writtenData.passRate.toFixed(2)}% (48점 이상 기준)`;
 
         // 난이도 분포 업데이트
         const difficultyDistribution = writtenData.difficultyData.reduce(
@@ -305,29 +292,34 @@
           { low: 0, medium: 0, high: 0 }
         );
 
-        const difficultyList =
-          findListItem("필답형 평가 문항 난이도 분포").querySelector("ul");
+        const difficultyList = document.getElementById("difficultyDistribution").querySelector("ul");
         difficultyList.innerHTML = `
-    <li>저난도(-3.0 ~ -1.0) ${difficultyDistribution.low}문항</li>
-    <li>중난도(-1.0 ~ 1.0) ${difficultyDistribution.medium}문항</li>
-    <li>고난도(1.0 ~ 3.0) ${difficultyDistribution.high}문항</li>
-  `;
+          <li>저난도(-3.0 ~ -1.0) ${difficultyDistribution.low}문항</li>
+          <li>중난도(-1.0 ~ 1.0) ${difficultyDistribution.medium}문항</li>
+          <li>고난도(1.0 ~ 3.0) ${difficultyDistribution.high}문항</li>
+        `;
 
         // 고변별도 문항 업데이트
         const highDiscriminationItems = writtenData.difficultyData
           .filter((item) => item.discrimination > 1.0)
-          .map((item) => item.number)
-          .join(", ");
-        findListItem(
-          "해당 문항:"
-        ).textContent = `해당 문항: ${highDiscriminationItems}`;
+          .map((item) => item.number);
+        document.getElementById("highDiscriminationItems").textContent = 
+          `${highDiscriminationItems.length}개 필답형 평가 문항에서 고변별도(>1.0)가 관찰되었습니다.`;
+        document.getElementById("highDiscriminationList").textContent = 
+          `해당 문항: ${highDiscriminationItems.join(", ")}`;
 
         // 평가영역별 문항 구성 업데이트
-        const areaList =
-          findListItem("평가영역별 필답형 문항 구성").querySelector("ul");
+        const areaList = document.getElementById("areaDistribution").querySelector("ul");
         areaList.innerHTML = Object.entries(writtenData.areaCount)
           .map(([area, count]) => `<li>${area} ${count}문항</li>`)
           .join("");
+
+        // 구술형 평가 변별도 분석
+        const oralHighDiscrimination = oralData.difficultyData.filter(item => item.discrimination > 0.6).length;
+        document.getElementById("oralDiscrimination").textContent = 
+          `구술형 평가 문항 중 ${oralHighDiscrimination}개 문항이 높은 변별도(>0.6)를 나타냈습니다.`;
+        document.getElementById("oralDiscriminationAnalysis").textContent = 
+          `${oralHighDiscrimination}개 문항이 높은 변별도(>0.6)를 나타냈습니다.`;
 
         // 차트 생성
         createChart(

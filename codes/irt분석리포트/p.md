@@ -8,7 +8,7 @@
 
 "문항 뱅크 통계"문서의 "한국어능력시험 문항 활용도 분석 및 개발 가이드"를 df_questions, df_responses, df_questions_speaking ,df_responses_speaking,speaking_grading_criteria 데이타를 참조하여 html코드를 생성해주세요.
 필요한 데이타는 목적에 맞게 생성하고,생성할 html전체 구조는 아래 html을 참조해주세요.
-
+```
 <!DOCTYPE html>
 <html lang="ko">
   <head>
@@ -59,10 +59,12 @@
   </body>
 </html>
 
+```
+```
 import {
-df_questions as \_df_questions,
+df_questions as _df_questions,
 df_responses,
-df_questions_speaking as \_df_questions_speaking,
+df_questions_speaking as _df_questions_speaking,
 df_responses_speaking,
 speaking_grading_criteria,
 } from "./data2.js";
@@ -77,3 +79,4 @@ speaking_grading_criteria,
         q.변별도 = parseFloat(q.변별도);
         return q;
       });
+```
