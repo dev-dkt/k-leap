@@ -74,8 +74,11 @@
                 </div>
                 <p>
                     위 산점도는 각 문항의 난이도와 변별도를 보여줍니다. 점의
-                    크기는 추정 DIF 지수를 나타냅니다.
+                    크기는 추정 DIF 지수를 나타내며, 색상은 평가영역을
+                    나타냅니다. 점을 클릭하면 해당 문항의 상세 정보를 볼 수
+                    있습니다.
                 </p>
+                <div id="selectedItemInfo"></div>
                 <div id="topDifItems"></div>
 
                 <h3>집단별 문항 반응 곡선 (ICC)</h3>
@@ -171,56 +174,88 @@
                 q.변별도 = parseFloat(q.변별도)
                 return q
             })
-
-            // DIF 지수 추정 함수 (간단한 예시)
+            // 수정된 DIF 지수 추정 함수
             const estimateDIF = (question, responses) => {
-                const avgScore =
-                    responses.reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-                    responses.length
-                return Math.abs(question.난이도 - avgScore)
+                const totalScore = responses.reduce(
+                    (sum, r) => sum + parseFloat(r.점수),
+                    0
+                )
+                const avgScore = totalScore / responses.length
+                const questionScore = responses.filter(
+                    (r) => r.OX리스트[question.문제번호 - 1] === "O"
+                ).length
+                return Math.abs(
+                    questionScore / responses.length - avgScore / 100
+                ) // 백분율로 변환
             }
 
-            // DIF 산점도 차트
+            // 색상 매핑 함수
+            const getColorForArea = (area) => {
+                const colorMap = {
+                    어휘: "rgba(255, 99, 132, 0.6)",
+                    문법: "rgba(54, 162, 235, 0.6)",
+                    쓰기: "rgba(255, 206, 86, 0.6)",
+                    읽기: "rgba(75, 192, 192, 0.6)",
+                    말하기: "rgba(153, 102, 255, 0.6)",
+                    문화: "rgba(255, 159, 64, 0.6)",
+                    발음: "rgba(199, 199, 199, 0.6)",
+                    통합: "rgba(83, 102, 255, 0.6)",
+                }
+                return colorMap[area] || "rgba(201, 203, 207, 0.6)"
+            }
+
+            // DIF 산점도 차트 (개선된 버전)
             const difScatterplotCtx = document
                 .getElementById("difScatterplot")
                 .getContext("2d")
-            new Chart(difScatterplotCtx, {
+
+            const allQuestions = [...df_questions, ...df_questions_speaking]
+            const allResponses = [...df_responses, ...df_responses_speaking]
+
+            const chartData = allQuestions.map((q) => {
+                const dif = estimateDIF(
+                    q,
+                    q.문제번호 > 50 ? df_responses_speaking : df_responses
+                )
+                return {
+                    x: q.난이도,
+                    y: q.변별도,
+                    r: dif * 100, // 버블 크기 조정
+                }
+            })
+
+            const scatterChart = new Chart(difScatterplotCtx, {
                 type: "bubble",
                 data: {
                     datasets: [
                         {
-                            label: "필기문항",
-                            data: df_questions.map((q) => ({
-                                x: q.난이도,
-                                y: q.변별도,
-                                r: estimateDIF(q, df_responses) * 20,
-                            })),
-                            backgroundColor: "rgba(75, 192, 192, 0.6)",
-                        },
-                        {
-                            label: "구술문항",
-                            data: df_questions_speaking.map((q) => ({
-                                x: q.난이도,
-                                y: q.변별도,
-                                r: estimateDIF(q, df_responses_speaking) * 20,
-                            })),
-                            backgroundColor: "rgba(255, 99, 132, 0.6)",
+                            label: "모든 문항",
+                            data: chartData,
+                            backgroundColor: allQuestions.map((q) =>
+                                getColorForArea(q.평가영역)
+                            ),
                         },
                     ],
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: {
                             title: {
                                 display: true,
                                 text: "난이도",
                             },
+                            min: -1,
+                            max: 2,
                         },
                         y: {
                             title: {
                                 display: true,
                                 text: "변별도",
                             },
+                            min: 0,
+                            max: 2,
                         },
                     },
                     plugins: {
@@ -231,22 +266,49 @@
                         tooltip: {
                             callbacks: {
                                 label: function (context) {
-                                    return `난이도: ${context.raw.x.toFixed(
-                                        2
-                                    )}, 변별도: ${context.raw.y.toFixed(
-                                        2
-                                    )}, 추정 DIF: ${(
-                                        context.raw.r / 20
-                                    ).toFixed(2)}`
+                                    const question =
+                                        allQuestions[context.dataIndex]
+                                    return [
+                                        `문항번호: ${question.문제번호}`,
+                                        `평가영역: ${question.평가영역}`,
+                                        `난이도: ${question.난이도.toFixed(2)}`,
+                                        `변별도: ${question.변별도.toFixed(2)}`,
+                                        `추정 DIF: ${(
+                                            context.raw.r / 100
+                                        ).toFixed(4)}`,
+                                    ]
                                 },
                             },
                         },
                     },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].dataIndex
+                            const question = allQuestions[index]
+                            displaySelectedItemInfo(question)
+                        }
+                    },
                 },
             })
 
-            // 상위 DIF 문항 표시
-            const allQuestions = [...df_questions, ...df_questions_speaking]
+            // 선택된 문항 정보 표시 함수
+            function displaySelectedItemInfo(question) {
+                const infoDiv = document.getElementById("selectedItemInfo")
+                infoDiv.innerHTML = `
+            <h3>선택된 문항 정보</h3>
+            <p>문항번호: ${question.문제번호}</p>
+            <p>평가영역: ${question.평가영역}</p>
+            <p>평가항목: ${question.평가항목}</p>
+            <p>난이도: ${question.난이도.toFixed(4)}</p>
+            <p>변별도: ${question.변별도.toFixed(4)}</p>
+            <p>추정 DIF: ${estimateDIF(
+                question,
+                question.문제번호 > 50 ? df_responses_speaking : df_responses
+            ).toFixed(4)}</p>
+          `
+            }
+
+            // 상위 DIF 문항 표시 (기존 코드 유지)
             const topDifItems = allQuestions
                 .map((q) => ({
                     ...q,
@@ -260,139 +322,164 @@
 
             const topDifItemsElement = document.getElementById("topDifItems")
             topDifItemsElement.innerHTML = `
-        <h3>상위 5개 추정 DIF 문항:</h3>
-        <ul>
-          ${topDifItems
-              .map(
-                  (item) =>
-                      `<li>문항 ${item.문제번호}: 난이도 ${item.난이도.toFixed(
-                          4
-                      )}, 변별도 ${item.변별도.toFixed(
-                          4
-                      )}, 추정 DIF ${item.estimatedDIF.toFixed(4)}</li>`
-              )
-              .join("")}
-        </ul>
-      `
+          <h3>상위 5개 추정 DIF 문항:</h3>
+          <ul>
+            ${topDifItems
+                .map(
+                    (item) =>
+                        `<li>문항 ${item.문제번호} (${
+                            item.평가영역
+                        }): 난이도 ${item.난이도.toFixed(
+                            4
+                        )}, 변별도 ${item.변별도.toFixed(
+                            4
+                        )}, 추정 DIF ${item.estimatedDIF.toFixed(4)}</li>`
+                )
+                .join("")}
+          </ul>
+        `
 
-      // 집단별 문항 반응 곡선 (ICC) 차트
-      const iccCtx = document.getElementById("iccChart").getContext("2d");
-      
-      // 예시 문항 선택 (첫 번째 문항)
-      const selectedQuestion = df_questions[0];
+            // 집단별 문항 반응 곡선 (ICC) 차트
+            const iccCtx = document.getElementById("iccChart").getContext("2d")
 
-      // 간단한 ICC 데이터 생성 함수 (실제 데이터를 기반으로 개선 필요)
-      const generateICCData = (question, responses) => {
-        const abilities = Array.from({length: 100}, (_, i) => i / 100 * 4 - 2);
-        const maleData = abilities.map(ability => 1 / (1 + Math.exp(-question.변별도 * (ability - question.난이도))));
-        const femaleData = abilities.map(ability => 1 / (1 + Math.exp(-(question.변별도 + 0.2) * (ability - (question.난이도 - 0.1)))));
-        return { abilities, maleData, femaleData };
-      };
+            // 예시 문항 선택 (첫 번째 문항)
+            const selectedQuestion = df_questions[0]
 
-      const iccData = generateICCData(selectedQuestion, df_responses);
-
-      new Chart(iccCtx, {
-        type: "line",
-        data: {
-          labels: iccData.abilities.map(a => a.toFixed(2)),
-          datasets: [
-            {
-              label: "남성",
-              data: iccData.maleData,
-              borderColor: "rgba(75, 192, 192, 1)",
-              fill: false
-            },
-            {
-              label: "여성",
-              data: iccData.femaleData,
-              borderColor: "rgba(255, 99, 132, 1)",
-              fill: false
+            // 간단한 ICC 데이터 생성 함수 (실제 데이터를 기반으로 개선 필요)
+            const generateICCData = (question, responses) => {
+                const abilities = Array.from(
+                    { length: 100 },
+                    (_, i) => (i / 100) * 4 - 2
+                )
+                const maleData = abilities.map(
+                    (ability) =>
+                        1 /
+                        (1 +
+                            Math.exp(
+                                -question.변별도 * (ability - question.난이도)
+                            ))
+                )
+                const femaleData = abilities.map(
+                    (ability) =>
+                        1 /
+                        (1 +
+                            Math.exp(
+                                -(question.변별도 + 0.2) *
+                                    (ability - (question.난이도 - 0.1))
+                            ))
+                )
+                return { abilities, maleData, femaleData }
             }
-          ]
-        },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "능력 수준 (θ)",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "정답 확률",
-              },
-              min: 0,
-              max: 1
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: `문항 ${selectedQuestion.문제번호}의 집단별 문항 특성 곡선 (ICC)`,
-            },
-          },
-        },
-      });
 
-      // 3D DIF 맵
-      const difMap3d = echarts.init(document.getElementById('difMap3d'));
-      
-      const difMapData = allQuestions.map(q => [
-        q.난이도,
-        q.변별도,
-        estimateDIF(q, q.문제번호 > 50 ? df_responses_speaking : df_responses),
-        q.문제번호
-      ]);
+            const iccData = generateICCData(selectedQuestion, df_responses)
 
-      const difMapOption = {
-        tooltip: {},
-        animationDurationUpdate: 1500,
-        animationEasingUpdate: 'quinticInOut',
-        visualMap: {
-          show: false,
-          min: 0,
-          max: 1,
-          inRange: {
-            symbolSize: [6, 30]
-          }
-        },
-        xAxis3D: {
-          name: '난이도',
-          type: 'value'
-        },
-        yAxis3D: {
-          name: '변별도',
-          type: 'value'
-        },
-        zAxis3D: {
-          name: '추정 DIF',
-          type: 'value'
-        },
-        grid3D: {
-          viewControl: {
-            projection: 'orthographic',
-            alpha: 18, // 회전 각도
-            zoomSensitivity: 0,
-          }
-        },
-        series: [{
-          type: 'scatter3D',
-          data: difMapData,
-          symbolSize: 12,
-          itemStyle: {
-            opacity: 0.7
-          },
-          emphasis: {
-            itemStyle: {
-              color: '#ff4500'
+            new Chart(iccCtx, {
+                type: "line",
+                data: {
+                    labels: iccData.abilities.map((a) => a.toFixed(2)),
+                    datasets: [
+                        {
+                            label: "남성",
+                            data: iccData.maleData,
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: "여성",
+                            data: iccData.femaleData,
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "능력 수준 (θ)",
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "정답 확률",
+                            },
+                            min: 0,
+                            max: 1,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `문항 ${selectedQuestion.문제번호}의 집단별 문항 특성 곡선 (ICC)`,
+                        },
+                    },
+                },
+            })
+
+            // 3D DIF 맵
+            const difMap3d = echarts.init(document.getElementById("difMap3d"))
+
+            const difMapData = allQuestions.map((q) => [
+                q.난이도,
+                q.변별도,
+                estimateDIF(
+                    q,
+                    q.문제번호 > 50 ? df_responses_speaking : df_responses
+                ),
+                q.문제번호,
+            ])
+
+            const difMapOption = {
+                tooltip: {},
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: "quinticInOut",
+                visualMap: {
+                    show: false,
+                    min: 0,
+                    max: 1,
+                    inRange: {
+                        symbolSize: [6, 30],
+                    },
+                },
+                xAxis3D: {
+                    name: "난이도",
+                    type: "value",
+                },
+                yAxis3D: {
+                    name: "변별도",
+                    type: "value",
+                },
+                zAxis3D: {
+                    name: "추정 DIF",
+                    type: "value",
+                },
+                grid3D: {
+                    viewControl: {
+                        projection: "orthographic",
+                        alpha: 18, // 회전 각도
+                        zoomSensitivity: 0,
+                    },
+                },
+                series: [
+                    {
+                        type: "scatter3D",
+                        data: difMapData,
+                        symbolSize: 12,
+                        itemStyle: {
+                            opacity: 0.7,
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                color: "#ff4500",
+                            },
+                        },
+                    },
+                ],
             }
-          }
-        }]
-      };
 
-      difMap3d.setOption(difMapOption);
+            difMap3d.setOption(difMapOption)
 
             // 집단 간 비교 차트
             const groupComparisonCtx = document

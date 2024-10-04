@@ -1,254 +1,400 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 문항 편향성 개선 가이드</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 문항 편향성 개선 가이드</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 문항 편향성 개선 가이드</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 문항 편향성 개선 가이드</h1>
 
-      <div class="section">
-        <h2>1. DIF 개요</h2>
-        <p>
-          차별 기능 문항(Differential Item Functioning, DIF)은 동일한 능력
-          수준을 가진 서로 다른 집단의 응시자들이 특정 문항에 대해 다르게
-          수행하는 현상을 의미합니다. DIF의 존재는 시험의 공정성과 타당성에
-          영향을 미칠 수 있으므로, 이를 식별하고 개선하는 것이 중요합니다.
-        </p>
-        <p>
-          <strong>DIF 지수 해석:</strong> 본 가이드에서는 문항의 난이도를
-          기반으로 DIF 지수를 산출했습니다. 높은 절대값의 DIF 지수는 해당 문항이
-          특정 집단에 유리하거나 불리할 수 있음을 나타냅니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>1. DIF 개요</h2>
+                <p>
+                    차별 기능 문항(Differential Item Functioning, DIF)은 동일한
+                    능력 수준을 가진 서로 다른 집단의 응시자들이 특정 문항에
+                    대해 다르게 수행하는 현상을 의미합니다. DIF의 존재는 시험의
+                    공정성과 타당성에 영향을 미칠 수 있으므로, 이를 식별하고
+                    개선하는 것이 중요합니다.
+                </p>
+                <p>
+                    <strong>DIF 지수 해석:</strong> 본 가이드에서는 문항의
+                    난이도를 기반으로 DIF 지수를 산출했습니다. 높은 절대값의 DIF
+                    지수는 해당 문항이 특정 집단에 유리하거나 불리할 수 있음을
+                    나타냅니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>2. 현행 문항의 DIF 분석 결과</h2>
-        <div class="chart-container">
-          <canvas id="difDistributionChart"></canvas>
+            <div class="section">
+                <h2>2. 현행 문항의 DIF 분석 결과</h2>
+                <div class="chart-container">
+                    <canvas id="difDistributionChart"></canvas>
+                </div>
+                <p>
+                    위 차트는 필기 및 구술 문항의 DIF 지수 분포를 보여줍니다.
+                    절대값이 큰 DIF 지수를 가진 문항들이 개선의 대상이 될 수
+                    있습니다.
+                </p>
+                <div id="topDifItems"></div>
+            </div>
+
+            <div class="section">
+                <h2>3. DIF 유발 요인 분석</h2>
+                <h3>3.1 언어적 요인</h3>
+                <ul>
+                    <li>복잡한 문장 구조나 고급 어휘 사용</li>
+                    <li>특정 언어권 학습자에게 유리한 표현 사용</li>
+                </ul>
+                <h3>3.2 문화적 요인</h3>
+                <ul>
+                    <li>특정 문화권에 편향된 상황이나 맥락 제시</li>
+                    <li>문화 특정적 배경지식을 요구하는 문항</li>
+                </ul>
+                <h3>3.3 인지적 요인</h3>
+                <ul>
+                    <li>
+                        특정 학습 스타일이나 문제 해결 전략에 유리한 문항 구성
+                    </li>
+                    <li>추상적 사고나 특정 유형의 지능을 요구하는 문항</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>4. 문항 개선 전략</h2>
+                <h3>4.1 DIF 수준별 개선 접근법</h3>
+                <table>
+                    <tr>
+                        <th>DIF 수준</th>
+                        <th>개선 접근법</th>
+                    </tr>
+                    <tr>
+                        <td>심각 (|DIF| > 0.5)</td>
+                        <td>문항 전면 재검토 및 수정 또는 제거</td>
+                    </tr>
+                    <tr>
+                        <td>중간 (0.3 < |DIF| ≤ 0.5)</td>
+                        <td>편향 요소 식별 및 부분 수정</td>
+                    </tr>
+                    <tr>
+                        <td>경미 (|DIF| ≤ 0.3)</td>
+                        <td>모니터링 및 필요시 미세 조정</td>
+                    </tr>
+                </table>
+                <h3>4.2 문화 중립적 문항 개발 가이드라인</h3>
+                <ul>
+                    <li>다양한 문화권의 전문가 검토 과정 도입</li>
+                    <li>문화적으로 보편적인 주제와 상황 선택</li>
+                    <li>특정 문화권에 편향된 표현이나 예시 지양</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>5. DIF 감소를 위한 문항 개발 팁</h2>
+                <h3>5.1 다양한 문화권을 고려한 시나리오 작성법</h3>
+                <ul>
+                    <li>글로벌 이슈나 일상적인 상황을 활용한 문항 개발</li>
+                    <li>다양한 국가와 문화를 균형있게 다루는 지문 구성</li>
+                </ul>
+                <h3>5.2 언어적 편향을 줄이기 위한 어휘 선택 기준</h3>
+                <ul>
+                    <li>한국어 학습자용 어휘 목록을 기반으로 한 어휘 선택</li>
+                    <li>문항의 난이도에 적합한 어휘 수준 유지</li>
+                    <li>불필요하게 복잡한 문장 구조 지양</li>
+                </ul>
+                <div class="chart-container">
+                    <canvas id="vocabularyLevelChart"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <h2>6. DIF 사례 문항 및 개선 예시</h2>
+                <div class="example">
+                    <h3>원본 문항 (DIF 지수: 0.45)</h3>
+                    <p>
+                        다음 중 한국의 추석 명절에 하는 활동으로 가장 적절한
+                        것은?
+                    </p>
+                    <ol>
+                        <li>산타클로스에게 선물 받기</li>
+                        <li>조상에게 차례 지내기</li>
+                        <li>폭죽 터뜨리기</li>
+                        <li>이웃과 카드 주고받기</li>
+                    </ol>
+                    <p>
+                        <strong>문제점:</strong> 특정 문화권의 명절 지식을
+                        요구하여 문화적 편향 발생
+                    </p>
+                </div>
+                <div class="example">
+                    <h3>개선된 문항 (예상 DIF 지수: 0.15)</h3>
+                    <p>
+                        다음 중 가족과 함께 보내는 휴일에 일반적으로 하는
+                        활동으로 가장 적절한 것은?
+                    </p>
+                    <ol>
+                        <li>회사에 출근하기</li>
+                        <li>가족과 함께 식사하기</li>
+                        <li>혼자 영화 보기</li>
+                        <li>친구와 술 마시기</li>
+                    </ol>
+                    <p>
+                        <strong>개선 사항:</strong> 문화 중립적인 상황으로
+                        변경하여 모든 문화권의 응시자가 이해할 수 있는 문항으로
+                        수정
+                    </p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>7. 문화 중립적 문항 체크리스트</h2>
+                <table>
+                    <tr>
+                        <th>체크 항목</th>
+                        <th>예</th>
+                        <th>아니오</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            문항이 특정 문화권의 배경지식을 요구하지 않는가?
+                        </td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            사용된 어휘가 모든 문화권의 학습자에게 공평한가?
+                        </td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            상황 설정이 특정 문화나 국가에 편향되지 않았는가?
+                        </td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>문항의 맥락이 보편적인 경험을 다루고 있는가?</td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            사용된 이름이나 지명이 특정 문화권에 치우치지
+                            않았는가?
+                        </td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" /></td>
+                    </tr>
+                </table>
+                <p>
+                    <strong>주의:</strong> 모든 항목에 '예'로 체크되어야
+                    문화적으로 중립적인 문항으로 간주할 수 있습니다.
+                </p>
+            </div>
         </div>
-        <p>
-          위 차트는 필기 및 구술 문항의 DIF 지수 분포를 보여줍니다. 절대값이 큰
-          DIF 지수를 가진 문항들이 개선의 대상이 될 수 있습니다.
-        </p>
-        <div id="topDifItems"></div>
-      </div>
 
-      <div class="section">
-        <h2>3. DIF 유발 요인 분석</h2>
-        <h3>3.1 언어적 요인</h3>
-        <ul>
-          <li>복잡한 문장 구조나 고급 어휘 사용</li>
-          <li>특정 언어권 학습자에게 유리한 표현 사용</li>
-        </ul>
-        <h3>3.2 문화적 요인</h3>
-        <ul>
-          <li>특정 문화권에 편향된 상황이나 맥락 제시</li>
-          <li>문화 특정적 배경지식을 요구하는 문항</li>
-        </ul>
-        <h3>3.3 인지적 요인</h3>
-        <ul>
-          <li>특정 학습 스타일이나 문제 해결 전략에 유리한 문항 구성</li>
-          <li>추상적 사고나 특정 유형의 지능을 요구하는 문항</li>
-        </ul>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>4. 문항 개선 전략</h2>
-        <h3>4.1 DIF 수준별 개선 접근법</h3>
-        <table>
-          <tr>
-            <th>DIF 수준</th>
-            <th>개선 접근법</th>
-          </tr>
-          <tr>
-            <td>심각 (|DIF| > 0.5)</td>
-            <td>문항 전면 재검토 및 수정 또는 제거</td>
-          </tr>
-          <tr>
-            <td>중간 (0.3 < |DIF| ≤ 0.5)</td>
-            <td>편향 요소 식별 및 부분 수정</td>
-          </tr>
-          <tr>
-            <td>경미 (|DIF| ≤ 0.3)</td>
-            <td>모니터링 및 필요시 미세 조정</td>
-          </tr>
-        </table>
-        <h3>4.2 문화 중립적 문항 개발 가이드라인</h3>
-        <ul>
-          <li>다양한 문화권의 전문가 검토 과정 도입</li>
-          <li>문화적으로 보편적인 주제와 상황 선택</li>
-          <li>특정 문화권에 편향된 표현이나 예시 지양</li>
-        </ul>
-      </div>
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
 
-      <div class="section">
-        <h2>5. DIF 감소를 위한 문항 개발 팁</h2>
-        <h3>5.1 다양한 문화권을 고려한 시나리오 작성법</h3>
-        <ul>
-          <li>글로벌 이슈나 일상적인 상황을 활용한 문항 개발</li>
-          <li>다양한 국가와 문화를 균형있게 다루는 지문 구성</li>
-        </ul>
-        <h3>5.2 언어적 편향을 줄이기 위한 어휘 선택 기준</h3>
-        <ul>
-          <li>한국어 학습자용 어휘 목록을 기반으로 한 어휘 선택</li>
-          <li>문항의 난이도에 적합한 어휘 수준 유지</li>
-          <li>불필요하게 복잡한 문장 구조 지양</li>
-        </ul>
-        <div class="chart-container">
-          <canvas id="vocabularyLevelChart"></canvas>
-        </div>
-      </div>
-    </div>
+            // DIF 지수 추정 함수
+            const estimateDIF = (question, responses) => {
+                const totalScore = responses.reduce(
+                    (sum, r) => sum + parseFloat(r.점수),
+                    0
+                )
+                const avgScore = totalScore / responses.length
+                const questionScore = responses.filter(
+                    (r) => r.OX리스트[question.문제번호 - 1] === "O"
+                ).length
+                return questionScore / responses.length - avgScore / 100 // 백분율로 변환
+            }
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
-    <script type="module">
-      import {
-        df_questions as _df_questions,
-        df_responses,
-        df_questions_speaking as _df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+            const allQuestions = [...df_questions, ...df_questions_speaking]
+            const allResponses = [...df_responses, ...df_responses_speaking]
 
-      const df_questions = _df_questions.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
-      const df_questions_speaking = _df_questions_speaking.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
+            // DIF 지수 계산
+            const difScores = allQuestions.map((q) => ({
+                ...q,
+                dif: estimateDIF(
+                    q,
+                    q.문제번호 > 50 ? df_responses_speaking : df_responses
+                ),
+            }))
 
-      // DIF 분포 차트
-      const difDistributionCtx = document
-        .getElementById("difDistributionChart")
-        .getContext("2d");
-      const allQuestions = [...df_questions, ...df_questions_speaking];
-      new Chart(difDistributionCtx, {
-        type: "scatter",
-        data: {
-          datasets: [
-            {
-              label: "DIF 지수",
-              data: allQuestions.map((q, index) => ({
-                x: index + 1,
-                y: q.난이도,
-              })),
-              backgroundColor: (q) =>
-                Math.abs(q.raw.y) > 0.5
-                  ? "rgba(255, 99, 132, 0.6)"
-                  : "rgba(75, 192, 192, 0.6)",
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "문항 번호",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "DIF 지수 (난이도 기반)",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "DIF 지수 분포",
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  return `문항 ${
-                    context.parsed.x
-                  }: DIF ${context.parsed.y.toFixed(4)}`;
+            // DIF 분포 차트
+            const difDistributionCtx = document
+                .getElementById("difDistributionChart")
+                .getContext("2d")
+            new Chart(difDistributionCtx, {
+                type: "scatter",
+                data: {
+                    datasets: [
+                        {
+                            label: "DIF 지수",
+                            data: difScores.map((q, index) => ({
+                                x: index + 1,
+                                y: q.dif,
+                            })),
+                            backgroundColor: (context) =>
+                                Math.abs(context.raw.y) > 0.2
+                                    ? "rgba(255, 99, 132, 0.6)"
+                                    : "rgba(75, 192, 192, 0.6)",
+                        },
+                    ],
                 },
-              },
-            },
-          },
-        },
-      });
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "문항 번호",
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "DIF 지수",
+                            },
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "DIF 지수 분포",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const q = difScores[context.dataIndex]
+                                    return `문항 ${
+                                        q.문제번호
+                                    }: DIF ${q.dif.toFixed(4)} (${
+                                        q.평가영역 || "구술"
+                                    })`
+                                },
+                            },
+                        },
+                    },
+                },
+            })
 
-      // 상위 DIF 문항 표시
-      const topDifItems = allQuestions
-        .sort((a, b) => Math.abs(b.난이도) - Math.abs(a.난이도))
-        .slice(0, 5);
+            // 상위 DIF 문항 표시
+            const topDifItems = difScores
+                .sort((a, b) => Math.abs(b.dif) - Math.abs(a.dif))
+                .slice(0, 5)
 
-      const topDifItemsElement = document.getElementById("topDifItems");
-      topDifItemsElement.innerHTML = `
+            const topDifItemsElement = document.getElementById("topDifItems")
+            topDifItemsElement.innerHTML = `
         <h3>개선이 필요한 상위 5개 DIF 문항:</h3>
         <ul>
           ${topDifItems
-            .map(
-              (item) => `
-            <li>문항 ${item.문제번호}: DIF ${item.난이도.toFixed(4)} 
-            (${item.평가영역 ? item.평가영역 : "구술"})</li>
+              .map(
+                  (item) => `
+            <li>문항 ${item.문제번호}: DIF ${item.dif.toFixed(4)} 
+            (${item.평가영역 || "구술"})</li>
           `
-            )
-            .join("")}
+              )
+              .join("")}
         </ul>
-      `;
+      `
 
-      // 어휘 수준 차트 (가상 데이터 사용)
-      const vocabularyLevelCtx = document
-        .getElementById("vocabularyLevelChart")
-        .getContext("2d");
-      new Chart(vocabularyLevelCtx, {
-        type: "bar",
-        data: {
-          labels: ["초급", "중급", "고급"],
-          datasets: [
-            {
-              label: "어휘 수준 분포",
-              data: [40, 35, 25], // 가상 데이터
-              backgroundColor: [
-                "rgba(75, 192, 192, 0.6)",
-                "rgba(54, 162, 235, 0.6)",
-                "rgba(255, 206, 86, 0.6)",
-              ],
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "비율 (%)",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "문항 내 어휘 수준 분포",
-            },
-          },
-        },
-      });
-    </script>
-  </body>
+            // 어휘 수준 차트 (실제 데이터 기반)
+            const vocabularyLevels = allQuestions.reduce((acc, q) => {
+                const level =
+                    q.난이도 < -0.5 ? "초급" : q.난이도 < 0.5 ? "중급" : "고급"
+                acc[level] = (acc[level] || 0) + 1
+                return acc
+            }, {})
+
+            const totalQuestions = allQuestions.length
+            const vocabularyLevelCtx = document
+                .getElementById("vocabularyLevelChart")
+                .getContext("2d")
+            new Chart(vocabularyLevelCtx, {
+                type: "bar",
+                data: {
+                    labels: ["초급", "중급", "고급"],
+                    datasets: [
+                        {
+                            label: "어휘 수준 분포",
+                            data: [
+                                ((vocabularyLevels["초급"] || 0) /
+                                    totalQuestions) *
+                                    100,
+                                ((vocabularyLevels["중급"] || 0) /
+                                    totalQuestions) *
+                                    100,
+                                ((vocabularyLevels["고급"] || 0) /
+                                    totalQuestions) *
+                                    100,
+                            ],
+                            backgroundColor: [
+                                "rgba(75, 192, 192, 0.6)",
+                                "rgba(54, 162, 235, 0.6)",
+                                "rgba(255, 206, 86, 0.6)",
+                            ],
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "비율 (%)",
+                            },
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "문항 내 어휘 수준 분포 (난이도 기반)",
+                        },
+                    },
+                },
+            })
+        </script>
+    </body>
 </html>
