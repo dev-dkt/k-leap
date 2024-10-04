@@ -1,235 +1,317 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 결과 활용 가이드</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 결과 활용 가이드</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 결과 활용 가이드</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 결과 활용 가이드</h1>
 
-      <div class="section">
-        <h2>1. 척도별 특성 소개</h2>
-        <table>
-          <tr>
-            <th>척도</th>
-            <th>장점</th>
-            <th>단점</th>
-          </tr>
-          <tr>
-            <td>선형 변환</td>
-            <td>원점수와의 직관적 연관성</td>
-            <td>극단 점수에서 변별력 부족</td>
-          </tr>
-          <tr>
-            <td>백분위</td>
-            <td>상대적 위치 파악 용이</td>
-            <td>동점자 처리 어려움</td>
-          </tr>
-          <tr>
-            <td>T 점수</td>
-            <td>정규분포 가정 시 해석 용이</td>
-            <td>원점수와의 직관적 연관성 부족</td>
-          </tr>
-        </table>
-      </div>
+            <div class="section">
+                <h2>1. 척도별 특성 소개</h2>
+                <table>
+                    <tr>
+                        <th>척도</th>
+                        <th>장점</th>
+                        <th>단점</th>
+                    </tr>
+                    <tr>
+                        <td>선형 변환</td>
+                        <td>원점수와의 직관적 연관성</td>
+                        <td>극단 점수에서 변별력 부족</td>
+                    </tr>
+                    <tr>
+                        <td>백분위</td>
+                        <td>상대적 위치 파악 용이</td>
+                        <td>동점자 처리 어려움</td>
+                    </tr>
+                    <tr>
+                        <td>T 점수</td>
+                        <td>정규분포 가정 시 해석 용이</td>
+                        <td>원점수와의 직관적 연관성 부족</td>
+                    </tr>
+                </table>
+            </div>
 
-      <div class="section">
-        <h2>2. 점수 해석 가이드</h2>
-        <h3>척도별 점수 구간과 능력 수준 매칭</h3>
-        <table id="scoreInterpretation">
-          <tr>
-            <th>T 점수 구간</th>
-            <th>백분위 구간</th>
-            <th>능력 수준</th>
-          </tr>
-          <!-- 데이터는 스크립트에서 동적으로 추가됩니다 -->
-        </table>
-        <h3>신뢰구간을 고려한 해석 방법</h3>
-        <p>
-          95% 신뢰구간을 고려하여 점수를 해석해야 합니다. 예를 들어, T 점수
-          55±5는 실제 능력이 50에서 60 사이일 가능성이 95%임을 의미합니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>2. 점수 해석 가이드</h2>
+                <h3>척도별 점수 구간과 능력 수준 매칭</h3>
+                <table id="scoreInterpretation">
+                    <tr>
+                        <th>T 점수 구간</th>
+                        <th>백분위 구간</th>
+                        <th>능력 수준</th>
+                    </tr>
+                    <!-- 데이터는 스크립트에서 동적으로 추가됩니다 -->
+                </table>
+                <h3>신뢰구간을 고려한 해석 방법</h3>
+                <p>
+                    95% 신뢰구간을 고려하여 점수를 해석해야 합니다. 예를 들어, T
+                    점수 55±5는 실제 능력이 50에서 60 사이일 가능성이 95%임을
+                    의미합니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>3. 교육적 활용 방안</h2>
-        <h3>수준별 학습 그룹 구성 전략</h3>
-        <p>T 점수를 기준으로 다음과 같이 그룹을 구성할 수 있습니다:</p>
-        <ul>
-          <li>초급: T 점수 40 미만</li>
-          <li>중급: T 점수 40-60</li>
-          <li>고급: T 점수 60 이상</li>
-        </ul>
-        <h3>개인별 맞춤 학습 계획 수립 방법</h3>
-        <p>
-          영역별 T 점수를 바탕으로 개인의 강점과 약점을 파악하여 맞춤형 학습
-          계획을 수립합니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>3. 교육적 활용 방안</h2>
+                <h3>수준별 학습 그룹 구성 전략</h3>
+                <p>T 점수를 기준으로 다음과 같이 그룹을 구성할 수 있습니다:</p>
+                <ul>
+                    <li>초급: T 점수 40 미만</li>
+                    <li>중급: T 점수 40-60</li>
+                    <li>고급: T 점수 60 이상</li>
+                </ul>
+                <h3>개인별 맞춤 학습 계획 수립 방법</h3>
+                <p>
+                    영역별 T 점수를 바탕으로 개인의 강점과 약점을 파악하여
+                    맞춤형 학습 계획을 수립합니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>4. 성취도 평가 기준 설정</h2>
-        <h3>척도별 평가 기준 예시</h3>
-        <table>
-          <tr>
-            <th>등급</th>
-            <th>T 점수</th>
-            <th>백분위</th>
-          </tr>
-          <tr>
-            <td>A</td>
-            <td>60 이상</td>
-            <td>80% 이상</td>
-          </tr>
-          <tr>
-            <td>B</td>
-            <td>50-59</td>
-            <td>60-79%</td>
-          </tr>
-          <tr>
-            <td>C</td>
-            <td>40-49</td>
-            <td>40-59%</td>
-          </tr>
-          <tr>
-            <td>D</td>
-            <td>40 미만</td>
-            <td>40% 미만</td>
-          </tr>
-        </table>
-        <h3>장학금 또는 특별 프로그램 선발 기준 제안</h3>
-        <p>
-          상위 10% (백분위 90 이상 또는 T 점수 63 이상)를 장학금 대상자로 선정할
-          수 있습니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>4. 성취도 평가 기준 설정</h2>
+                <h3>척도별 평가 기준 예시</h3>
+                <table>
+                    <tr>
+                        <th>등급</th>
+                        <th>T 점수</th>
+                        <th>백분위</th>
+                    </tr>
+                    <tr>
+                        <td>A</td>
+                        <td>60 이상</td>
+                        <td>80% 이상</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>50-59</td>
+                        <td>60-79%</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>40-49</td>
+                        <td>40-59%</td>
+                    </tr>
+                    <tr>
+                        <td>D</td>
+                        <td>40 미만</td>
+                        <td>40% 미만</td>
+                    </tr>
+                </table>
+                <h3>장학금 또는 특별 프로그램 선발 기준 제안</h3>
+                <p>
+                    상위 10% (백분위 90 이상 또는 T 점수 63 이상)를 장학금
+                    대상자로 선정할 수 있습니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>5. 기관 특성별 활용 전략</h2>
-        <h3>대학: 입학 전형 활용 방법</h3>
-        <p>한국어 능력시험 결과를 다음과 같이 활용할 수 있습니다:</p>
-        <ul>
-          <li>T 점수 55 이상: 정규 과정 입학 가능</li>
-          <li>T 점수 45-54: 조건부 입학 (한국어 집중 과정 이수 필요)</li>
-          <li>T 점수 45 미만: 입학 전 한국어 연수 과정 이수 필요</li>
-        </ul>
-        <h3>기업: 채용 및 인사 평가 활용 방안</h3>
-        <p>
-          직무별 요구되는 한국어 능력 수준을 T 점수로 정의하여 채용 기준으로
-          활용할 수 있습니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>5. 기관 특성별 활용 전략</h2>
+                <h3>대학: 입학 전형 활용 방법</h3>
+                <p>한국어 능력시험 결과를 다음과 같이 활용할 수 있습니다:</p>
+                <ul>
+                    <li>T 점수 55 이상: 정규 과정 입학 가능</li>
+                    <li>
+                        T 점수 45-54: 조건부 입학 (한국어 집중 과정 이수 필요)
+                    </li>
+                    <li>T 점수 45 미만: 입학 전 한국어 연수 과정 이수 필요</li>
+                </ul>
+                <h3>기업: 채용 및 인사 평가 활용 방안</h3>
+                <p>
+                    직무별 요구되는 한국어 능력 수준을 T 점수로 정의하여 채용
+                    기준으로 활용할 수 있습니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>6. 점수 분포 시각화</h2>
-        <div class="chart-container">
-          <canvas id="scoreDistributionChart"></canvas>
+            <div class="section">
+                <h2>6. 점수 분포 시각화</h2>
+                <div
+                    id="scoreDistributionChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>7. 영역별 난이도 분석</h2>
+                <div
+                    id="difficultyChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>8. 말하기 평가 기준 분포</h2>
+                <div
+                    id="speakingCriteriaChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
-    <script type="module">
-      import {
-        df_questions,
-        df_responses,
-        df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
 
-      // 점수 해석 테이블 데이터 생성
-      const scoreInterpretationData = [
-        { tScore: "70 이상", percentile: "97% 이상", level: "최상위" },
-        { tScore: "60-69", percentile: "84-96%", level: "상위" },
-        { tScore: "50-59", percentile: "50-83%", level: "중상위" },
-        { tScore: "40-49", percentile: "16-49%", level: "중하위" },
-        { tScore: "40 미만", percentile: "16% 미만", level: "하위" },
-      ];
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      // 점수 해석 테이블에 데이터 추가
-      const scoreInterpretationTable = document.getElementById(
-        "scoreInterpretation"
-      );
-      scoreInterpretationData.forEach((row) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${row.tScore}</td><td>${row.percentile}</td><td>${row.level}</td>`;
-        scoreInterpretationTable.appendChild(tr);
-      });
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
 
-      // 점수 분포 차트 생성
-      const scoreCtx = document
-        .getElementById("scoreDistributionChart")
-        .getContext("2d");
+            // 점수 해석 테이블 데이터 생성 및 추가
+            const scoreInterpretationData = [
+                { tScore: "70 이상", percentile: "97% 이상", level: "최상위" },
+                { tScore: "60-69", percentile: "84-96%", level: "상위" },
+                { tScore: "50-59", percentile: "50-83%", level: "중상위" },
+                { tScore: "40-49", percentile: "16-49%", level: "중하위" },
+                { tScore: "40 미만", percentile: "16% 미만", level: "하위" },
+            ]
 
-      // 점수 데이터 계산
-      const writtenScores = df_responses.map((r) => parseInt(r.점수));
-      const speakingScores = df_responses_speaking.map((r) => parseInt(r.점수));
-      const totalScores = writtenScores.map((w, i) => w + speakingScores[i]);
+            const scoreInterpretationTable = document.getElementById(
+                "scoreInterpretation"
+            )
+            scoreInterpretationData.forEach((row) => {
+                const tr = document.createElement("tr")
+                tr.innerHTML = `<td>${row.tScore}</td><td>${row.percentile}</td><td>${row.level}</td>`
+                scoreInterpretationTable.appendChild(tr)
+            })
 
-      // 점수 구간 설정
-      const scoreRanges = ["0-20", "21-40", "41-60", "61-80", "81-100"];
+            // 점수 분포 차트 생성
+            const writtenScores = df_responses.map((r) => parseInt(r.점수))
+            const speakingScores = df_responses_speaking.map((r) =>
+                parseInt(r.점수)
+            )
+            const totalScores = writtenScores.map(
+                (w, i) => w + speakingScores[i]
+            )
 
-      // 각 구간별 빈도 계산
-      const frequencyData = scoreRanges.map((range) => {
-        const [min, max] = range.split("-").map(Number);
-        return totalScores.filter((score) => score >= min && score <= max)
-          .length;
-      });
+            const scoreRanges = ["0-20", "21-40", "41-60", "61-80", "81-100"]
+            const frequencyData = scoreRanges.map((range) => {
+                const [min, max] = range.split("-").map(Number)
+                return totalScores.filter(
+                    (score) => score >= min && score <= max
+                ).length
+            })
 
-      new Chart(scoreCtx, {
-        type: "bar",
-        data: {
-          labels: scoreRanges,
-          datasets: [
-            {
-              label: "점수 분포",
-              data: frequencyData,
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "빈도",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "점수 구간",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "한국어능력시험 총점 분포",
-            },
-          },
-        },
-      });
-    </script>
-  </body>
+            const scoreDistributionChart = echarts.init(
+                document.getElementById("scoreDistributionChart")
+            )
+            const scoreOption = {
+                tooltip: {},
+                xAxis: {
+                    data: scoreRanges,
+                    name: "점수 구간",
+                },
+                yAxis: {
+                    name: "빈도",
+                },
+                series: [
+                    {
+                        name: "점수 분포",
+                        type: "bar",
+                        data: frequencyData,
+                    },
+                ],
+            }
+            scoreDistributionChart.setOption(scoreOption)
+
+            // 영역별 난이도 분석 차트 생성
+            const areas = [
+                "어휘",
+                "문법",
+                "쓰기",
+                "읽기",
+                "문화",
+                "발음",
+                "말하기",
+            ]
+            const difficultyData = areas.map((area) => {
+                const questions = [
+                    ...df_questions,
+                    ...df_questions_speaking,
+                ].filter((q) => q.평가영역.includes(area))
+                return questions.length > 0
+                    ? math.mean(questions.map((q) => q.난이도))
+                    : 0
+            })
+
+            const difficultyChart = echarts.init(
+                document.getElementById("difficultyChart")
+            )
+            const difficultyOption = {
+                tooltip: {},
+                xAxis: {
+                    data: areas,
+                    name: "평가 영역",
+                },
+                yAxis: {
+                    name: "평균 난이도",
+                },
+                series: [
+                    {
+                        name: "난이도",
+                        type: "bar",
+                        data: difficultyData,
+                    },
+                ],
+            }
+            difficultyChart.setOption(difficultyOption)
+
+            // 말하기 평가 기준 분포 차트 생성
+            const criteriaScores = speaking_grading_criteria.map((c) => c.점수)
+            const criteriaDistribution = _.countBy(criteriaScores)
+            const criteriaData = Object.entries(criteriaDistribution).map(
+                ([score, count]) => ({
+                    value: count,
+                    name: `${score}점`,
+                })
+            )
+
+            const speakingCriteriaChart = echarts.init(
+                document.getElementById("speakingCriteriaChart")
+            )
+            const criteriaOption = {
+                tooltip: {
+                    trigger: "item",
+                    formatter: "{a} <br/>{b}: {c} ({d}%)",
+                },
+                series: [
+                    {
+                        name: "평가 기준",
+                        type: "pie",
+                        radius: "50%",
+                        data: criteriaData,
+                    },
+                ],
+            }
+            speakingCriteriaChart.setOption(criteriaOption)
+        </script>
+    </body>
 </html>

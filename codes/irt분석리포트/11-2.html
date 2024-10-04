@@ -1,322 +1,406 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 개인 점수 리포트</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 개인 점수 리포트</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 개인 점수 리포트</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 개인 점수 리포트</h1>
 
-      <div class="section">
-        <h2>1. 개인 정보</h2>
-        <table>
-          <tr>
-            <th>이름</th>
-            <td id="name"></td>
-          </tr>
-          <tr>
-            <th>외국인등록번호</th>
-            <td id="regNumber"></td>
-          </tr>
-          <tr>
-            <th>시험 일자</th>
-            <td>2024년 9월 28일</td>
-          </tr>
-        </table>
-      </div>
+            <div class="section">
+                <h2>1. 개인 정보</h2>
+                <table>
+                    <tr>
+                        <th>이름</th>
+                        <td id="name"></td>
+                    </tr>
+                    <tr>
+                        <th>외국인등록번호</th>
+                        <td id="regNumber"></td>
+                    </tr>
+                    <tr>
+                        <th>시험 일자</th>
+                        <td>2024년 9월 28일</td>
+                    </tr>
+                </table>
+            </div>
 
-      <div class="section">
-        <h2>2. 점수 요약</h2>
-        <table>
-          <tr>
-            <th>구분</th>
-            <th>필기시험</th>
-            <th>구술시험</th>
-            <th>총점</th>
-          </tr>
-          <tr>
-            <td>원점수</td>
-            <td id="writtenRawScore"></td>
-            <td id="speakingRawScore"></td>
-            <td id="totalRawScore"></td>
-          </tr>
-          <tr>
-            <td>변환 점수 (0-100)</td>
-            <td id="writtenScaledScore"></td>
-            <td id="speakingScaledScore"></td>
-            <td id="totalScaledScore"></td>
-          </tr>
-          <tr>
-            <td>백분위 점수</td>
-            <td id="writtenPercentile"></td>
-            <td id="speakingPercentile"></td>
-            <td id="totalPercentile"></td>
-          </tr>
-          <tr>
-            <td>T 점수</td>
-            <td id="writtenTScore"></td>
-            <td id="speakingTScore"></td>
-            <td id="totalTScore"></td>
-          </tr>
-        </table>
-        <p>95% 신뢰구간: <span id="confidenceInterval"></span></p>
-      </div>
+            <div class="section">
+                <h2>2. 점수 요약</h2>
+                <table>
+                    <tr>
+                        <th>구분</th>
+                        <th>필기시험</th>
+                        <th>구술시험</th>
+                        <th>총점</th>
+                    </tr>
+                    <tr>
+                        <td>원점수</td>
+                        <td id="writtenRawScore"></td>
+                        <td id="speakingRawScore"></td>
+                        <td id="totalRawScore"></td>
+                    </tr>
+                    <tr>
+                        <td>변환 점수 (0-100)</td>
+                        <td id="writtenScaledScore"></td>
+                        <td id="speakingScaledScore"></td>
+                        <td id="totalScaledScore"></td>
+                    </tr>
+                    <tr>
+                        <td>백분위 점수</td>
+                        <td id="writtenPercentile"></td>
+                        <td id="speakingPercentile"></td>
+                        <td id="totalPercentile"></td>
+                    </tr>
+                    <tr>
+                        <td>T 점수</td>
+                        <td id="writtenTScore"></td>
+                        <td id="speakingTScore"></td>
+                        <td id="totalTScore"></td>
+                    </tr>
+                </table>
+                <p>95% 신뢰구간: <span id="confidenceInterval"></span></p>
+            </div>
 
-      <div class="section">
-        <h2>3. 점수 해석</h2>
-        <p>
-          변환 점수는 0-100 범위로 표준화된 점수입니다. 백분위 점수는 다른
-          수험자들과 비교했을 때 귀하의 상대적 위치를 나타냅니다. T 점수는 평균
-          50, 표준편차 10인 표준화 점수입니다.
-        </p>
-        <p id="percentileInterpretation"></p>
-      </div>
+            <div class="section">
+                <h2>3. 점수 해석</h2>
+                <p>
+                    변환 점수는 0-100 범위로 표준화된 점수입니다. 백분위 점수는
+                    다른 수험자들과 비교했을 때 귀하의 상대적 위치를 나타냅니다.
+                    T 점수는 평균 50, 표준편차 10인 표준화 점수입니다.
+                </p>
+                <p id="percentileInterpretation"></p>
+            </div>
 
-      <div class="section">
-        <h2>4. 전체 분포 내 위치</h2>
-        <div class="chart-container">
-          <canvas id="scoreDistributionChart"></canvas>
+            <div class="section">
+                <h2>4. 전체 분포 내 위치</h2>
+                <div
+                    id="scoreDistributionChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>5. 영역별 성취도</h2>
+                <div
+                    id="domainAchievementChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>6. AI추천 학습 방향 제안</h2>
+                <p id="learningDirection"></p>
+            </div>
         </div>
-      </div>
 
-      <div class="section">
-        <h2>5. 영역별 성취도</h2>
-        <div class="chart-container">
-          <canvas id="domainAchievementChart"></canvas>
-        </div>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
+        <script type="module">
+            import {
+                df_questions,
+                df_responses,
+                df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>6. AI추천 학습 방향 제안</h2>
-        <p id="learningDirection"></p>
-      </div>
-    </div>
+            // 예시 수험자 선택 (첫 번째 수험자)
+            const examinee = df_responses[0]
+            const examinee_speaking = df_responses_speaking[0]
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
-    <script type="module">
-      import {
-        df_questions,
-        df_responses,
-        df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+            // 개인 정보 표시
+            document.getElementById("name").textContent = examinee.이름
+            document.getElementById("regNumber").textContent =
+                examinee["외국인 등록번호"]
 
-      // 예시 수험자 선택 (첫 번째 수험자)
-      const examinee = df_responses[0];
-      const examinee_speaking = df_responses_speaking[0];
+            // 점수 계산 및 표시
+            const writtenRawScore = parseFloat(examinee.점수)
+            const speakingRawScore = parseFloat(examinee_speaking.점수)
+            const totalRawScore = writtenRawScore + speakingRawScore
 
-      // 개인 정보 표시
-      document.getElementById("name").textContent = examinee.이름;
-      document.getElementById("regNumber").textContent = '123456-1111'
-        // examinee.외국인등록번호;
+            document.getElementById("writtenRawScore").textContent =
+                writtenRawScore.toFixed(1)
+            document.getElementById("speakingRawScore").textContent =
+                speakingRawScore.toFixed(1)
+            document.getElementById("totalRawScore").textContent =
+                totalRawScore.toFixed(1)
 
-      // 점수 계산 및 표시
-      const writtenRawScore = parseInt(examinee.점수);
-      const speakingRawScore = parseInt(examinee_speaking.점수);
-      const totalRawScore = writtenRawScore + speakingRawScore;
+            // 변환 점수 계산 (최대 점수를 기준으로 100점 만점으로 변환)
+            const maxWrittenScore = Math.max(
+                ...df_responses.map((r) => parseFloat(r.점수))
+            )
+            const maxSpeakingScore = Math.max(
+                ...df_responses_speaking.map((r) => parseFloat(r.점수))
+            )
 
-      document.getElementById("writtenRawScore").textContent = writtenRawScore;
-      document.getElementById("speakingRawScore").textContent =
-        speakingRawScore;
-      document.getElementById("totalRawScore").textContent = totalRawScore;
+            const writtenScaledScore = Math.round(
+                (writtenRawScore / maxWrittenScore) * 100
+            )
+            const speakingScaledScore = Math.round(
+                (speakingRawScore / maxSpeakingScore) * 100
+            )
+            const totalScaledScore = Math.round(
+                (writtenScaledScore + speakingScaledScore) / 2
+            )
 
-      // 변환 점수 계산 (예시: 단순 비율 변환)
-      const writtenScaledScore = Math.round((writtenRawScore / 100) * 100);
-      const speakingScaledScore = Math.round((speakingRawScore / 25) * 100);
-      const totalScaledScore = Math.round(
-        (writtenScaledScore + speakingScaledScore) / 2
-      );
+            document.getElementById("writtenScaledScore").textContent =
+                writtenScaledScore
+            document.getElementById("speakingScaledScore").textContent =
+                speakingScaledScore
+            document.getElementById("totalScaledScore").textContent =
+                totalScaledScore
 
-      document.getElementById("writtenScaledScore").textContent =
-        writtenScaledScore;
-      document.getElementById("speakingScaledScore").textContent =
-        speakingScaledScore;
-      document.getElementById("totalScaledScore").textContent =
-        totalScaledScore;
+            // 백분위 점수 계산
+            const calculatePercentile = (score, allScores) => {
+                const rank = allScores.filter((s) => s <= score).length
+                return Math.round((rank / allScores.length) * 100)
+            }
 
-      // 백분위 점수 계산 (예시: 간단한 순위 기반 계산)
-      const calculatePercentile = (score, allScores) => {
-        const rank = allScores.filter((s) => s <= score).length;
-        return Math.round((rank / allScores.length) * 100);
-      };
+            const allWrittenScores = df_responses.map((r) => parseFloat(r.점수))
+            const allSpeakingScores = df_responses_speaking.map((r) =>
+                parseFloat(r.점수)
+            )
+            const allTotalScores = allWrittenScores.map(
+                (w, i) => w + allSpeakingScores[i]
+            )
 
-      const allWrittenScores = df_responses.map((r) => parseInt(r.점수));
-      const allSpeakingScores = df_responses_speaking.map((r) =>
-        parseInt(r.점수)
-      );
-      const allTotalScores = allWrittenScores.map(
-        (w, i) => w + allSpeakingScores[i]
-      );
+            const writtenPercentile = calculatePercentile(
+                writtenRawScore,
+                allWrittenScores
+            )
+            const speakingPercentile = calculatePercentile(
+                speakingRawScore,
+                allSpeakingScores
+            )
+            const totalPercentile = calculatePercentile(
+                totalRawScore,
+                allTotalScores
+            )
 
-      const writtenPercentile = calculatePercentile(
-        writtenRawScore,
-        allWrittenScores
-      );
-      const speakingPercentile = calculatePercentile(
-        speakingRawScore,
-        allSpeakingScores
-      );
-      const totalPercentile = calculatePercentile(
-        totalRawScore,
-        allTotalScores
-      );
+            document.getElementById("writtenPercentile").textContent =
+                writtenPercentile
+            document.getElementById("speakingPercentile").textContent =
+                speakingPercentile
+            document.getElementById("totalPercentile").textContent =
+                totalPercentile
 
-      document.getElementById("writtenPercentile").textContent =
-        writtenPercentile;
-      document.getElementById("speakingPercentile").textContent =
-        speakingPercentile;
-      document.getElementById("totalPercentile").textContent = totalPercentile;
+            // T 점수 계산
+            const calculateTScore = (score, allScores) => {
+                const mean = math.mean(allScores)
+                const std = math.std(allScores)
+                return Math.round(((score - mean) / std) * 10 + 50)
+            }
 
-      // T 점수 계산 (예시: 간단한 표준화 점수)
-      const calculateTScore = (score, allScores) => {
-        const mean = allScores.reduce((a, b) => a + b) / allScores.length;
-        const std = Math.sqrt(
-          allScores.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) /
-            allScores.length
-        );
-        return Math.round(((score - mean) / std) * 10 + 50);
-      };
+            const writtenTScore = calculateTScore(
+                writtenRawScore,
+                allWrittenScores
+            )
+            const speakingTScore = calculateTScore(
+                speakingRawScore,
+                allSpeakingScores
+            )
+            const totalTScore = calculateTScore(totalRawScore, allTotalScores)
 
-      const writtenTScore = calculateTScore(writtenRawScore, allWrittenScores);
-      const speakingTScore = calculateTScore(
-        speakingRawScore,
-        allSpeakingScores
-      );
-      const totalTScore = calculateTScore(totalRawScore, allTotalScores);
+            document.getElementById("writtenTScore").textContent = writtenTScore
+            document.getElementById("speakingTScore").textContent =
+                speakingTScore
+            document.getElementById("totalTScore").textContent = totalTScore
 
-      document.getElementById("writtenTScore").textContent = writtenTScore;
-      document.getElementById("speakingTScore").textContent = speakingTScore;
-      document.getElementById("totalTScore").textContent = totalTScore;
+            // 신뢰구간 계산 (예시: 표준오차의 2배를 사용)
+            const standardError =
+                math.std(allTotalScores) / Math.sqrt(allTotalScores.length)
+            const confidenceInterval = `${Math.round(
+                totalScaledScore - 2 * standardError
+            )} - ${Math.round(totalScaledScore + 2 * standardError)}`
+            document.getElementById("confidenceInterval").textContent =
+                confidenceInterval
 
-      // 신뢰구간 계산 (예시)
-      const confidenceInterval = `${totalScaledScore - 5} - ${
-        totalScaledScore + 5
-      }`;
-      document.getElementById("confidenceInterval").textContent =
-        confidenceInterval;
+            // 백분위 해석
+            const percentileInterpretation = `귀하의 총점 백분위는 ${totalPercentile}%로, 상위 ${
+                100 - totalPercentile
+            }%에 해당합니다.`
+            document.getElementById("percentileInterpretation").textContent =
+                percentileInterpretation
 
-      // 백분위 해석
-      const percentileInterpretation = `귀하의 총점 백분위는 ${totalPercentile}%로, 상위 ${
-        100 - totalPercentile
-      }%에 해당합니다.`;
-      document.getElementById("percentileInterpretation").textContent =
-        percentileInterpretation;
+            // 점수 분포 차트
+            const scoreDistributionChart = echarts.init(
+                document.getElementById("scoreDistributionChart")
+            )
+            const scoreDistributionOption = {
+                title: {
+                    text: "총점 분포 및 귀하의 위치",
+                    left: "center",
+                },
+                tooltip: {
+                    trigger: "axis",
+                    axisPointer: {
+                        type: "shadow",
+                    },
+                },
+                xAxis: {
+                    type: "category",
+                    data: ["0-20", "21-40", "41-60", "61-80", "81-100"],
+                    name: "점수 구간",
+                },
+                yAxis: {
+                    type: "value",
+                    name: "빈도",
+                },
+                series: [
+                    {
+                        name: "전체 분포",
+                        type: "bar",
+                        data: [
+                            allTotalScores.filter((s) => s >= 0 && s <= 20)
+                                .length,
+                            allTotalScores.filter((s) => s > 20 && s <= 40)
+                                .length,
+                            allTotalScores.filter((s) => s > 40 && s <= 60)
+                                .length,
+                            allTotalScores.filter((s) => s > 60 && s <= 80)
+                                .length,
+                            allTotalScores.filter((s) => s > 80 && s <= 100)
+                                .length,
+                        ],
+                        itemStyle: { color: "rgba(75, 192, 192, 0.6)" },
+                    },
+                    {
+                        name: "귀하의 점수",
+                        type: "bar",
+                        data: [0, 0, 0, 0, 0],
+                        itemStyle: { color: "rgba(255, 99, 132, 0.6)" },
+                    },
+                ],
+            }
 
-      // 점수 분포 차트
-      const scoreCtx = document
-        .getElementById("scoreDistributionChart")
-        .getContext("2d");
-      new Chart(scoreCtx, {
-        type: "bar",
-        data: {
-          labels: ["0-20", "21-40", "41-60", "61-80", "81-100"],
-          datasets: [
-            {
-              label: "전체 분포",
-              data: [5, 8, 10, 5, 2],
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-            {
-              label: "귀하의 점수",
-              data: [0, 0, 0, 1, 0],
-              backgroundColor: "rgba(255, 99, 132, 0.6)",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "빈도",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "점수 구간",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "총점 분포 및 귀하의 위치",
-            },
-          },
-        },
-      });
+            // 수험자의 점수에 해당하는 구간에 1을 설정
+            const scoreIndex = Math.floor(totalScaledScore / 20)
+            scoreDistributionOption.series[1].data[scoreIndex] = 1
 
-      // 영역별 성취도 차트
-      const domainCtx = document
-        .getElementById("domainAchievementChart")
-        .getContext("2d");
-      new Chart(domainCtx, {
-        type: "radar",
-        data: {
-          labels: ["어휘", "문법", "듣기", "읽기", "말하기"],
-          datasets: [
-            {
-              label: "귀하의 점수",
-              data: [80, 75, 70, 85, 90],
-              fill: true,
-              backgroundColor: "rgba(255, 99, 132, 0.2)",
-              borderColor: "rgb(255, 99, 132)",
-              pointBackgroundColor: "rgb(255, 99, 132)",
-              pointBorderColor: "#fff",
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "rgb(255, 99, 132)",
-            },
-            {
-              label: "평균 점수",
-              data: [70, 65, 75, 80, 70],
-              fill: true,
-              backgroundColor: "rgba(54, 162, 235, 0.2)",
-              borderColor: "rgb(54, 162, 235)",
-              pointBackgroundColor: "rgb(54, 162, 235)",
-              pointBorderColor: "#fff",
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "rgb(54, 162, 235)",
-            },
-          ],
-        },
-        options: {
-          elements: {
-            line: {
-              borderWidth: 3,
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "영역별 성취도",
-            },
-          },
-        },
-      });
+            scoreDistributionChart.setOption(scoreDistributionOption)
 
-      // 향후 학습 방향 제안
-      const learningDirection =
-        "귀하의 강점 영역은 말하기와 읽기입니다. 앞으로 듣기와 문법 영역에 더 집중하여 학습하시면 전반적인 한국어 능력 향상에 도움이 될 것입니다.";
-      document.getElementById("learningDirection").textContent =
-        learningDirection;
-    </script>
-  </body>
+            // 영역별 성취도 차트
+            const domainScores = {
+                어휘:
+                    _.meanBy(
+                        df_questions.filter((q) => q.평가영역 === "어휘"),
+                        "난이도"
+                    ) * 100,
+                문법:
+                    _.meanBy(
+                        df_questions.filter((q) => q.평가영역 === "문법"),
+                        "난이도"
+                    ) * 100,
+                쓰기:
+                    _.meanBy(
+                        df_questions.filter((q) => q.평가영역 === "쓰기"),
+                        "난이도"
+                    ) * 100,
+                읽기:
+                    _.meanBy(
+                        df_questions.filter((q) => q.평가영역 === "읽기"),
+                        "난이도"
+                    ) * 100,
+                말하기: _.meanBy(df_questions_speaking, "난이도") * 100,
+            }
+
+            const averageScores = {
+                어휘: 70,
+                문법: 65,
+                쓰기: 75,
+                읽기: 80,
+                말하기: 70,
+            }
+
+            const domainAchievementChart = echarts.init(
+                document.getElementById("domainAchievementChart")
+            )
+            const domainAchievementOption = {
+                tooltip: {},
+                legend: {
+                    data: ["귀하의 점수", "평균 점수"],
+                    bottom: 0,
+                },
+                radar: {
+                    indicator: Object.keys(domainScores).map((key) => ({
+                        name: key,
+                        max: 100,
+                    })),
+                },
+                series: [
+                    {
+                        name: "성취도 비교",
+                        type: "radar",
+                        data: [
+                            {
+                                value: Object.values(domainScores),
+                                name: "귀하의 점수",
+                            },
+                            {
+                                value: Object.values(averageScores),
+                                name: "평균 점수",
+                            },
+                        ],
+                    },
+                ],
+            }
+            domainAchievementChart.setOption(domainAchievementOption)
+
+            // 향후 학습 방향 제안
+            // 향후 학습 방향 제안
+            const strengths = Object.entries(domainScores)
+                .filter(([_, score]) => score > 80)
+                .map(([domain, _]) => domain)
+
+            const weaknesses = Object.entries(domainScores)
+                .filter(([_, score]) => score < 70)
+                .map(([domain, _]) => domain)
+
+            let learningDirection = "귀하의 "
+            if (strengths.length > 0) {
+                learningDirection += `강점 영역은 ${strengths.join(
+                    ", "
+                )}입니다. `
+            }
+            if (weaknesses.length > 0) {
+                learningDirection += `개선이 필요한 영역은 ${weaknesses.join(
+                    ", "
+                )}입니다. `
+            }
+            learningDirection += "앞으로 "
+            if (weaknesses.length > 0) {
+                learningDirection += `${weaknesses.join(
+                    ", "
+                )} 영역에 더 집중하여 학습하시면 `
+            } else {
+                learningDirection += "모든 영역을 균형 있게 학습하시면 "
+            }
+            learningDirection +=
+                "전반적인 한국어 능력 향상에 도움이 될 것입니다."
+
+            document.getElementById("learningDirection").textContent =
+                learningDirection
+
+            // 창 크기 변경 시 차트 크기 조정
+            window.addEventListener("resize", () => {
+                scoreDistributionChart.resize()
+                domainAchievementChart.resize()
+            })
+        </script>
+    </body>
 </html>

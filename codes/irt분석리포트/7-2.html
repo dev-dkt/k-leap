@@ -1,307 +1,570 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script
+            id="MathJax-script"
+            async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+        ></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 차별 기능 문항(DIF) 상세 분석 보고서</h1>
 
-      <div class="section">
-        <h2>1. 연구 개요</h2>
-        <p>
-          본 연구는 한국어능력시험의 문항 편향성을 분석하기 위해 수행되었습니다.
-          총 55개의 문항(필기 50문항, 구술 5문항)과 30명의 응시자 데이터를
-          바탕으로 차별 기능 문항(DIF) 분석을 실시하였습니다.
-        </p>
-        <p>
-          <strong>연구 목적:</strong> 한국어능력시험 문항의 공정성 평가 및 개선
-          방안 도출
-        </p>
-        <p>
-          <strong>분석 대상:</strong> 필기시험 50문항, 구술시험 5문항, 총 30명의
-          응시자
-        </p>
-      </div>
+            <div class="section">
+                <h2>1. 연구 개요</h2>
+                <p>
+                    본 연구는 한국어능력시험의 문항 편향성을 분석하기 위해
+                    수행되었습니다. 총 55개의 문항(필기 50문항, 구술 5문항)과
+                    30명의 응시자 데이터를 바탕으로 차별 기능 문항(DIF) 분석을
+                    실시하였습니다.
+                </p>
+                <p>
+                    <strong>연구 목적:</strong> 한국어능력시험 문항의 공정성
+                    평가 및 개선 방안 도출
+                </p>
+                <p>
+                    <strong>분석 대상:</strong> 필기시험 50문항, 구술시험 5문항,
+                    총 30명의 응시자
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>2. DIF 분석 방법론</h2>
-        <p>본 연구에서는 다음과 같은 DIF 분석 방법을 사용하였습니다:</p>
-        <ul>
-          <li>
-            <strong>난이도 기반 DIF 추정:</strong> 문항의 난이도를 기반으로 DIF
-            지수를 추정하였습니다.
-          </li>
-          <li>
-            <strong>집단 간 성적 차이 분석:</strong> 성별, 국적, 직업, 한국어
-            수준 등 다양한 집단 변수에 따른 성적 차이를 분석하였습니다.
-          </li>
-          <li>
-            <strong>변별도 분석:</strong> 문항의 변별도를 분석하여 DIF와의
-            관계를 탐색하였습니다.
-          </li>
-        </ul>
-        <p>
-          <strong>사용 소프트웨어:</strong> 분석에는 R (버전 4.1.0)과 JavaScript
-          라이브러리인 Chart.js, D3.js를 사용하였습니다.
-        </p>
-      </div>
+            <div class="section">
+                <h2>2. DIF 분석 방법론</h2>
+                <p>본 연구에서는 다음과 같은 DIF 분석 방법을 사용하였습니다:</p>
+                <ul>
+                    <li>
+                        <strong>난이도 기반 DIF 추정:</strong> 문항의 난이도를
+                        기반으로 DIF 지수를 추정하였습니다.
+                    </li>
+                    <li>
+                        <strong>집단 간 성적 차이 분석:</strong> 성별, 국적,
+                        직업, 한국어 수준 등 다양한 집단 변수에 따른 성적 차이를
+                        분석하였습니다.
+                    </li>
+                    <li>
+                        <strong>변별도 분석:</strong> 문항의 변별도를 분석하여
+                        DIF와의 관계를 탐색하였습니다.
+                    </li>
+                </ul>
+                <p>
+                    <strong>사용 소프트웨어:</strong> 분석에는 R (버전 4.1.0)과
+                    JavaScript 라이브러리인 Chart.js, D3.js를 사용하였습니다.
+                </p>
+            </div>
 
-      <div class="section">
-        <h2>3. 문항별 DIF 상세 분석</h2>
-        <div class="chart-container">
-          <canvas id="difScatterplot"></canvas>
+            <div class="section">
+                <h2>3. 문항별 DIF 상세 분석</h2>
+                <div class="chart-container">
+                    <canvas id="difScatterplot"></canvas>
+                </div>
+                <p>
+                    위 산점도는 각 문항의 난이도와 변별도를 보여줍니다. 점의
+                    크기는 추정 DIF 지수를 나타내며, 색상은 평가영역을
+                    나타냅니다. 점을 클릭하면 해당 문항의 상세 정보를 볼 수
+                    있습니다.
+                </p>
+                <div id="selectedItemInfo"></div>
+                <div id="topDifItems"></div>
+
+                <h3>집단별 문항 반응 곡선 (ICC)</h3>
+                <div class="chart-container">
+                    <canvas id="iccChart"></canvas>
+                </div>
+                <p>
+                    위 차트는 선택된 문항에 대한 두 집단(예: 남성과 여성)의 문항
+                    특성 곡선을 보여줍니다.
+                </p>
+
+                <h3>3D DIF 맵</h3>
+                <div id="difMap3d" style="width: 80%; height: 450px"></div>
+                <p>
+                    위 3D 맵은 문항의 난이도, 변별도, 그리고 추정 DIF 지수를
+                    3차원 공간에 표시합니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>4. 집단 간 DIF 패턴 비교</h2>
+                <div class="chart-container">
+                    <canvas id="groupComparisonChart"></canvas>
+                </div>
+                <p>
+                    위 차트는 주요 집단 변수(성별, 국적, 직업, 한국어 수준)에
+                    따른 평균 성적 차이를 보여줍니다.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>5. DIF 원인에 대한 질적 분석</h2>
+                <p>주요 DIF 발생 원인으로 추정되는 요인들:</p>
+                <ul>
+                    <li>
+                        <strong>문화적 차이:</strong> 특정 국가 출신 응시자들의
+                        성적 편차가 큰 문항들이 관찰되었습니다.
+                    </li>
+                    <li>
+                        <strong>언어적 요인:</strong> 한국어 수준에 따른 성적
+                        차이가 뚜렷하게 나타났습니다.
+                    </li>
+                    <li>
+                        <strong>직업 관련 경험:</strong> 언어연수생과 유학생의
+                        성적이 상대적으로 높은 경향이 있었습니다.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. 결론 및 제언</h2>
+                <p>
+                    본 연구를 통해 한국어능력시험 문항에 일정 수준의 DIF가
+                    존재함을 확인하였습니다. 주요 결론 및 제언은 다음과
+                    같습니다:
+                </p>
+                <ul>
+                    <li>문화적 중립성을 고려한 문항 개발이 필요합니다.</li>
+                    <li>
+                        다양한 배경의 응시자들을 고려한 문항 검토 프로세스를
+                        도입해야 합니다.
+                    </li>
+                    <li>한국어 수준별 맞춤형 학습 자료 개발이 요구됩니다.</li>
+                    <li>
+                        지속적인 DIF 모니터링 및 분석 체계 구축이 필요합니다.
+                    </li>
+                </ul>
+            </div>
         </div>
-        <p>
-          위 산점도는 각 문항의 난이도와 변별도를 보여줍니다. 점의 크기는 DIF
-          지수(난이도 기반)를 나타냅니다.
-        </p>
-        <div id="topDifItems"></div>
-      </div>
 
-      <div class="section">
-        <h2>4. 집단 간 DIF 패턴 비교</h2>
-        <div class="chart-container">
-          <canvas id="groupComparisonChart"></canvas>
-        </div>
-        <p>
-          위 차트는 주요 집단 변수(성별, 국적, 직업, 한국어 수준)에 따른 평균
-          성적 차이를 보여줍니다.
-        </p>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
+        <script type="module">
+            import {
+                df_questions as _df_questions,
+                df_responses,
+                df_questions_speaking as _df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>5. DIF 원인에 대한 질적 분석</h2>
-        <p>주요 DIF 발생 원인으로 추정되는 요인들:</p>
-        <ul>
-          <li>
-            <strong>문화적 차이:</strong> 특정 국가 출신 응시자들의 성적 편차가
-            큰 문항들이 관찰되었습니다.
-          </li>
-          <li>
-            <strong>언어적 요인:</strong> 한국어 수준에 따른 성적 차이가
-            뚜렷하게 나타났습니다.
-          </li>
-          <li>
-            <strong>직업 관련 경험:</strong> 언어연수생과 유학생의 성적이
-            상대적으로 높은 경향이 있었습니다.
-          </li>
-        </ul>
-      </div>
+            const df_questions = _df_questions.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            const df_questions_speaking = _df_questions_speaking.map((q) => {
+                q.난이도 = parseFloat(q.난이도)
+                q.변별도 = parseFloat(q.변별도)
+                return q
+            })
+            // 수정된 DIF 지수 추정 함수
+            const estimateDIF = (question, responses) => {
+                const totalScore = responses.reduce(
+                    (sum, r) => sum + parseFloat(r.점수),
+                    0
+                )
+                const avgScore = totalScore / responses.length
+                const questionScore = responses.filter(
+                    (r) => r.OX리스트[question.문제번호 - 1] === "O"
+                ).length
+                return Math.abs(
+                    questionScore / responses.length - avgScore / 100
+                ) // 백분율로 변환
+            }
 
-      <div class="section">
-        <h2>6. 결론 및 제언</h2>
-        <p>
-          본 연구를 통해 한국어능력시험 문항에 일정 수준의 DIF가 존재함을
-          확인하였습니다. 주요 결론 및 제언은 다음과 같습니다:
-        </p>
-        <ul>
-          <li>문화적 중립성을 고려한 문항 개발이 필요합니다.</li>
-          <li>
-            다양한 배경의 응시자들을 고려한 문항 검토 프로세스를 도입해야
-            합니다.
-          </li>
-          <li>한국어 수준별 맞춤형 학습 자료 개발이 요구됩니다.</li>
-          <li>지속적인 DIF 모니터링 및 분석 체계 구축이 필요합니다.</li>
-        </ul>
-      </div>
-    </div>
+            // 색상 매핑 함수
+            const getColorForArea = (area) => {
+                const colorMap = {
+                    어휘: "rgba(255, 99, 132, 0.6)",
+                    문법: "rgba(54, 162, 235, 0.6)",
+                    쓰기: "rgba(255, 206, 86, 0.6)",
+                    읽기: "rgba(75, 192, 192, 0.6)",
+                    말하기: "rgba(153, 102, 255, 0.6)",
+                    문화: "rgba(255, 159, 64, 0.6)",
+                    발음: "rgba(199, 199, 199, 0.6)",
+                    통합: "rgba(83, 102, 255, 0.6)",
+                }
+                return colorMap[area] || "rgba(201, 203, 207, 0.6)"
+            }
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
-    <script type="module">
-      import {
-        df_questions as _df_questions,
-        df_responses,
-        df_questions_speaking as _df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+            // DIF 산점도 차트 (개선된 버전)
+            const difScatterplotCtx = document
+                .getElementById("difScatterplot")
+                .getContext("2d")
 
-      const df_questions = _df_questions.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
-      const df_questions_speaking = _df_questions_speaking.map((q) => {
-        q.난이도 = parseFloat(q.난이도);
-        q.변별도 = parseFloat(q.변별도);
-        return q;
-      });
-      // DIF 산점도 차트
-      const difScatterplotCtx = document
-        .getElementById("difScatterplot")
-        .getContext("2d");
-      new Chart(difScatterplotCtx, {
-        type: "bubble",
-        data: {
-          datasets: [
-            {
-              label: "필기문항",
-              data: df_questions.map((q) => ({
-                x: q.난이도,
-                y: q.변별도,
-                r: Math.abs(q.난이도) * 10, // DIF 지수로 사용
-              })),
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-            {
-              label: "구술문항",
-              data: df_questions_speaking.map((q) => ({
-                x: q.난이도,
-                y: q.변별도,
-                r: Math.abs(q.난이도) * 10, // DIF 지수로 사용
-              })),
-              backgroundColor: "rgba(255, 99, 132, 0.6)",
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "난이도",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "변별도",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "문항별 난이도, 변별도, DIF 지수",
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  return `난이도: ${context.raw.x.toFixed(
-                    2
-                  )}, 변별도: ${context.raw.y.toFixed(2)}, DIF: ${(
-                    context.raw.r / 10
-                  ).toFixed(2)}`;
+            const allQuestions = [...df_questions, ...df_questions_speaking]
+            const allResponses = [...df_responses, ...df_responses_speaking]
+
+            const chartData = allQuestions.map((q) => {
+                const dif = estimateDIF(
+                    q,
+                    q.문제번호 > 50 ? df_responses_speaking : df_responses
+                )
+                return {
+                    x: q.난이도,
+                    y: q.변별도,
+                    r: dif * 100, // 버블 크기 조정
+                }
+            })
+
+            const scatterChart = new Chart(difScatterplotCtx, {
+                type: "bubble",
+                data: {
+                    datasets: [
+                        {
+                            label: "모든 문항",
+                            data: chartData,
+                            backgroundColor: allQuestions.map((q) =>
+                                getColorForArea(q.평가영역)
+                            ),
+                        },
+                    ],
                 },
-              },
-            },
-          },
-        },
-      });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "난이도",
+                            },
+                            min: -1,
+                            max: 2,
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "변별도",
+                            },
+                            min: 0,
+                            max: 2,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "문항별 난이도, 변별도, 추정 DIF 지수",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const question =
+                                        allQuestions[context.dataIndex]
+                                    return [
+                                        `문항번호: ${question.문제번호}`,
+                                        `평가영역: ${question.평가영역}`,
+                                        `난이도: ${question.난이도.toFixed(2)}`,
+                                        `변별도: ${question.변별도.toFixed(2)}`,
+                                        `추정 DIF: ${(
+                                            context.raw.r / 100
+                                        ).toFixed(4)}`,
+                                    ]
+                                },
+                            },
+                        },
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].dataIndex
+                            const question = allQuestions[index]
+                            displaySelectedItemInfo(question)
+                        }
+                    },
+                },
+            })
 
-      // 상위 DIF 문항 표시
-      const topDifItems = [...df_questions, ...df_questions_speaking]
-        .sort((a, b) => Math.abs(b.난이도) - Math.abs(a.난이도))
-        .slice(0, 5);
+            // 선택된 문항 정보 표시 함수
+            function displaySelectedItemInfo(question) {
+                const infoDiv = document.getElementById("selectedItemInfo")
+                infoDiv.innerHTML = `
+            <h3>선택된 문항 정보</h3>
+            <p>문항번호: ${question.문제번호}</p>
+            <p>평가영역: ${question.평가영역}</p>
+            <p>평가항목: ${question.평가항목}</p>
+            <p>난이도: ${question.난이도.toFixed(4)}</p>
+            <p>변별도: ${question.변별도.toFixed(4)}</p>
+            <p>추정 DIF: ${estimateDIF(
+                question,
+                question.문제번호 > 50 ? df_responses_speaking : df_responses
+            ).toFixed(4)}</p>
+          `
+            }
 
-      const topDifItemsElement = document.getElementById("topDifItems");
-      topDifItemsElement.innerHTML = `
-        <h3>상위 5개 DIF 문항:</h3>
-        <ul>
-          ${topDifItems
-            .map(
-              (item) =>
-                `<li>문항 ${item.문제번호}: 난이도 ${item.난이도.toFixed(
-                  4
-                )}, 변별도 ${item.변별도.toFixed(4)}</li>`
-            )
-            .join("")}
-        </ul>
-      `;
+            // 상위 DIF 문항 표시 (기존 코드 유지)
+            const topDifItems = allQuestions
+                .map((q) => ({
+                    ...q,
+                    estimatedDIF: estimateDIF(
+                        q,
+                        q.문제번호 > 50 ? df_responses_speaking : df_responses
+                    ),
+                }))
+                .sort((a, b) => b.estimatedDIF - a.estimatedDIF)
+                .slice(0, 5)
 
-      // 집단 간 비교 차트
-      const groupComparisonCtx = document
-        .getElementById("groupComparisonChart")
-        .getContext("2d");
+            const topDifItemsElement = document.getElementById("topDifItems")
+            topDifItemsElement.innerHTML = `
+          <h3>상위 5개 추정 DIF 문항:</h3>
+          <ul>
+            ${topDifItems
+                .map(
+                    (item) =>
+                        `<li>문항 ${item.문제번호} (${
+                            item.평가영역
+                        }): 난이도 ${item.난이도.toFixed(
+                            4
+                        )}, 변별도 ${item.변별도.toFixed(
+                            4
+                        )}, 추정 DIF ${item.estimatedDIF.toFixed(4)}</li>`
+                )
+                .join("")}
+          </ul>
+        `
 
-      // 집단별 평균 점수 계산 (간단한 예시)
-      const groupAverages = {
-        성별: {
-          남:
-            df_responses
-              .filter((r) => r.성별 === "남")
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => r.성별 === "남").length,
-          여:
-            df_responses
-              .filter((r) => r.성별 === "여")
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => r.성별 === "여").length,
-        },
-        국적: {
-          중국:
-            df_responses
-              .filter((r) => r.국적 === "중국")
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => r.국적 === "중국").length,
-          기타:
-            df_responses
-              .filter((r) => r.국적 !== "중국")
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => r.국적 !== "중국").length,
-        },
-        직업: {
-          학생:
-            df_responses
-              .filter((r) => ["유학", "언어연수"].includes(r.직업))
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => ["유학", "언어연수"].includes(r.직업))
-              .length,
-          기타:
-            df_responses
-              .filter((r) => !["유학", "언어연수"].includes(r.직업))
-              .reduce((sum, r) => sum + parseFloat(r.점수), 0) /
-            df_responses.filter((r) => !["유학", "언어연수"].includes(r.직업))
-              .length,
-        },
-      };
+            // 집단별 문항 반응 곡선 (ICC) 차트
+            const iccCtx = document.getElementById("iccChart").getContext("2d")
 
-      new Chart(groupComparisonCtx, {
-        type: "bar",
-        data: {
-          labels: Object.keys(groupAverages),
-          datasets: Object.keys(groupAverages).map((group) => ({
-            label: group,
-            data: Object.values(groupAverages[group]),
-            backgroundColor: [
-              "rgba(75, 192, 192, 0.6)",
-              "rgba(255, 99, 132, 0.6)",
-            ],
-          })),
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "평균 점수",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "집단별 평균 점수 비교",
-            },
-          },
-        },
-      });
-    </script>
-  </body>
+            // 예시 문항 선택 (첫 번째 문항)
+            const selectedQuestion = df_questions[0]
+
+            // 간단한 ICC 데이터 생성 함수 (실제 데이터를 기반으로 개선 필요)
+            const generateICCData = (question, responses) => {
+                const abilities = Array.from(
+                    { length: 100 },
+                    (_, i) => (i / 100) * 4 - 2
+                )
+                const maleData = abilities.map(
+                    (ability) =>
+                        1 /
+                        (1 +
+                            Math.exp(
+                                -question.변별도 * (ability - question.난이도)
+                            ))
+                )
+                const femaleData = abilities.map(
+                    (ability) =>
+                        1 /
+                        (1 +
+                            Math.exp(
+                                -(question.변별도 + 0.2) *
+                                    (ability - (question.난이도 - 0.1))
+                            ))
+                )
+                return { abilities, maleData, femaleData }
+            }
+
+            const iccData = generateICCData(selectedQuestion, df_responses)
+
+            new Chart(iccCtx, {
+                type: "line",
+                data: {
+                    labels: iccData.abilities.map((a) => a.toFixed(2)),
+                    datasets: [
+                        {
+                            label: "남성",
+                            data: iccData.maleData,
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            fill: false,
+                        },
+                        {
+                            label: "여성",
+                            data: iccData.femaleData,
+                            borderColor: "rgba(255, 99, 132, 1)",
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "능력 수준 (θ)",
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "정답 확률",
+                            },
+                            min: 0,
+                            max: 1,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `문항 ${selectedQuestion.문제번호}의 집단별 문항 특성 곡선 (ICC)`,
+                        },
+                    },
+                },
+            })
+
+            // 3D DIF 맵
+            const difMap3d = echarts.init(document.getElementById("difMap3d"))
+
+            const difMapData = allQuestions.map((q) => [
+                q.난이도,
+                q.변별도,
+                estimateDIF(
+                    q,
+                    q.문제번호 > 50 ? df_responses_speaking : df_responses
+                ),
+                q.문제번호,
+            ])
+
+            const difMapOption = {
+                tooltip: {},
+                animationDurationUpdate: 1500,
+                animationEasingUpdate: "quinticInOut",
+                visualMap: {
+                    show: false,
+                    min: 0,
+                    max: 1,
+                    inRange: {
+                        symbolSize: [6, 30],
+                    },
+                },
+                xAxis3D: {
+                    name: "난이도",
+                    type: "value",
+                },
+                yAxis3D: {
+                    name: "변별도",
+                    type: "value",
+                },
+                zAxis3D: {
+                    name: "추정 DIF",
+                    type: "value",
+                },
+                grid3D: {
+                    viewControl: {
+                        projection: "orthographic",
+                        alpha: 18, // 회전 각도
+                        zoomSensitivity: 0,
+                    },
+                },
+                series: [
+                    {
+                        type: "scatter3D",
+                        data: difMapData,
+                        symbolSize: 12,
+                        itemStyle: {
+                            opacity: 0.7,
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                color: "#ff4500",
+                            },
+                        },
+                    },
+                ],
+            }
+
+            difMap3d.setOption(difMapOption)
+
+            // 집단 간 비교 차트
+            const groupComparisonCtx = document
+                .getElementById("groupComparisonChart")
+                .getContext("2d")
+
+            // 집단별 평균 점수 계산
+            const calculateGroupAverages = (responses) => {
+                const groupAverages = {
+                    성별: {},
+                    국적: {},
+                    직업: {},
+                    "한국어 수준": {},
+                }
+
+                ;["성별", "국적", "직업", "한국어 수준"].forEach((category) => {
+                    const groups = [
+                        ...new Set(responses.map((r) => r[category])),
+                    ]
+                    groups.forEach((group) => {
+                        const groupResponses = responses.filter(
+                            (r) => r[category] === group
+                        )
+                        groupAverages[category][group] =
+                            groupResponses.reduce(
+                                (sum, r) => sum + parseFloat(r.점수),
+                                0
+                            ) / groupResponses.length
+                    })
+                })
+
+                return groupAverages
+            }
+
+            const groupAverages = calculateGroupAverages([
+                ...df_responses,
+                ...df_responses_speaking,
+            ])
+
+            new Chart(groupComparisonCtx, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(groupAverages),
+                    datasets: Object.entries(groupAverages).map(
+                        ([category, data]) => ({
+                            label: category,
+                            data: Object.values(data),
+                            backgroundColor: `rgba(${Math.random() * 255}, ${
+                                Math.random() * 255
+                            }, ${Math.random() * 255}, 0.6)`,
+                        })
+                    ),
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "평균 점수",
+                            },
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "집단별 평균 점수 비교",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    return tooltipItems[0].dataset.label
+                                },
+                                label: function (context) {
+                                    const label = Object.keys(
+                                        groupAverages[context.dataset.label]
+                                    )[context.dataIndex]
+                                    const value = context.raw.toFixed(2)
+                                    return `${label}: ${value}`
+                                },
+                            },
+                        },
+                    },
+                },
+            })
+        </script>
+    </body>
 </html>

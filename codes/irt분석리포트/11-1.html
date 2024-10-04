@@ -1,226 +1,452 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 척도 점수 변환 종합 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <h1>한국어능력시험 척도 점수 변환 종합 보고서</h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>한국어능력시험 척도 점수 변환 종합 보고서</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="report-styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>한국어능력시험 척도 점수 변환 종합 보고서</h1>
 
-      <div class="section">
-        <h2>1. 요약</h2>
-        <h3>각 척도별 주요 통계량</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>통계량</th>
-              <th>필기시험</th>
-              <th>구술시험</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>평균</td>
-              <td>29.84</td>
-              <td>10.2</td>
-            </tr>
-            <tr>
-              <td>표준편차</td>
-              <td>18.43</td>
-              <td>6.89</td>
-            </tr>
-            <tr>
-              <td>중앙값</td>
-              <td>26</td>
-              <td>10</td>
-            </tr>
-          </tbody>
-        </table>
+            <div class="section">
+                <h2>1. 요약</h2>
+                <h3>각 척도별 주요 통계량</h3>
+                <table id="summaryTable">
+                    <thead>
+                        <tr>
+                            <th>통계량</th>
+                            <th>필기시험</th>
+                            <th>구술시험</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 표 내용은 JavaScript로 채워집니다 -->
+                    </tbody>
+                </table>
 
-        <h3>핵심 발견사항</h3>
-        <ul>
-          <li>
-            필기시험과 구술시험 모두 점수 분포가 다소 왼쪽으로 치우친 경향을
-            보임
-          </li>
-          <li>
-            구술시험의 점수 범위가 필기시험에 비해 좁아 변별력이 상대적으로 낮음
-          </li>
-          <li>필기시험에서 한국어 수준별로 뚜렷한 점수 차이가 관찰됨</li>
-        </ul>
-      </div>
+                <h3>핵심 발견사항</h3>
+                <ul id="keyFindings">
+                    <!-- 핵심 발견사항은 JavaScript로 채워집니다 -->
+                </ul>
+            </div>
 
-      <div class="section">
-        <h2>2. 척도 변환 방법론</h2>
-        <p>본 보고서에서는 다음과 같은 척도 변환 방법을 사용하였습니다:</p>
-        <ul>
-          <li>선형 변환: 원점수를 0-100 범위로 변환</li>
-          <li>백분위 점수: 각 점수의 상대적 위치를 백분율로 표시</li>
-          <li>T 점수: 평균 50, 표준편차 10인 표준화 점수</li>
-        </ul>
-      </div>
+            <div class="section">
+                <h2>2. 척도 변환 방법론</h2>
+                <p>
+                    본 보고서에서는 다음과 같은 척도 변환 방법을 사용하였습니다:
+                </p>
+                <ul>
+                    <li>선형 변환: 원점수를 0-100 범위로 변환</li>
+                    <li>백분위 점수: 각 점수의 상대적 위치를 백분율로 표시</li>
+                    <li>T 점수: 평균 50, 표준편차 10인 표준화 점수</li>
+                </ul>
+            </div>
 
-      <div class="section">
-        <h2>3. 점수 분포 분석</h2>
-        <div class="chart-container">
-          <canvas id="scoreDistributionChart"></canvas>
+            <div class="section">
+                <h2>3. 점수 분포 분석</h2>
+                <div
+                    id="scoreDistributionChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>4. 집단별 성취도 비교</h2>
+                <div
+                    id="groupBoxplotChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>5. 척도 간 상관관계</h2>
+                <div
+                    id="correlationHeatmapChart"
+                    style="width: 100%; height: 400px"
+                ></div>
+            </div>
+
+            <div class="section">
+                <h2>6. 척도 활용 제안</h2>
+                <ul>
+                    <li>
+                        선발 목적: T 점수를 활용하여 지원자간 상대적 위치 파악
+                    </li>
+                    <li>분류 목적: 백분위 점수를 활용하여 수준별 그룹 구성</li>
+                    <li>
+                        성과 평가: 선형 변환 점수를 활용하여 절대적 성취도 평가
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>7. 개선 권고사항</h2>
+                <ul>
+                    <li>구술시험의 변별력 향상을 위해 문항 난이도 조정 필요</li>
+                    <li>
+                        필기시험과 구술시험 간의 균형을 위해 가중치 조정 고려
+                    </li>
+                    <li>
+                        한국어 수준별 맞춤형 문항 개발을 통한 정확한 능력 측정
+                        필요
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>
 
-      <div class="section">
-        <h2>4. 집단별 성취도 비교</h2>
-        <div class="chart-container">
-          <canvas id="achievementComparisonChart"></canvas>
-        </div>
-      </div>
+        <footer>
+            <p>
+                본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책
+                변경에 따라 내용이 수정될 수 있습니다.
+            </p>
+        </footer>
 
-      <div class="section">
-        <h2>5. 척도 활용 제안</h2>
-        <ul>
-          <li>선발 목적: T 점수를 활용하여 지원자간 상대적 위치 파악</li>
-          <li>분류 목적: 백분위 점수를 활용하여 수준별 그룹 구성</li>
-          <li>성과 평가: 선형 변환 점수를 활용하여 절대적 성취도 평가</li>
-        </ul>
-      </div>
+        <script type="module">
+            import {
+                df_questions,
+                df_responses,
+                df_questions_speaking,
+                df_responses_speaking,
+                speaking_grading_criteria,
+            } from "./data2.js"
 
-      <div class="section">
-        <h2>6. 개선 권고사항</h2>
-        <ul>
-          <li>구술시험의 변별력 향상을 위해 문항 난이도 조정 필요</li>
-          <li>필기시험과 구술시험 간의 균형을 위해 가중치 조정 고려</li>
-          <li>한국어 수준별 맞춤형 문항 개발을 통한 정확한 능력 측정 필요</li>
-        </ul>
-      </div>
-    </div>
+            // 상관관계 계산 함수
+            function correlation(x, y) {
+                const n = x.length
+                const { mean, sum } = math
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
-    <script type="module">
-      import {
-        df_questions,
-        df_responses,
-        df_questions_speaking,
-        df_responses_speaking,
-        speaking_grading_criteria,
-      } from "./data2.js";
+                const meanX = mean(x)
+                const meanY = mean(y)
 
-      // 점수 분포 차트
-      const scoreCtx = document
-        .getElementById("scoreDistributionChart")
-        .getContext("2d");
-      new Chart(scoreCtx, {
-        type: "bar",
-        data: {
-          labels: [
-            "0-10",
-            "11-20",
-            "21-30",
-            "31-40",
-            "41-50",
-            "51-60",
-            "61-70",
-            "71-80",
-            "81-90",
-            "91-100",
-          ],
-          datasets: [
-            {
-              label: "필기시험",
-              data: [3, 4, 6, 5, 4, 3, 2, 1, 1, 1],
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-            {
-              label: "구술시험",
-              data: [5, 8, 7, 4, 3, 2, 1, 0, 0, 0],
-              backgroundColor: "rgba(255, 159, 64, 0.6)",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "빈도",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "점수 구간",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "필기시험 및 구술시험 점수 분포",
-            },
-          },
-        },
-      });
+                const varianceX =
+                    sum(x.map((xi) => Math.pow(xi - meanX, 2))) / (n - 1)
+                const varianceY =
+                    sum(y.map((yi) => Math.pow(yi - meanY, 2))) / (n - 1)
 
-      // 집단별 성취도 비교 차트
-      const achievementCtx = document
-        .getElementById("achievementComparisonChart")
-        .getContext("2d");
-      new Chart(achievementCtx, {
-        type: "bar",
-        data: {
-          labels: ["초급", "중급", "고급"],
-          datasets: [
-            {
-              label: "필기시험",
-              data: [20, 40, 60],
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-            {
-              label: "구술시험",
-              data: [8, 12, 18],
-              backgroundColor: "rgba(255, 159, 64, 0.6)",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "평균 점수",
-              },
-            },
-            x: {
-              title: {
-                display: true,
-                text: "한국어 수준",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "한국어 수준별 평균 점수 비교",
-            },
-          },
-        },
-      });
-    </script>
-  </body>
+                const covariance =
+                    sum(x.map((xi, i) => (xi - meanX) * (y[i] - meanY))) /
+                    (n - 1)
+
+                return (
+                    covariance / (Math.sqrt(varianceX) * Math.sqrt(varianceY))
+                )
+            }
+
+            // 데이터 준비
+            const writtenScores = df_responses.map((r) => parseFloat(r.점수))
+            const speakingScores = df_responses_speaking.map((r) =>
+                parseFloat(r.점수)
+            )
+
+            // 요약 통계 계산
+            const writtenStats = {
+                mean: math.mean(writtenScores),
+                std: math.std(writtenScores),
+                median: math.median(writtenScores),
+            }
+
+            const speakingStats = {
+                mean: math.mean(speakingScores),
+                std: math.std(speakingScores),
+                median: math.median(speakingScores),
+            }
+
+            // 요약 테이블 채우기
+            const summaryTable = document
+                .getElementById("summaryTable")
+                .getElementsByTagName("tbody")[0]
+            summaryTable.innerHTML = `
+                <tr>
+                    <td>평균</td>
+                    <td>${writtenStats.mean.toFixed(2)}</td>
+                    <td>${speakingStats.mean.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>표준편차</td>
+                    <td>${writtenStats.std.toFixed(2)}</td>
+                    <td>${speakingStats.std.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td>중앙값</td>
+                    <td>${writtenStats.median.toFixed(2)}</td>
+                    <td>${speakingStats.median.toFixed(2)}</td>
+                </tr>
+            `
+
+            // 핵심 발견사항 채우기
+            const keyFindings = document.getElementById("keyFindings")
+            keyFindings.innerHTML = `
+                <li>필기시험 점수는 넓은 범위에 분포되어 있으며, 구술시험보다 더 큰 변별력을 보임</li>
+                <li>구술시험 점수는 상대적으로 좁은 범위에 집중되어 있어, 변별력이 다소 낮음</li>
+                <li>한국어 수준이 높을수록 필기 및 구술시험 모두에서 더 높은 점수를 획득하는 경향이 있음</li>
+                <li>필기시험과 구술시험 간의 상관관계가 존재하나, 완벽한 일치는 아님</li>
+            `
+
+            // 점수 분포 차트 (히스토그램)
+            const scoreDistributionChart = echarts.init(
+                document.getElementById("scoreDistributionChart")
+            )
+            const scoreDistributionOption = {
+                title: {
+                    text: "필기시험 및 구술시험 점수 분포",
+                    left: "center",
+                },
+                tooltip: {
+                    trigger: "axis",
+                    axisPointer: {
+                        type: "shadow",
+                    },
+                },
+                legend: {
+                    data: ["필기시험", "구술시험"],
+                    bottom: 10,
+                },
+                xAxis: {
+                    type: "category",
+                    data: [
+                        "0-10",
+                        "11-20",
+                        "21-30",
+                        "31-40",
+                        "41-50",
+                        "51-60",
+                        "61-70",
+                        "71-80",
+                    ],
+                    name: "점수 구간",
+                    nameLocation: "middle",
+                    nameGap: 30,
+                },
+                yAxis: {
+                    type: "value",
+                    name: "빈도",
+                    nameLocation: "middle",
+                    nameGap: 40,
+                },
+                series: [
+                    {
+                        name: "필기시험",
+                        type: "bar",
+                        data: [
+                            writtenScores.filter((s) => s >= 0 && s <= 10)
+                                .length,
+                            writtenScores.filter((s) => s > 10 && s <= 20)
+                                .length,
+                            writtenScores.filter((s) => s > 20 && s <= 30)
+                                .length,
+                            writtenScores.filter((s) => s > 30 && s <= 40)
+                                .length,
+                            writtenScores.filter((s) => s > 40 && s <= 50)
+                                .length,
+                            writtenScores.filter((s) => s > 50 && s <= 60)
+                                .length,
+                            writtenScores.filter((s) => s > 60 && s <= 70)
+                                .length,
+                            writtenScores.filter((s) => s > 70 && s <= 80)
+                                .length,
+                        ],
+                        itemStyle: { color: "rgba(75, 192, 192, 0.6)" },
+                    },
+                    {
+                        name: "구술시험",
+                        type: "bar",
+                        data: [
+                            speakingScores.filter((s) => s >= 0 && s <= 10)
+                                .length,
+                            speakingScores.filter((s) => s > 10 && s <= 20)
+                                .length,
+                            speakingScores.filter((s) => s > 20 && s <= 30)
+                                .length,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0, // 구술시험 점수는 30점을 넘지 않으므로 나머지는 0으로 설정
+                        ],
+                        itemStyle: { color: "rgba(255, 159, 64, 0.6)" },
+                    },
+                ],
+            }
+            scoreDistributionChart.setOption(scoreDistributionOption)
+
+            // 집단별 박스플롯 차트
+            const prepareBoxplotData = (data, scoreKey) => {
+                const groups = _.groupBy(data, "한국어 수준")
+                return Object.entries(groups).map(([level, group]) => {
+                    const scores = group.map((r) => parseFloat(r[scoreKey]))
+                    return [
+                        math.min(scores),
+                        math.quantileSeq(scores, 0.25),
+                        math.median(scores),
+                        math.quantileSeq(scores, 0.75),
+                        math.max(scores),
+                    ]
+                })
+            }
+
+            const writtenBoxplotData = prepareBoxplotData(df_responses, "점수")
+            const speakingBoxplotData = prepareBoxplotData(
+                df_responses_speaking,
+                "점수"
+            )
+
+            const groupBoxplotChart = echarts.init(
+                document.getElementById("groupBoxplotChart")
+            )
+            const groupBoxplotOption = {
+                title: {
+                    text: "한국어 수준별 점수 분포",
+                    left: "center",
+                },
+                tooltip: {
+                    trigger: "item",
+                    axisPointer: {
+                        type: "shadow",
+                    },
+                },
+                legend: {
+                    data: ["필기시험", "구술시험"],
+                    bottom: 10,
+                },
+                xAxis: {
+                    type: "category",
+                    data: Object.keys(_.groupBy(df_responses, "한국어 수준")),
+                    name: "한국어 수준",
+                    nameLocation: "middle",
+                    nameGap: 30,
+                },
+                yAxis: {
+                    type: "value",
+                    name: "점수",
+                    nameLocation: "middle",
+                    nameGap: 40,
+                },
+                series: [
+                    {
+                        name: "필기시험",
+                        type: "boxplot",
+                        data: writtenBoxplotData,
+                        itemStyle: {
+                            color: "rgba(75, 192, 192, 0.6)",
+                        },
+                    },
+                    {
+                        name: "구술시험",
+                        type: "boxplot",
+                        data: speakingBoxplotData,
+                        itemStyle: {
+                            color: "rgba(255, 159, 64, 0.6)",
+                        },
+                    },
+                ],
+            }
+            groupBoxplotChart.setOption(groupBoxplotOption)
+
+            // 척도 간 상관 히트맵
+            const prepareCorrelationData = () => {
+                const writtenTScores = writtenScores.map(
+                    (s) =>
+                        ((s - writtenStats.mean) / writtenStats.std) * 10 + 50
+                )
+                const speakingTScores = speakingScores.map(
+                    (s) =>
+                        ((s - speakingStats.mean) / speakingStats.std) * 10 + 50
+                )
+
+                return [
+                    [
+                        1,
+                        correlation(writtenScores, speakingScores),
+                        correlation(writtenScores, writtenTScores),
+                    ],
+                    [
+                        correlation(speakingScores, writtenScores),
+                        1,
+                        correlation(speakingScores, speakingTScores),
+                    ],
+                    [
+                        correlation(writtenTScores, writtenScores),
+                        correlation(writtenTScores, speakingScores),
+                        1,
+                    ],
+                ]
+            }
+
+            const correlationData = prepareCorrelationData()
+
+            const correlationHeatmapChart = echarts.init(
+                document.getElementById("correlationHeatmapChart")
+            )
+            const correlationHeatmapOption = {
+                title: {
+                    text: "척도 간 상관관계",
+                    left: "center",
+                },
+                tooltip: {
+                    position: "top",
+                },
+                grid: {
+                    height: "50%",
+                    top: "10%",
+                },
+                xAxis: {
+                    type: "category",
+                    data: ["필기 원점수", "구술 원점수", "T 점수"],
+                    splitArea: {
+                        show: true,
+                    },
+                },
+                yAxis: {
+                    type: "category",
+                    data: ["필기 원점수", "구술 원점수", "T 점수"],
+                    splitArea: {
+                        show: true,
+                    },
+                },
+                visualMap: {
+                    min: -1,
+                    max: 1,
+                    calculable: true,
+                    orient: "horizontal",
+                    left: "center",
+                    bottom: "15%",
+                },
+                series: [
+                    {
+                        name: "상관계수",
+                        type: "heatmap",
+                        data: correlationData.flatMap((row, i) =>
+                            row.map((value, j) => [j, i, value.toFixed(2)])
+                        ),
+                        label: {
+                            show: true,
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: "rgba(0, 0, 0, 0.5)",
+                            },
+                        },
+                    },
+                ],
+            }
+            correlationHeatmapChart.setOption(correlationHeatmapOption)
+
+            // 창 크기 변경 시 차트 크기 조정
+            window.addEventListener("resize", () => {
+                scoreDistributionChart.resize()
+                groupBoxplotChart.resize()
+                correlationHeatmapChart.resize()
+            })
+        </script>
+    </body>
 </html>
