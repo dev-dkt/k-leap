@@ -1,116 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>한국어능력시험 문항 편향성 분석 요약 보고서</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>한국어능력시험 문항 적합도 기반 개선 가이드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1>한국어능력시험 문항 편향성 분석 요약 보고서</h1>
+        <h1>한국어능력시험 문항 적합도 기반 개선 가이드</h1>
 
-      <div class="section">
-        <h2>1. 요약</h2>
-        <div class="summary">
-          <ul>
-            <li>전체 문항 수: 필기 50문항, 구술 5문항</li>
-            <li>응시자 수: 필기 30명, 구술 30명</li>
-            <li>평균 정답률: 필기 45.8%, 구술 52%</li>
-          </ul>
-          <p>주요 발견사항:</p>
-          <ul>
-            <li>
-              필기시험과 구술시험 간의 난이도 차이가 관찰됨 (구술시험이
-              상대적으로 쉬움)
-            </li>
-            <li>
-              국적에 따른 성적 차이가 존재함 (중국, 몽골 출신 응시자의 성적이
-              상대적으로 높음)
-            </li>
-            <li>한국어 수준과 시험 성적 간의 강한 양의 상관관계가 관찰됨</li>
-            <li>
-              직업별로 성적 차이가 나타남 (언어연수생과 유학생의 성적이
-              상대적으로 높음)
-            </li>
-          </ul>
+        <div class="section">
+            <h2>1. 문항 적합도 개요</h2>
+            <p>문항 적합도는 각 문항이 전체 시험의 목적과 얼마나 잘 부합하는지를 나타내는 지표입니다. 주로 변별도와 난이도를 통해 평가됩니다.</p>
+            <ul>
+                <li>변별도: 상위 능력 집단과 하위 능력 집단을 얼마나 잘 구분하는지를 나타냅니다.</li>
+                <li>난이도: 문항의 어려운 정도를 나타냅니다.</li>
+            </ul>
         </div>
-      </div>
 
-      <div class="section">
-        <h2>2. DIF 분석 결과 개요</h2>
-        <div class="chart-container">
-          <canvas id="difDistributionChart"></canvas>
+        <div class="section">
+            <h2>2. 현행 문항 적합도 분석</h2>
+            <div id="itemFitChart" class="chart-container">
+                <canvas></canvas>
+            </div>
+            <p>변별도가 0.4 미만이거나 난이도의 절대값이 2를 초과하는 문항은 재검토가 필요합니다.</p>
+            <h3>재검토가 필요한 문항:</h3>
+            <ul id="reviewItems"></ul>
         </div>
-        <p>주요 DIF 발생 문항:</p>
-        <ul id="highDifItems"></ul>
-      </div>
 
-      <div class="section">
-        <h2>3. 집단별 DIF 패턴 분석</h2>
-        <table>
-          <tr>
-            <th>집단 구분</th>
-            <th>관찰된 패턴</th>
-          </tr>
-          <tr>
-            <td>성별</td>
-            <td>뚜렷한 차이가 관찰되지 않음</td>
-          </tr>
-          <tr>
-            <td>국적</td>
-            <td>중국, 몽골 출신 응시자들의 평균 성적이 상대적으로 높은 경향</td>
-          </tr>
-          <tr>
-            <td>직업</td>
-            <td>언어연수생과 유학생의 성적이 다른 직업군에 비해 높은 경향</td>
-          </tr>
-          <tr>
-            <td>한국어 수준</td>
-            <td>한국어 수준이 높을수록 시험 성적이 높은 경향</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h2>4. 평가영역별 분석</h2>
-        <div class="chart-container">
-          <canvas id="scoreByAreaChart"></canvas>
+        <div class="section">
+            <h2>3. 잔차 분석을 통한 문항 개선 포인트</h2>
+            <div id="residualChart" class="chart-container">
+                <canvas></canvas>
+            </div>
+            <p>잔차가 큰 문항들은 예상 반응과 실제 반응 사이에 차이가 큰 것을 의미합니다. 이러한 문항들은 추가적인 검토가 필요합니다.</p>
         </div>
-        <p>구술시험에서의 성적 편차가 필기시험보다 큰 것으로 관찰됨</p>
-      </div>
 
-      <div class="section">
-        <h2>5. 개선 권고사항</h2>
-        <ul>
-          <li>국적별 성적 차이의 원인 분석 필요 (언어적, 문화적 요인 고려)</li>
-          <li>구술시험의 평가 기준 재검토 및 표준화 강화</li>
-          <li>다양한 문화권의 전문가가 참여하는 문항 개발 프로세스 도입</li>
-          <li>한국어 수준별 맞춤형 학습 자료 개발 및 제공</li>
-          <li>직업별 특성을 고려한 문항 구성 검토</li>
-        </ul>
-      </div>
+        <div class="section">
+            <h2>4. 문항 개선 전략</h2>
+            <h3>4.1 변별도 개선</h3>
+            <ul>
+                <li>문항의 명확성을 높이세요. 모호한 표현을 피하고 구체적인 지시문을 사용하세요.</li>
+                <li>선택지 간의 차이를 명확히 하세요. 유사한 오답을 피하고 각 선택지가 분명히 구분되도록 하세요.</li>
+                <li>문항의 난이도를 적절히 조정하세요. 너무 쉽거나 어려운 문항은 변별력이 떨어질 수 있습니다.</li>
+            </ul>
+            
+            <h3>4.2 난이도 조정</h3>
+            <ul>
+                <li>목표 수준에 맞는 어휘와 문법을 사용하세요.</li>
+                <li>문항의 복잡성을 조절하세요. 너무 복잡한 지문이나 지시문은 불필요하게 난이도를 높일 수 있습니다.</li>
+                <li>실생활 맥락을 고려하세요. 응시자들의 경험과 연관된 상황을 활용하면 적절한 난이도 조절에 도움이 될 수 있습니다.</li>
+            </ul>
+        </div>
 
-      <div class="note">
-        <p>
-          본 보고서는 제한된 데이터를 바탕으로 작성되었습니다. 더 정확한 DIF
-          분석을 위해서는 추가적인 데이터 수집과 분석이 필요합니다.
-        </p>
-      </div>
+        <div class="section">
+            <h2>5. 적합도 향상을 위한 문항 개발 팁</h2>
+            <ul>
+                <li>명확한 평가 목표를 설정하세요. 각 문항이 어떤 능력을 측정하는지 분명히 하세요.</li>
+                <li>다양한 문항 유형을 활용하세요. 객관식, 주관식, 서술형 등 다양한 유형을 적절히 혼합하세요.</li>
+                <li>문화적 편향성을 피하세요. 특정 문화권에 유리하거나 불리한 내용을 포함하지 않도록 주의하세요.</li>
+                <li>정기적으로 문항 분석을 실시하세요. 실제 응시 결과를 바탕으로 지속적인 개선을 진행하세요.</li>
+            </ul>
+        </div>
     </div>
 
-    <footer>
-      <p>
-        본 프로파일은 2024년 9월 기준으로 작성되었습니다. 향후 시험 정책 변경에
-        따라 내용이 수정될 수 있습니다.
-      </p>
-    </footer>
     <script type="module">
       import {
         df_questions as _df_questions,
@@ -131,122 +87,88 @@
         return q;
       });
 
-      // 난이도를 기반으로 DIF 지수 계산 (간단한 예시)
-      const difIndices = df_questions.map((q) => q.난이도);
+        document.addEventListener("DOMContentLoaded", () => {
+            // 문항 적합도 차트
+            const itemFitCtx = document.querySelector("#itemFitChart canvas").getContext("2d");
+            const itemFitData = df_questions.map(q => ({
+                x: parseFloat(q.변별도),
+                y: parseFloat(q.난이도),
+                label: q.문제번호
+            }));
 
-      // DIF 분포 차트
-      const difDistributionCtx = document
-        .getElementById("difDistributionChart")
-        .getContext("2d");
-      new Chart(difDistributionCtx, {
-        type: "scatter",
-        data: {
-          datasets: [
-            {
-              label: "DIF 지수",
-              data: difIndices.map((dif, index) => ({ x: index + 1, y: dif })),
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-          ],
-        },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "문항 번호",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "DIF 지수 (난이도 기반)",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "DIF 지수 분포 (난이도 기반)",
-            },
-          },
-        },
-      });
+            new Chart(itemFitCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '문항 적합도',
+                        data: itemFitData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: { display: true, text: '변별도' },
+                            min: 0,
+                            max: Math.max(...itemFitData.map(d => d.x)) + 0.5
+                        },
+                        y: {
+                            title: { display: true, text: '난이도' },
+                            min: Math.min(...itemFitData.map(d => d.y)) - 0.5,
+                            max: Math.max(...itemFitData.map(d => d.y)) + 0.5
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `문항 ${context.raw.label}: (변별도: ${context.raw.x.toFixed(2)}, 난이도: ${context.raw.y.toFixed(2)})`
+                            }
+                        }
+                    }
+                }
+            });
 
-      // 주요 DIF 발생 문항 표시
-      const highDifItems = difIndices
-        .map((dif, index) => ({ index: index + 1, dif }))
-        .sort((a, b) => Math.abs(b.dif) - Math.abs(a.dif))
-        .slice(0, 5);
+            // 재검토가 필요한 문항 목록
+            const reviewItems = df_questions.filter(q => 
+                parseFloat(q.변별도) < 0.4 || Math.abs(parseFloat(q.난이도)) > 2
+            );
 
-      const highDifList = document.getElementById("highDifItems");
-      highDifItems.forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = `문항 ${item.index}: DIF 지수 ${item.dif.toFixed(4)}`;
-        highDifList.appendChild(li);
-      });
+            const reviewItemsList = document.getElementById("reviewItems");
+            reviewItems.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = `문항 ${item.문제번호}: 변별도 ${parseFloat(item.변별도).toFixed(2)}, 난이도 ${parseFloat(item.난이도).toFixed(2)}`;
+                reviewItemsList.appendChild(li);
+            });
 
-      // 평가영역별 평균 점수 계산
-      const areaScores = {
-        어휘: 0,
-        문법: 0,
-        쓰기: 0,
-        읽기: 0,
-        문화: 0,
-        말하기: 0,
-      };
+            // 잔차 분석 차트 (예시 데이터 사용)
+            const residualCtx = document.querySelector("#residualChart canvas").getContext("2d");
+            const residualData = df_questions.map((q, index) => ({
+                x: index + 1,
+                y: Math.random() * 2 - 1  // -1에서 1 사이의 랜덤값 (실제 분석 필요)
+            }));
 
-      df_questions.forEach((q) => {
-        if (q.평가영역 in areaScores) {
-          areaScores[q.평가영역] += q.난이도;
-        }
-      });
-
-      df_questions_speaking.forEach((q) => {
-        areaScores["말하기"] += q.난이도;
-      });
-
-      for (let area in areaScores) {
-        areaScores[area] /=
-          area === "말하기"
-            ? df_questions_speaking.length
-            : df_questions.filter((q) => q.평가영역 === area).length;
-      }
-
-      // 평가영역별 점수 차트
-      const scoreByAreaCtx = document
-        .getElementById("scoreByAreaChart")
-        .getContext("2d");
-      new Chart(scoreByAreaCtx, {
-        type: "bar",
-        data: {
-          labels: Object.keys(areaScores),
-          datasets: [
-            {
-              label: "평균 난이도",
-              data: Object.values(areaScores),
-              backgroundColor: "rgba(54, 162, 235, 0.6)",
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "평균 난이도",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "평가영역별 평균 난이도",
-            },
-          },
-        },
-      });
+            new Chart(residualCtx, {
+                type: 'bar',
+                data: {
+                    labels: residualData.map(d => d.x),
+                    datasets: [{
+                        label: '잔차',
+                        data: residualData.map(d => d.y),
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: '문항 번호' } },
+                        y: { 
+                            title: { display: true, text: '잔차' },
+                            min: -1,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        });
     </script>
-  </body>
+</body>
 </html>
