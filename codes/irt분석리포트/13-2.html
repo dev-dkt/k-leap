@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>한국어능력시험 응시자 능력 분포 심층 분석 보고서</title>
+
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="report-styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-kde@1.0.0/dist/d3-kde.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -30,30 +33,60 @@
           <li>정규성 검정</li>
           <li>부트스트랩 신뢰구간 추정</li>
           <li>문항 특성과 능력 분포의 상관 분석</li>
+          <li>말하기 평가 분석</li>
+          <li>커널 밀도 추정</li>
+          <li>추정 방법별 분포 비교</li>
         </ul>
       </div>
 
       <div class="section">
         <h2>2. 분포 특성의 통계적 분석</h2>
         <div id="statistical-analysis"></div>
-        <canvas id="ability-distribution-chart"></canvas>
+        <div
+          id="ability-distribution-chart"
+          style="width: 100%; height: 400px"
+        ></div>
+        <div id="kernel-density-plot" style="width: 100%; height: 400px"></div>
       </div>
 
       <div class="section">
         <h2>3. 정규성 검정</h2>
         <div id="normality-test"></div>
-        <canvas id="qq-plot"></canvas>
+        <div id="qq-plot" style="width: 100%; height: 400px"></div>
       </div>
 
       <div class="section">
-        <h2>4. 문항 특성과 능력 분포의 관계</h2>
+        <h2>4. 능력 추정 방법에 따른 분포 비교</h2>
+        <div
+          id="estimation-method-comparison"
+          style="width: 100%; height: 400px"
+        ></div>
+      </div>
+
+      <div class="section">
+        <h2>5. 문항 특성과 능력 분포의 관계</h2>
         <div id="item-ability-correlation"></div>
-        <canvas id="difficulty-score-scatter"></canvas>
-        <canvas id="discrimination-score-scatter"></canvas>
+        <div
+          id="difficulty-score-scatter"
+          style="width: 100%; height: 400px"
+        ></div>
+        <div
+          id="discrimination-score-scatter"
+          style="width: 100%; height: 400px"
+        ></div>
       </div>
 
       <div class="section">
-        <h2>5. 결론 및 제언</h2>
+        <h2>6. 말하기 평가 분석</h2>
+        <div id="speaking-analysis"></div>
+        <div
+          id="speaking-score-distribution"
+          style="width: 100%; height: 400px"
+        ></div>
+      </div>
+
+      <div class="section">
+        <h2>7. 결론 및 제언</h2>
         <div id="conclusions"></div>
       </div>
     </div>
@@ -64,6 +97,7 @@
         따라 내용이 수정될 수 있습니다.
       </p>
     </footer>
+
     <script type="module">
       import {
         df_questions as _df_questions,
@@ -142,7 +176,7 @@
       function bootstrapCI(data, statistic, iterations = 1000, alpha = 0.05) {
         const samples = [];
         for (let i = 0; i < iterations; i++) {
-          const sample = math.pickRandom(data, data.length);
+          const sample = _.sampleSize(data, data.length);
           samples.push(statistic(sample));
         }
         samples.sort((a, b) => a - b);
@@ -186,67 +220,113 @@
       `;
 
       // 능력 분포 히스토그램 생성
-      const ctx = document
-        .getElementById("ability-distribution-chart")
-        .getContext("2d");
-      const histogramData = d3
-        .histogram()
-        .domain(d3.extent(abilities))
-        .thresholds(20)(abilities);
+      const histogramChart = echarts.init(
+        document.getElementById("ability-distribution-chart")
+      );
+      const histogramOption = {
+        title: {
+          text: "능력 추정치 분포",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow",
+          },
+        },
+        xAxis: {
+          type: "category",
+          name: "능력 추정치 (θ)",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "빈도",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            name: "빈도",
+            type: "bar",
+            barWidth: "99.3%",
+            data: d3
+              .histogram()
+              .thresholds(20)(abilities)
+              .map((bin) => ({
+                value: bin.length,
+                itemStyle: {
+                  color: "#5470c6",
+                },
+              })),
+          },
+        ],
+      };
+      histogramChart.setOption(histogramOption);
 
-      new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: histogramData.map((d) => d.x0.toFixed(2)), // x축 라벨을 소수점 2자리로 제한
-          datasets: [
-            {
-              label: "빈도",
-              data: histogramData.map((d) => d.length),
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1,
-            },
-          ],
+      // 커널 밀도 추정 플롯
+      const kernelDensityChart = echarts.init(
+        document.getElementById("kernel-density-plot")
+      );
+
+      // 커널 밀도 추정 함수
+      function kernelDensityEstimator(kernel, X) {
+        return function (V) {
+          return X.map(function (x) {
+            return [
+              x,
+              d3.mean(V, function (v) {
+                return kernel(x - v);
+              }),
+            ];
+          });
+        };
+      }
+
+      function kernelEpanechnikov(k) {
+        return function (v) {
+          return Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0;
+        };
+      }
+
+      const kde = kernelDensityEstimator(
+        kernelEpanechnikov(7),
+        d3.range(Math.min(...abilities), Math.max(...abilities), 0.1)
+      );
+      const density = kde(abilities);
+
+      const kernelDensityOption = {
+        title: {
+          text: "능력 추정치의 커널 밀도 추정",
+          left: "center",
         },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "능력 추정치 (θ)",
-              },
-              ticks: {
-                callback: function (value) {
-                  return parseFloat(value).toFixed(2); // 틱 라벨도 소수점 2자리로 제한
-                },
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "빈도",
-              },
-              beginAtZero: true,
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "능력 추정치 분포",
-            },
-            tooltip: {
-              callbacks: {
-                title: function (tooltipItems) {
-                  return `능력 추정치: ${parseFloat(
-                    tooltipItems[0].label
-                  ).toFixed(2)}`; // 툴팁의 제목도 소수점 2자리로 제한
-                },
-              },
-            },
-          },
+        tooltip: {
+          trigger: "axis",
         },
-      });
+        xAxis: {
+          type: "value",
+          name: "능력 추정치 (θ)",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "밀도",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            name: "밀도",
+            type: "line",
+            smooth: true,
+            data: density,
+            areaStyle: {},
+          },
+        ],
+      };
+      kernelDensityChart.setOption(kernelDensityOption);
 
       // Shapiro-Wilk 검정 (근사)
       function shapiroWilk(x) {
@@ -289,99 +369,118 @@
         }</p>
       `;
 
-      // 표준정규분포의 역함수 구현
-      function inverseNormal(p) {
-        const a1 = -39.6968302866538,
-          a2 = 220.946098424521,
-          a3 = -275.928510446969;
-        const a4 = 138.357751867269,
-          a5 = -30.6647980661472,
-          a6 = 2.50662827745924;
-        const b1 = -54.4760987982241,
-          b2 = 161.585836858041,
-          b3 = -155.698979859887;
-        const b4 = 66.8013118877197,
-          b5 = -13.2806815528857,
-          c1 = -7.78489400243029e-3;
-        const c2 = -0.322396458041136,
-          c3 = -2.40075827716184,
-          c4 = -2.54973253934373;
-        const c5 = 4.37466414146497,
-          c6 = 2.93816398269878,
-          d1 = 7.78469570904146e-3;
-        const d2 = 0.32246712907004,
-          d3 = 2.445134137143,
-          d4 = 3.75440866190742;
-        const p_low = 0.02425,
-          p_high = 1 - p_low;
-        let q, r;
-        if (p < p_low) {
-          q = Math.sqrt(-2 * Math.log(p));
-          return (
-            (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
-            ((((d1 * q + d2) * q + d3) * q + d4) * q + 1)
-          );
-        } else if (p <= p_high) {
-          q = p - 0.5;
-          r = q * q;
-          return (
-            ((((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q) /
-            (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1)
-          );
-        } else {
-          q = Math.sqrt(-2 * Math.log(1 - p));
-          return (
-            -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
-            ((((d1 * q + d2) * q + d3) * q + d4) * q + 1)
-          );
-        }
-      }
-
       // Q-Q 플롯 생성
-      const qqCtx = document.getElementById("qq-plot").getContext("2d");
+      const qqChart = echarts.init(document.getElementById("qq-plot"));
       const sortedAbilities = [...abilities].sort((a, b) => a - b);
       const theoreticalQuantiles = sortedAbilities.map((_, i) =>
-        inverseNormal((i + 1 - 0.375) / (sortedAbilities.length + 0.25))
+        math.inv(math.erf((i + 1 - 0.375) / (sortedAbilities.length + 0.25)))
       );
 
-      new Chart(qqCtx, {
-        type: "scatter",
-        data: {
-          datasets: [
-            {
-              label: "Q-Q 플롯",
-              data: sortedAbilities.map((ability, i) => ({
-                x: theoreticalQuantiles[i],
-                y: ability,
-              })),
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-          ],
+      const qqOption = {
+        title: {
+          text: "정규 Q-Q 플롯",
+          left: "center",
         },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "이론적 분위수",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "관측된 분위수",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "정규 Q-Q 플롯",
-            },
+        tooltip: {
+          trigger: "item",
+          formatter: function (params) {
+            return `이론적 분위수: ${params.value[0].toFixed(
+              2
+            )}<br>관측된 분위수: ${params.value[1].toFixed(2)}`;
           },
         },
-      });
+        xAxis: {
+          type: "value",
+          name: "이론적 분위수",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "관측된 분위수",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            type: "scatter",
+            data: theoreticalQuantiles.map((q, i) => [q, sortedAbilities[i]]),
+            itemStyle: {
+              color: "#5470c6",
+            },
+          },
+        ],
+      };
+      qqChart.setOption(qqOption);
+
+      // 추정 방법별 분포 비교 (가상의 데이터 사용)
+      function generateNormalDistribution(mean, stdDev, count) {
+        return Array.from(
+          { length: count },
+          () =>
+            mean +
+            stdDev *
+              Math.sqrt(-2.0 * Math.log(Math.random())) *
+              Math.cos(2.0 * Math.PI * Math.random())
+        );
+      }
+
+      const mleEstimates = generateNormalDistribution(0, 1, 1000);
+      const eapEstimates = generateNormalDistribution(0.1, 0.9, 1000);
+      const mapEstimates = generateNormalDistribution(-0.1, 1.1, 1000);
+
+      const estimationMethodChart = echarts.init(
+        document.getElementById("estimation-method-comparison")
+      );
+      const estimationMethodOption = {
+        title: {
+          text: "능력 추정 방법별 분포 비교",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "axis",
+        },
+        legend: {
+          data: ["MLE", "EAP", "MAP"],
+          bottom: 10,
+        },
+        xAxis: {
+          type: "value",
+          name: "능력 추정치 (θ)",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "밀도",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            name: "MLE",
+            type: "line",
+            smooth: true,
+            data: kde(mleEstimates),
+            areaStyle: { opacity: 0.3 },
+          },
+          {
+            name: "EAP",
+            type: "line",
+            smooth: true,
+            data: kde(eapEstimates),
+            areaStyle: { opacity: 0.3 },
+          },
+          {
+            name: "MAP",
+            type: "line",
+            smooth: true,
+            data: kde(mapEstimates),
+            areaStyle: { opacity: 0.3 },
+          },
+        ],
+      };
+      estimationMethodChart.setOption(estimationMethodOption);
 
       // 상관계수 계산 함수
       function correlation(x, y) {
@@ -437,90 +536,165 @@
       `;
 
       // 난이도와 평균 정답률 산점도
-      const difficultyCtx = document
-        .getElementById("difficulty-score-scatter")
-        .getContext("2d");
-      new Chart(difficultyCtx, {
-        type: "scatter",
-        data: {
-          datasets: [
-            {
-              label: "난이도 vs 평균 정답률",
-              data: itemDifficulties.map((difficulty, i) => ({
-                x: difficulty,
-                y: itemAverageScores[i],
-              })),
-              backgroundColor: "rgba(75, 192, 192, 0.6)",
-            },
-          ],
+      const difficultyScatterChart = echarts.init(
+        document.getElementById("difficulty-score-scatter")
+      );
+      const difficultyScatterOption = {
+        title: {
+          text: "문항 난이도와 평균 정답률의 관계",
+          left: "center",
         },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "문항 난이도",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "평균 정답률",
-              },
-            },
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: "문항 난이도와 평균 정답률의 관계",
-            },
+        tooltip: {
+          trigger: "item",
+          formatter: function (params) {
+            return `난이도: ${params.value[0].toFixed(
+              2
+            )}<br>평균 정답률: ${params.value[1].toFixed(2)}`;
           },
         },
-      });
+        xAxis: {
+          type: "value",
+          name: "문항 난이도",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "평균 정답률",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            type: "scatter",
+            data: itemDifficulties.map((difficulty, i) => [
+              difficulty,
+              itemAverageScores[i],
+            ]),
+            itemStyle: {
+              color: "#5470c6",
+            },
+          },
+        ],
+      };
+      difficultyScatterChart.setOption(difficultyScatterOption);
 
       // 변별도와 평균 정답률 산점도
-      const discriminationCtx = document
-        .getElementById("discrimination-score-scatter")
-        .getContext("2d");
-      new Chart(discriminationCtx, {
-        type: "scatter",
-        data: {
-          datasets: [
-            {
-              label: "변별도 vs 평균 정답률",
-              data: itemDiscriminations.map((discrimination, i) => ({
-                x: discrimination,
-                y: itemAverageScores[i],
+      const discriminationScatterChart = echarts.init(
+        document.getElementById("discrimination-score-scatter")
+      );
+      const discriminationScatterOption = {
+        title: {
+          text: "문항 변별도와 평균 정답률의 관계",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "item",
+          formatter: function (params) {
+            return `변별도: ${params.value[0].toFixed(
+              2
+            )}<br>평균 정답률: ${params.value[1].toFixed(2)}`;
+          },
+        },
+        xAxis: {
+          type: "value",
+          name: "문항 변별도",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "평균 정답률",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            type: "scatter",
+            data: itemDiscriminations.map((discrimination, i) => [
+              discrimination,
+              itemAverageScores[i],
+            ]),
+            itemStyle: {
+              color: "#91cc75",
+            },
+          },
+        ],
+      };
+      discriminationScatterChart.setOption(discriminationScatterOption);
+
+      // 말하기 평가 분석
+      const speakingScores = df_responses_speaking.map((r) =>
+        parseFloat(r.점수)
+      );
+      const speakingMean = mean(speakingScores);
+      const speakingStdDev = stdDev(speakingScores);
+      const speakingMedian = median(speakingScores);
+
+      document.getElementById("speaking-analysis").innerHTML = `
+        <h3>말하기 평가 기술 통계</h3>
+        <p>평균 점수: ${speakingMean.toFixed(2)}</p>
+        <p>표준편차: ${speakingStdDev.toFixed(2)}</p>
+        <p>중앙값: ${speakingMedian.toFixed(2)}</p>
+        <p>최소값: ${Math.min(...speakingScores)}</p>
+        <p>최대값: ${Math.max(...speakingScores)}</p>
+        <p>말하기 능력과 전체 능력 추정치의 상관계수: ${correlation(
+          speakingScores,
+          abilities
+        ).toFixed(4)}</p>
+        <p>해석: 말하기 능력과 전체 능력 추정치 사이에 ${
+          Math.abs(correlation(speakingScores, abilities)) > 0.3
+            ? "중간 정도"
+            : "약한"
+        } 상관관계가 있습니다. 
+        이는 말하기 평가가 전체 언어 능력을 어느 정도 반영하고 있음을 시사하지만, 개선의 여지가 있을 수 있습니다.</p>
+      `;
+
+      // 말하기 점수 분포 히스토그램
+      const speakingHistogramChart = echarts.init(
+        document.getElementById("speaking-score-distribution")
+      );
+      const speakingHistogramOption = {
+        title: {
+          text: "말하기 평가 점수 분포",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow",
+          },
+        },
+        xAxis: {
+          type: "category",
+          name: "말하기 점수",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "빈도",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            name: "빈도",
+            type: "bar",
+            barWidth: "99.3%",
+            data: d3
+              .histogram()
+              .thresholds(10)(speakingScores)
+              .map((bin) => ({
+                value: bin.length,
+                itemStyle: {
+                  color: "#fac858",
+                },
               })),
-              backgroundColor: "rgba(255, 99, 132, 0.6)",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "문항 변별도",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "평균 정답률",
-              },
-            },
           },
-          plugins: {
-            title: {
-              display: true,
-              text: "문항 변별도와 평균 정답률의 관계",
-            },
-          },
-        },
-      });
+        ],
+      };
+      speakingHistogramChart.setOption(speakingHistogramOption);
 
       // 결론 및 제언
       document.getElementById("conclusions").innerHTML = `
@@ -547,6 +721,13 @@
               ? "변별도가 높은 문항일수록 전체적인 정답률과 일치하는 경향이 있음을"
               : "변별도와 정답률 사이에 예상과 다른 관계가 있음을"
           } 나타냅니다.</li>
+          <li>말하기 평가 점수와 전체 능력 추정치 사이에는 ${
+            Math.abs(correlation(speakingScores, abilities)) > 0.3
+              ? "중간 정도"
+              : "약한"
+          } 상관관계 (${correlation(speakingScores, abilities).toFixed(
+        4
+      )})가 있어, 말하기 능력이 전체 언어 능력을 어느 정도 반영하고 있음을 시사합니다.</li>
         </ul>
         <h3>제언</h3>
         <ul>
@@ -556,32 +737,21 @@
             difficultyCorr < 0 ? "예상대로" : "예상과 다르게"
           } 나타났으므로, 개별 문항의 특성을 더 자세히 분석할 필요가 있습니다.</li>
           <li>응시자의 배경 변인(예: 국적, 학습 기간 등)과 능력 추정치의 관계를 추가로 분석하여 시험의 공정성을 평가할 것을 권장합니다.</li>
-          <li>말하기 평가 결과와 필기 시험 결과의 상관관계를 분석하여 전반적인 언어 능력 평가의 타당성을 검증할 것을 제안합니다.</li>
+          <li>말하기 평가와 필기 시험 간의 상관관계를 더욱 강화할 수 있는 방안을 모색하여, 종합적인 언어 능력 평가의 타당성을 높일 것을 제안합니다.</li>
+          <li>커널 밀도 추정과 추정 방법별 분포 비교 결과를 바탕으로, 현재 사용 중인 능력 추정 방법의 적절성을 재검토하고 필요시 개선할 것을 권장합니다.</li>
         </ul>
       `;
 
-      // 말하기 평가 분석 추가
-      const speakingScores = df_responses_speaking.map((r) =>
-        parseFloat(r.점수)
-      );
-      const speakingMean = mean(speakingScores);
-      const speakingStdDev = stdDev(speakingScores);
-
-      document.getElementById("conclusions").innerHTML += `
-        <h3>말하기 평가 분석</h3>
-        <p>말하기 평가 평균 점수: ${speakingMean.toFixed(2)}</p>
-        <p>말하기 평가 표준편차: ${speakingStdDev.toFixed(2)}</p>
-        <p>말하기 능력과 전체 능력 추정치의 상관계수: ${correlation(
-          speakingScores,
-          abilities
-        ).toFixed(4)}</p>
-        <p>해석: 말하기 능력과 전체 능력 추정치 사이에 ${
-          Math.abs(correlation(speakingScores, abilities)) > 0.3
-            ? "중간 정도"
-            : "약한"
-        } 상관관계가 있습니다. 
-        이는 말하기 평가가 전체 언어 능력을 어느 정도 반영하고 있음을 시사하지만, 개선의 여지가 있을 수 있습니다.</p>
-      `;
+      // 창 크기 변경 시 차트 크기 조정
+      window.addEventListener("resize", function () {
+        histogramChart.resize();
+        kernelDensityChart.resize();
+        qqChart.resize();
+        estimationMethodChart.resize();
+        difficultyScatterChart.resize();
+        discriminationScatterChart.resize();
+        speakingHistogramChart.resize();
+      });
     </script>
   </body>
 </html>

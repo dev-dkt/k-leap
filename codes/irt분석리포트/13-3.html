@@ -10,7 +10,8 @@
     />
     <link rel="stylesheet" href="report-styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -37,12 +38,7 @@
 
       <div class="section">
         <h2>3. 강점 및 약점 영역 식별</h2>
-        <div
-          class="chart-container"
-          style="width: 100%; max-width: 600px; height: auto"
-        >
-          <div id="strength-weakness"></div>
-        </div>
+        <div id="strength-weakness" style="width: 100%; height: 400px"></div>
       </div>
 
       <div class="section">
@@ -82,26 +78,15 @@
         return q;
       });
 
-      // 유효한 숫자인지 확인하는 함수
-      function isValidNumber(n) {
-        return typeof n === "number" && !isNaN(n) && isFinite(n);
-      }
-
       // 능력 분포 개요 (Chart.js 사용)
       const abilities = df_responses
         .map((r) => parseFloat(r["능력 추정치 (theta)"]))
-        .filter(isValidNumber);
+        .filter((x) => !isNaN(x));
 
       const ctx = document
         .getElementById("ability-distribution")
         .getContext("2d");
-
-      // 히스토그램 데이터 생성
-      const binCount = 20;
-      const histogramData = d3
-        .histogram()
-        .domain(d3.extent(abilities))
-        .thresholds(binCount)(abilities);
+      const histogramData = d3.histogram().thresholds(20)(abilities);
 
       new Chart(ctx, {
         type: "bar",
@@ -111,8 +96,8 @@
             {
               label: "빈도",
               data: histogramData.map((d) => d.length),
-              backgroundColor: "rgba(105, 179, 162, 0.5)",
-              borderColor: "rgba(105, 179, 162, 1)",
+              backgroundColor: "rgba(75, 192, 192, 0.6)",
+              borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
             },
           ],
@@ -150,15 +135,16 @@
       const levelData = koreanLevels
         .map((level) => {
           const levelAbilities = df_responses
-            .filter((r) => r["한국어 수준"] === level)
+            .filter((r) => r["한국어 수준"] == level)
             .map((r) => parseFloat(r["능력 추정치 (theta)"]))
-            .filter(isValidNumber);
+            .filter((x) => !isNaN(x));
           return {
             level,
-            mean: d3.mean(levelAbilities) || 0,
+            mean: d3.mean(levelAbilities),
+            count: levelAbilities.length,
           };
         })
-        .filter((d) => isValidNumber(d.mean));
+        .filter((d) => d.count > 0);
 
       const ctxGroup = document
         .getElementById("group-analysis")
@@ -172,8 +158,8 @@
             {
               label: "평균 능력 추정치",
               data: levelData.map((d) => d.mean),
-              backgroundColor: "rgba(105, 179, 162, 0.5)",
-              borderColor: "rgba(105, 179, 162, 1)",
+              backgroundColor: "rgba(255, 159, 64, 0.6)",
+              borderColor: "rgba(255, 159, 64, 1)",
               borderWidth: 1,
             },
           ],
@@ -204,7 +190,7 @@
         },
       });
 
-      // 강점 및 약점 영역 데이터 계산
+      // 강점 및 약점 영역 식별 (Echarts 사용)
       const areaScores = df_questions.reduce((acc, q) => {
         if (!acc[q.평가영역]) {
           acc[q.평가영역] = { total: 0, count: 0 };
@@ -221,144 +207,36 @@
         })
       );
 
-      // 레이더 차트 설정 부분 수정
-      const chartContainer = document.querySelector("#strength-weakness");
-      const containerWidth = chartContainer.offsetWidth;
-      const svgSize = containerWidth; // 부모 컨테이너에 맞추기 위한 크기 조정
-      const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-      const chartSize = svgSize - margin.left - margin.right;
-
-      const radarSvg = d3
-        .select("#strength-weakness")
-        .append("svg")
-        .attr("viewBox", `0 0 ${svgSize} ${svgSize}`)
-        .attr("preserveAspectRatio", "xMidYMid meet") // 부모 요소에 맞춰 조정
-        .style("width", "100%") // 100%로 설정하여 부모 컨테이너에 맞춤
-        .style("height", "auto") // 높이를 자동으로 설정
-        .append("g")
-        .attr("transform", `translate(${svgSize / 2},${svgSize / 2})`);
-      const radarRadius = chartSize / 2;
-
-      // 스케일 조정: 최소값과 최대값을 사용하여 범위 설정
-      const scoreExtent = d3.extent(areaScoresArray, (d) => d.score);
-      const maxAbsValue = Math.max(
-        Math.abs(scoreExtent[0]),
-        Math.abs(scoreExtent[1])
+      const radarChart = echarts.init(
+        document.getElementById("strength-weakness")
       );
-      const radarScale = d3
-        .scaleLinear()
-        .domain([-maxAbsValue, maxAbsValue])
-        .range([0, radarRadius]);
-
-      const angleSlice = (Math.PI * 2) / areaScoresArray.length;
-
-      // 그리드 라인 추가
-      const gridLevels = 5;
-      const gridStep = (2 * maxAbsValue) / gridLevels;
-      for (let j = 0; j <= gridLevels; j++) {
-        const gridValue = -maxAbsValue + j * gridStep;
-        const gridRadius = radarScale(gridValue);
-        radarSvg
-          .append("circle")
-          .attr("cx", 0)
-          .attr("cy", 0)
-          .attr("r", gridRadius)
-          .style("fill", "none")
-          .style("stroke", "#CDCDCD")
-          .style("stroke-dasharray", "4 4");
-
-        radarSvg
-          .append("text")
-          .attr("x", 5)
-          .attr("y", -gridRadius)
-          .text(gridValue.toFixed(2))
-          .style("font-size", "10px")
-          .style("fill", "#666");
-      }
-
-      // 축 추가
-      areaScoresArray.forEach((d, i) => {
-        const angle = i * angleSlice;
-        const lineX = radarRadius * Math.cos(angle - Math.PI / 2);
-        const lineY = radarRadius * Math.sin(angle - Math.PI / 2);
-
-        radarSvg
-          .append("line")
-          .attr("x1", 0)
-          .attr("y1", 0)
-          .attr("x2", lineX)
-          .attr("y2", lineY)
-          .style("stroke", "#999")
-          .style("stroke-width", "1px");
-
-        const labelX = 1.15 * radarRadius * Math.cos(angle - Math.PI / 2);
-        const labelY = 1.15 * radarRadius * Math.sin(angle - Math.PI / 2);
-
-        radarSvg
-          .append("text")
-          .attr("x", labelX)
-          .attr("y", labelY)
-          .text(d.area)
-          .style("font-size", "12px")
-          .style("text-anchor", "middle")
-          .attr("dy", "0.35em");
-      });
-
-      // 데이터 포인트 그리기
-      const radarLine = d3
-        .lineRadial()
-        .radius((d) => radarScale(d.score))
-        .angle((d, i) => i * angleSlice);
-
-      radarSvg
-        .append("path")
-        .datum(areaScoresArray)
-        .attr("d", radarLine)
-        .style("fill", "rgba(255, 99, 132, 0.2)")
-        .style("stroke", "rgb(255, 99, 132)")
-        .style("stroke-width", "2px");
-
-      // 데이터 포인트에 원 추가
-      radarSvg
-        .selectAll(".radarCircle")
-        .data(areaScoresArray)
-        .enter()
-        .append("circle")
-        .attr("class", "radarCircle")
-        .attr("r", 4)
-        .attr(
-          "cx",
-          (d, i) => radarScale(d.score) * Math.cos(angleSlice * i - Math.PI / 2)
-        )
-        .attr(
-          "cy",
-          (d, i) => radarScale(d.score) * Math.sin(angleSlice * i - Math.PI / 2)
-        )
-        .style("fill", "rgb(255, 99, 132)")
-        .style("stroke", "#fff")
-        .style("stroke-width", "2px");
-
-      // 데이터 값 표시
-      radarSvg
-        .selectAll(".radarValue")
-        .data(areaScoresArray)
-        .enter()
-        .append("text")
-        .attr("class", "radarValue")
-        .attr(
-          "x",
-          (d, i) =>
-            1.1 * radarScale(d.score) * Math.cos(angleSlice * i - Math.PI / 2)
-        )
-        .attr(
-          "y",
-          (d, i) =>
-            1.1 * radarScale(d.score) * Math.sin(angleSlice * i - Math.PI / 2)
-        )
-        .text((d) => d.score.toFixed(2))
-        .style("font-size", "10px")
-        .style("fill", "#333")
-        .style("text-anchor", "middle");
+      const radarOption = {
+        title: {
+          text: "평가 영역별 난이도 분석",
+          left: "center",
+        },
+        tooltip: {},
+        radar: {
+          indicator: areaScoresArray.map((d) => ({
+            name: d.area,
+            max: Math.max(...areaScoresArray.map((d) => d.score)),
+            min: Math.min(...areaScoresArray.map((d) => d.score)),
+          })),
+        },
+        series: [
+          {
+            name: "난이도 점수",
+            type: "radar",
+            data: [
+              {
+                value: areaScoresArray.map((d) => d.score),
+                name: "평균 난이도",
+              },
+            ],
+          },
+        ],
+      };
+      radarChart.setOption(radarOption);
 
       // 교육 프로그램 효과성 평가
       const averageScore = d3.mean(df_responses.map((r) => parseFloat(r.점수)));
@@ -381,13 +259,11 @@
       `;
 
       // 맞춤형 교육 전략 수립
-      const weakestArea = areaScoresArray.reduce(
-        (min, p) => (p.score < min.score ? p : min),
-        areaScoresArray[0]
+      const weakestArea = areaScoresArray.reduce((min, p) =>
+        p.score < min.score ? p : min
       );
-      const strongestArea = areaScoresArray.reduce(
-        (max, p) => (p.score > max.score ? p : max),
-        areaScoresArray[0]
+      const strongestArea = areaScoresArray.reduce((max, p) =>
+        p.score > max.score ? p : max
       );
 
       // 말하기 평가 결과 분석
@@ -464,24 +340,128 @@
       const criteriaAnalysis = Object.entries(speakingCriteria)
         .map(([questionNumber, criteria]) => {
           return `
-          <h4>문제 ${questionNumber}: ${criteria[0]["평가 목표"]}</h4>
-          <ul>
-            ${criteria
-              .map(
-                (c) =>
-                  `<li>${c["평가 기준"]}: ${c["평가 기준 설명"]} (${c.점수}점)</li>`
-              )
-              .join("")}
-          </ul>
-        `;
+    <h4>문제 ${questionNumber}: ${criteria[0]["평가 목표"]}</h4>
+    <ul>
+      ${criteria
+        .map(
+          (c) =>
+            `<li>${c["평가 기준"]}: ${c["평가 기준 설명"]} (${c.점수}점)</li>`
+        )
+        .join("")}
+    </ul>
+  `;
         })
         .join("");
 
-      document.getElementById("education-strategy").innerHTML += `
-        <h3>말하기 평가 기준 분석</h3>
-        ${criteriaAnalysis}
-        <p>이러한 평가 기준을 바탕으로 학생들의 말하기 능력을 체계적으로 향상시킬 수 있는 교육 전략을 수립해야 합니다.</p>
-      `;
+      document.getElementById("speaking-criteria-analysis").innerHTML = `
+  <h3>말하기 평가 기준 분석</h3>
+  ${criteriaAnalysis}
+  <p>이러한 평가 기준을 바탕으로 학생들의 말하기 능력을 체계적으로 향상시킬 수 있는 교육 전략을 수립해야 합니다.</p>
+`;
+
+      // 말하기 평가 기준 시각화
+      const criteriaScores = speaking_grading_criteria.map((c) => ({
+        question: c.문제번호,
+        criterion: c["평가 기준"],
+        score: c.점수,
+      }));
+
+      const speakingCriteriaChart = echarts.init(
+        document.getElementById("speaking-criteria-chart")
+      );
+      const speakingCriteriaOption = {
+        title: {
+          text: "말하기 평가 기준 점수 분포",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow",
+          },
+        },
+        legend: {
+          data: [...new Set(criteriaScores.map((c) => c.criterion))],
+          bottom: 10,
+        },
+        xAxis: {
+          type: "category",
+          data: [...new Set(criteriaScores.map((c) => `문제 ${c.question}`))],
+          axisLabel: {
+            interval: 0,
+            rotate: 30,
+          },
+        },
+        yAxis: {
+          type: "value",
+          name: "점수",
+        },
+        series: [...new Set(criteriaScores.map((c) => c.criterion))].map(
+          (criterion) => ({
+            name: criterion,
+            type: "bar",
+            data: criteriaScores
+              .filter((c) => c.criterion === criterion)
+              .map((c) => c.score),
+          })
+        ),
+      };
+      speakingCriteriaChart.setOption(speakingCriteriaOption);
+
+      // 말하기 평가 결과 분석
+      const speakingResultsChart = echarts.init(
+        document.getElementById("speaking-results-chart")
+      );
+      const speakingResultsOption = {
+        title: {
+          text: "한국어 수준별 말하기 평균 점수",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "axis",
+          formatter: "{b}: {c}",
+        },
+        xAxis: {
+          type: "category",
+          data: speakingAnalysis.map((d) => `수준 ${d.level}`),
+          name: "한국어 수준",
+          nameLocation: "middle",
+          nameGap: 30,
+        },
+        yAxis: {
+          type: "value",
+          name: "평균 점수",
+          nameLocation: "middle",
+          nameGap: 40,
+        },
+        series: [
+          {
+            data: speakingAnalysis.map((d) => d.score),
+            type: "line",
+            smooth: true,
+          },
+        ],
+      };
+      speakingResultsChart.setOption(speakingResultsOption);
+
+      document.getElementById("speaking-analysis").innerHTML += `
+  <h3>한국어 수준별 말하기 능력 분석</h3>
+  <ul>
+    ${speakingAnalysis
+      .map(
+        (item) =>
+          `<li>수준 ${item.level}: 평균 점수 ${item.score.toFixed(2)}</li>`
+      )
+      .join("")}
+  </ul>
+  <p>이 분석을 바탕으로, 각 수준에 맞는 말하기 교육 전략을 수립하고 실행해야 합니다.</p>
+`;
+
+      // 창 크기 변경 시 차트 크기 조정
+      window.addEventListener("resize", function () {
+        speakingCriteriaChart.resize();
+        speakingResultsChart.resize();
+      });
     </script>
   </body>
 </html>
